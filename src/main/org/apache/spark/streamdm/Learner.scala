@@ -1,0 +1,36 @@
+/**
+ * TODO license goes here
+ */
+
+package org.apache.spark.streamdm
+
+import org.apache.spark.streamdm.input._
+import org.apache.spark.streamdm.model._
+
+import org.apache.spark._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.dstream._
+
+/**
+ * A Learner trait defines the needed operations on any learner implemented. It
+ * provides methods for training the model and for predicting the labels for a
+ * stream of Instance RDDs.
+ */
+trait Learner extends Serializable {
+
+  type T <: Instance[T]
+  /* Train the model based on the algorithm implemented in the learner, 
+   * from the stream of instances given for training.
+   *
+   * @param input a stream of instances
+   * @return the updated Model
+   */
+  def train(input: DStream[T]): Unit
+
+  /* Predict the label of the Instance, given the current Model
+   *
+   * @param instance the Instance which needs a class predicted
+   * @return a tuple containing the original instance and the predicted value
+   */
+  def predict(input: DStream[T]): DStream[(T,Double)]
+}
