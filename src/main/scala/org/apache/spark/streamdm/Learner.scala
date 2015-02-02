@@ -4,6 +4,7 @@
 
 package org.apache.spark.streamdm
 
+import com.github.javacliparser.Configurable
 import org.apache.spark.streamdm.input._
 import org.apache.spark.streamdm.model._
 
@@ -16,9 +17,16 @@ import org.apache.spark.streaming.dstream._
  * provides methods for training the model and for predicting the labels for a
  * stream of Instance RDDs.
  */
-trait Learner extends Serializable {
+trait Learner extends Configurable  with Serializable {
 
   type T <: Instance[T]
+
+  /* Init the model based on the algorithm implemented in the learner,
+   * from the stream of instances given for training.
+   *
+   */
+  def init(): Unit
+
   /* Train the model based on the algorithm implemented in the learner, 
    * from the stream of instances given for training.
    *
