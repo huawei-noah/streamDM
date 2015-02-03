@@ -2,7 +2,7 @@
  * TODO license goes here
  */
 
-package org.apache.spark.streamdm.input
+package org.apache.spark.streamdm.core
 
 /**
  * An Instance represents the input of any learning algorithm. It is normally

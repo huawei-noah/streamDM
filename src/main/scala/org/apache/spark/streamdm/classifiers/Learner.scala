@@ -2,14 +2,10 @@
  * TODO license goes here
  */
 
-package org.apache.spark.streamdm
+package org.apache.spark.streamdm.classifiers
 
 import com.github.javacliparser.Configurable
-import org.apache.spark.streamdm.input._
-import org.apache.spark.streamdm.model._
-
-import org.apache.spark._
-import org.apache.spark.streaming._
+import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 
 /**

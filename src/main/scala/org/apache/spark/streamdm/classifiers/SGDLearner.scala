@@ -2,12 +2,12 @@
  * TODO license goes here
  */
 
-package org.apache.spark.streamdm.regression
+package org.apache.spark.streamdm.classifiers
 
 import com.github.javacliparser.{ClassOption, FloatOption, IntOption}
 import org.apache.spark.streamdm._
-import org.apache.spark.streamdm.input._
-import org.apache.spark.streamdm.model._
+import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.classifiers.model.model._
 import org.apache.spark.streaming.dstream._
 
 /**

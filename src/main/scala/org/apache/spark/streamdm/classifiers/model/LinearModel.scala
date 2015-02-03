@@ -2,9 +2,9 @@
  * TODO license goes here
  */
 
-package org.apache.spark.streamdm.model
+package org.apache.spark.streamdm.classifiers.model.model
 
-import org.apache.spark.streamdm.input._
+import org.apache.spark.streamdm.core._
 
 /**
  * A Model trait defines the needed operations on any learning Model. It

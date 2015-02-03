@@ -2,7 +2,7 @@
  * TODO license goes here
  */
 
-package org.apache.spark.streamdm.model
+package org.apache.spark.streamdm.classifiers.model.model
 
 import scala.math
 

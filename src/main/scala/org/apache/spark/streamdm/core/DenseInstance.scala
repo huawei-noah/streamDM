@@ -2,7 +2,7 @@
  * TODO license goes here
  */
 
-package org.apache.spark.streamdm.input
+package org.apache.spark.streamdm.core
 
 /**
  * A DenseInstance is an Instance in which the features are dense, i.e., there
