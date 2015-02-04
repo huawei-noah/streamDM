@@ -1,4 +1,4 @@
-name := "Streaming Logistic SGD (Spark)"
+name := "streamDM (Spark Streaming)"
 
 version := "0.1"
 
