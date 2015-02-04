@@ -15,22 +15,17 @@
  *
  */
 
-package org.apache.spark.streamdm.evaluation
+package org.apache.spark.streamdm.streams
 
-import java.io.Serializable
-
-import com.github.javacliparser.Configurable
-import org.apache.spark.streamdm.core.DenseSingleLabelInstance
+import org.apache.spark.streamdm.core.{DenseSingleLabelInstance, Instance}
+import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
+import com.github.javacliparser.Configurable
 
 /**
- * Abstract class implemented by learner evaluators to monitor
- * the results of the learning process.
+ * Abstract class Reader that outputs a Dstream of instances to be used inside tasks
  *
  */
-abstract class Evaluator extends Configurable with Serializable{
-
-  def addResult(input: DStream[(DenseSingleLabelInstance, Double)]): Unit
-
-  def getResult():Double
+abstract class StreamReader extends Configurable {
+  def getInstances(ssc:StreamingContext): DStream[DenseSingleLabelInstance]
 }
