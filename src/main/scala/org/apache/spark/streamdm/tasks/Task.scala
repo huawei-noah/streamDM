@@ -22,6 +22,10 @@ import java.io.Serializable
 import com.github.javacliparser.Configurable
 import org.apache.spark.streaming.StreamingContext
 
+/**
+ * Abstract Task. All runnable tasks in streamDM extend this class.
+ *
+ */
 abstract class Task extends Configurable with Serializable{
   def run(ssc:StreamingContext): Unit
 }

@@ -18,7 +18,7 @@
 package org.apache.spark.streamdm.classifiers.model.model
 
 /**
- * Implmenetation of the squared loss function.
+ * Implementation of the squared loss function.
  */
 
 class SquaredLoss extends Loss with Serializable {

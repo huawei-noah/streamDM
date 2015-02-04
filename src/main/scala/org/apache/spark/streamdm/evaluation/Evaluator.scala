@@ -23,6 +23,11 @@ import com.github.javacliparser.Configurable
 import org.apache.spark.streamdm.core.DenseSingleLabelInstance
 import org.apache.spark.streaming.dstream.DStream
 
+/**
+ * Abstract class implemented by learner evaluators to monitor
+ * the results of the learning process.
+ *
+ */
 abstract class Evaluator extends Configurable with Serializable{
   def addResult(input: DStream[(DenseSingleLabelInstance, Double)])
   def getResult():Double

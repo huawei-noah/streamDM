@@ -23,6 +23,10 @@ import org.apache.spark.streamdm.classifiers.{Learner, SGDLearner}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streamdm.evaluation.Evaluator
 
+/**
+ * Task for evaluating a classifier on a stream by testing then training with each example in sequence.
+ *
+ */
 class EvaluatePrequential extends Task {
 
   val learnerOption:ClassOption = new ClassOption("learner", 'l',

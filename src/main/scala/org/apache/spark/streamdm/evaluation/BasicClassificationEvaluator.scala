@@ -22,6 +22,10 @@ import java.io.Serializable
 import org.apache.spark.streamdm.core.DenseSingleLabelInstance
 import org.apache.spark.streaming.dstream.DStream
 
+/**
+ * Classification evaluator that performs basic incremental evaluation.
+ *
+ */
 class BasicClassificationEvaluator extends Evaluator{
   var numInstancesCorrect = 0;
   var numInstancesSeen = 0;
@@ -39,7 +43,10 @@ class BasicClassificationEvaluator extends Evaluator{
     numInstancesCorrect.toDouble/numInstancesSeen.toDouble
   }
 }
-
+/**
+ * Confusion matrix for binary classification.
+ *
+ */
 object ConfusionMatrix extends Serializable{
   def confusion(x: (DenseSingleLabelInstance,Double)):
   (Double, Double, Double, Double) = {

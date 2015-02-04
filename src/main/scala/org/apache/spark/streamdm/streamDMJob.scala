@@ -22,6 +22,13 @@ import org.apache.spark._
 import org.apache.spark.streamdm.tasks.Task
 import org.apache.spark.streaming._
 
+/**
+ * An app for running streamDM jobs or tasks on Spark Streaming. Run with
+ * {{{
+ * scripts/spark.sh "EvaluatePrequential"
+ * }}}
+ * This script uses `spark-submit` to submit this app.
+ */
 object streamDMJob {
 
   def main(args: Array[String]) {
