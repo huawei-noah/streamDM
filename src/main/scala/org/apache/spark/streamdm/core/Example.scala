@@ -18,55 +18,61 @@
 package org.apache.spark.streamdm.core
 
 /**
- * An Instance represents the input of any learning algorithm. It is normally
- * composed of a feature vector (with various implementations) and an optional
- * label vector
+ * An Example is a wrapper on top of the Instance class hierarchy. It
+ * contains a reference to an Instance, and provides every method that the
+ * instance provides. This is done so that the DStream accepts any type on
+ * Instance in the parameters, and that the same DStream contains multiple types
+ * of Instance. Every operation and class -- except Reader classes -- operate on
+ * Example instead on Instance.
  */
 
-trait Instance extends Serializable {
+class Example(instance: Instance) extends Serializable {
   
-  type T <: Instance
+  val inst = instance
 
-  val label: Double
   /** Get the feature value present at position index
    *
    * @param index the index of the features
    * @return a Double representing the feature value
    */
-  def featureAt(index: Int): Double
+  def featureAt(index: Int): Double = inst.featureAt(index)
   
   /** Get the class value present at position index
    *
    * @param index the index of the class
-   * @return a Double representing the value fo the class
+   * @return a Double representing the value for the class
    */
-  def labelAt(index: Int): Double
+  def labelAt(index: Int): Double = inst.labelAt(index)
 
   /** Perform a dot product between two instances
    *
-   * @param input an Instance with which the dot product is performed
+   * @param input an Example with which the dot product is performed
    * @return a Double representing the dot product 
    */
-  def dot(input: Instance): Double
+  def dot(input: Example): Double = inst.dot(input.inst)
 
-  /** Perform an element by element addition between two instances
+  /** Perform an element by element addition between two Examples
    *
    * @param input an Instance which is added up
    * @return an Instance representing the added Instances
    */
-  def add(input: Instance): T
+  def add(input: Example): Example =
+    new Example(inst.add(input.inst))
 
-  /** Append a feature to the instance
+  /** Append a feature to the containing instance
    *
    * @param input the value which is added up
    * @return an Instance representing the new feature vector
    */
-  def append(input: Double): T
+  def append(input: Double): Example =
+    new Example(inst.append(input))
 
-  /** Apply an operation to every feature of the Instance (essentially a map)
+  /** Apply an operation to every feature of the Instance contained in the
+   * Example (essentially a map)
    *
    * @param func the function for the transformation
    * @return a new Instance with the transformed features
    */
-  def mapFeatures(func: Double=>Double): T
+  def mapFeatures(func: Double=>Double): Example = 
+    new Example(inst.mapFeatures(func))
 }

@@ -18,7 +18,7 @@
 package org.apache.spark.streamdm.tasks
 
 import com.github.javacliparser.ClassOption
-import org.apache.spark.streamdm.core.DenseSingleLabelInstance
+import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.{Learner, SGDLearner}
 import org.apache.spark.streamdm.streams.StreamReader
 import org.apache.spark.streaming.StreamingContext

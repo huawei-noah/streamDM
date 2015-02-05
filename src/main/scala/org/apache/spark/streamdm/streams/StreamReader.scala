@@ -17,15 +17,16 @@
 
 package org.apache.spark.streamdm.streams
 
-import org.apache.spark.streamdm.core.{DenseSingleLabelInstance, Instance}
+import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import com.github.javacliparser.Configurable
 
 /**
- * Abstract class Reader that outputs a Dstream of instances to be used inside tasks
+ * Abstract class Reader that outputs a Dstream of instances to be used 
+ * inside tasks
  *
  */
 abstract class StreamReader extends Configurable {
-  def getInstances(ssc:StreamingContext): DStream[DenseSingleLabelInstance]
+  def getInstances(ssc:StreamingContext): DStream[Example]
 }

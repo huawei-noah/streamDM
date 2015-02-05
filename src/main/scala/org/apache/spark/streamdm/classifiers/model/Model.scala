@@ -17,25 +17,28 @@
 
 package org.apache.spark.streamdm.classifiers.model.model
 
-import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.Example
 
 /**
  * A Model trait defines the needed operations on any learning Model. It
  * provides methods for updating the model and for predicting the label of a
  * given Instance
  */
-trait Model[T,I<:Instance[I]] extends Serializable { self:T =>
+trait Model extends Serializable {
+
+  type T <: Model
+
   /* Update the model, depending on the Instance given for training
    *
    * @param changeInstance the Instance based on which the Model is updated
    * @return the updated Model
    */
-  def update(changeInstance : I): T
+  def update(changeInstance: Example): T
 
   /* Predict the label of the Instance, given the current Model
    *
    * @param instance the Instance which needs a class predicted
    * @return a Double representing the class predicted
    */
-  def predict(instance : I): Double
+  def predict(instance: Example): Double
 }

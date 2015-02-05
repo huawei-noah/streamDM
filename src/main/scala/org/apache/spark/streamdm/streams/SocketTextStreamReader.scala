@@ -19,6 +19,7 @@ package org.apache.spark.streamdm.streams
 
 import com.github.javacliparser.{StringOption, IntOption}
 import org.apache.spark.streamdm.core.DenseSingleLabelInstance
+import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streamdm.core.Instance
@@ -34,14 +35,14 @@ class SocketTextStreamReader extends StreamReader{
   val hostOption: StringOption = new StringOption("host",
     'h',"Host", "localhost")
 
-  def getInstances(ssc:StreamingContext): DStream[DenseSingleLabelInstance] = {
+  def getInstances(ssc:StreamingContext): DStream[Example] = {
     //stream is a localhost socket stream
     val text = ssc.socketTextStream(hostOption.getValue, portOption.getValue)
     //transform stream into stream of instances
     //instances come as tab delimited lines, where the first item is the label,
     //and the rest of the items are the values of the features
     text.map(
-      x => new DenseSingleLabelInstance(x.split("\t").toArray.map(_.toDouble),
-        x.split("\t")(0).toDouble))
+      x => new Example(new DenseSingleLabelInstance(x.split("\t").toArray.map(_.toDouble),
+        x.split("\t")(0).toDouble)))
   }
 }
