@@ -28,8 +28,7 @@ import org.apache.spark.streaming.dstream._
  * algorithm. At construction, the type of loss function, the lambda learning
  * reate parameter, and the number of features need to be specified
  */
-class SGDLearner()
-  extends Learner {
+class SGDLearner extends Learner {
 
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "Number of Features", 3, 1, Integer.MAX_VALUE)
@@ -40,18 +39,17 @@ class SGDLearner()
   val lossFunctionOption:ClassOption = new ClassOption("lossFunction", 'o',
     "Loss function to use", classOf[Loss], "LogisticLoss")
 
-  type T = DenseSingleLabelInstance
 
-  var model: LinearModel[T] = null
+  var model: LinearModel = null
 
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    */
   override def init(): Unit = {
-    model = new LinearModel[T](lossFunctionOption.getValue(),
-      new DenseSingleLabelInstance(
-        Array.fill[Double](numFeaturesOption.getValue + 1)(0.0), 0.0))
+    model = new LinearModel(lossFunctionOption.getValue(),
+      new Example(new DenseSingleLabelInstance(
+        Array.fill[Double](numFeaturesOption.getValue + 1)(0.0), 0.0)))
 
   }
 
@@ -60,7 +58,7 @@ class SGDLearner()
    * @param input a stream of instances
    * @return the updated Model
    */
-  override def train(input: DStream[T]): Unit = {
+  override def train(input: DStream[Example]): Unit = {
     //train the changes
     //first, compute the gradient
     //then, add the gradients together
@@ -79,6 +77,6 @@ class SGDLearner()
    * @param instance the Instance which needs a class predicted
    * @return a tuple containing the original instance and the predicted value
    */
-  override def predict(input: DStream[T]): DStream[(T, Double)] =
+  override def predict(input: DStream[Example]): DStream[(Example, Double)] =
     input.map(x => (x, model.predict(x)))
 }

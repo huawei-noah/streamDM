@@ -24,9 +24,11 @@ package org.apache.spark.streamdm.core
  * corresponding dot product will be based on that.
  */
 
-class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
-  extends Instance[DenseSingleLabelInstance] with Serializable {
+case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
+  extends Instance with Serializable {
   
+  type T = DenseSingleLabelInstance
+
   val features = inFeatures
   override val label = inLabel
 
@@ -50,17 +52,23 @@ class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
   * product is performed
   * @return a Double representing the dot product 
   */
-  override def dot(input: DenseSingleLabelInstance): Double = 
-    ((features zip input.features).map{case (x,y)=>x*y}).reduce(_+_)
+  override def dot(input: Instance): Double = input match { 
+    case DenseSingleLabelInstance(f,l) =>
+      ((features zip f).map{case (x,y)=>x*y}).reduce(_+_)
+    case _ => 0.0
+  }
 
   /** Perform an element by element addition between two instances
    *
    * @param input an Instance which is added up
    * @return an Instance representing the added Instances
    */
-  override def add(input: DenseSingleLabelInstance): DenseSingleLabelInstance =
-    new DenseSingleLabelInstance((features zip input.features).
-      map{case (x,y) => x+y}, label)
+  override def add(input: Instance): DenseSingleLabelInstance = input match {
+    case DenseSingleLabelInstance(f,l) =>
+      new DenseSingleLabelInstance((features zip f).
+        map{case (x,y) => x+y}, label)
+    case _ => this
+  }
 
   /** Append a feature to the instance
    *
@@ -71,7 +79,7 @@ class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
     new DenseSingleLabelInstance(features:+1.0,label)
 
   /** Apply an operation to every feature of the Instance (essentially a map)
-   *
+   * TODO try to extend map to this case
    * @param func the function for the transformation
    * @return a new Instance with the transformed features
    */
