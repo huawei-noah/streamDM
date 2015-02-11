@@ -57,4 +57,7 @@ class LinearModel(lossFunction: Loss, initialModel: Example)
                            modelInstance.dot(instance.append(1.0)))
     instance.mapFeatures(x => ch*x)
   }
+
+  def regularize(regularizer: Regularizer): Example = 
+    modelInstance.mapFeatures(x => -regularizer.gradient(x))
 }
