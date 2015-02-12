@@ -38,9 +38,13 @@ class SGDLearner extends Learner {
 
   val lossFunctionOption:ClassOption = new ClassOption("lossFunction", 'o',
     "Loss function to use", classOf[Loss], "LogisticLoss")
+  
+  val regularizerOption:ClassOption = new ClassOption("regularizer",
+    'r', "Regularizer to use", classOf[Regularizer], "ZeroRegularizer")
 
 
   var model: LinearModel = null
+  val regularizer: Regularizer = regularizerOption.getValue()
 
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
@@ -66,9 +70,13 @@ class SGDLearner extends Learner {
     val changes = input.map(x => model.gradient(x)).
       reduce((x, y) => x.add(y)).
       map(x => x.mapFeatures(x => lambdaOption.getValue * x))
-    //apply the final changes to the new model
+    //apply the final changes to the new model in two steps:
+    //- first, add the regularizer (for now, weighted by lambda
+    //- second, apply the change vector to the model
     changes.foreachRDD(rdd => {
-      model = model.update(rdd.first())
+      model = model.update(rdd.first().
+                           add(model.regularize(regularizer).
+                             mapFeatures(x => lambdaOption.getValue*x)))
     })
   }
 
