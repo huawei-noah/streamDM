@@ -44,6 +44,15 @@ class Example(instance: Instance) extends Serializable {
    */
   def labelAt(index: Int): Double = inst.labelAt(index)
 
+    /** Add a feature to the instance in the example
+   *
+   * @param index the index at which the value is added
+   * @param input the feature value which is added up
+   * @return an Example containing an Instance with the new features
+   */
+  def setFeature(index: Int, input: Double): Example =
+    new Example(inst.setFeature(index, input))
+  
   /** Perform a dot product between two instances
    *
    * @param input an Example with which the dot product is performed
@@ -58,14 +67,6 @@ class Example(instance: Instance) extends Serializable {
    */
   def add(input: Example): Example =
     new Example(inst.add(input.inst))
-
-  /** Append a feature to the containing instance
-   *
-   * @param input the value which is added up
-   * @return an Instance representing the new feature vector
-   */
-  def append(input: Double): Example =
-    new Example(inst.append(input))
 
   /** Apply an operation to every feature of the Instance contained in the
    * Example (essentially a map)

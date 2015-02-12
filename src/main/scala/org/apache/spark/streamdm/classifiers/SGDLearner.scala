@@ -53,8 +53,8 @@ class SGDLearner extends Learner {
   override def init(): Unit = {
     model = new LinearModel(lossFunctionOption.getValue(),
       new Example(new DenseSingleLabelInstance(
-        Array.fill[Double](numFeaturesOption.getValue + 1)(0.0), 0.0)))
-
+        Array.fill[Double](numFeaturesOption.getValue + 1)(0.0), 0.0)),
+      numFeaturesOption.getValue)
   }
 
   /* Train the model using stochastic gradient descent.

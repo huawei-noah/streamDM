@@ -56,12 +56,13 @@ trait Instance extends Serializable {
    */
   def add(input: Instance): T
 
-  /** Append a feature to the instance
+  /** Add a feature to the instance
    *
-   * @param input the value which is added up
+   * @param index the index at which the value is added
+   * @param input the feature value which is added up
    * @return an Instance representing the new feature vector
    */
-  def append(input: Double): T
+  def setFeature(index: Int, input: Double): T
 
   /** Apply an operation to every feature of the Instance (essentially a map)
    *

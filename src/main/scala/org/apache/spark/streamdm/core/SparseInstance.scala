@@ -24,12 +24,15 @@ package org.apache.spark.streamdm.core
  * corresponding dot product will be based on that.
  */
 
-case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
+case class SparseSingleLabelInstance(inIndexes:Array[Int],
+                                     inValues:Array[Double],
+                                     inLabel: Double)
   extends Instance with Serializable {
   
-  type T = DenseSingleLabelInstance
+  type T = SparseSingleLabelInstance
 
-  val features = inFeatures
+  val indexes = inIndexes
+  val values = inValues
   override val label = inLabel
 
   /* Get the feature value present at position index
@@ -37,7 +40,10 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
   * @param index the index of the features
   * @return a Double representing the feature value
   */
-  def featureAt(index: Int): Double = features(index)
+  def featureAt(index: Int): Double = {
+    val tuple = (indexes zip values).filter(_._1==index)
+    if (tuple.length>0) tuple(0)._2 else 0.0
+  }
   
   /*Get the class value present at position index
   *
@@ -53,8 +59,11 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
   * @return a Double representing the dot product 
   */
   override def dot(input: Instance): Double = input match { 
-    case DenseSingleLabelInstance(f,l) =>
-      ((features zip f).map{case (x,y)=>x*y}).reduce(_+_)
+    case SparseSingleLabelInstance(i,v,l) =>
+      ((i zip v) ++ (indexes zip values)).groupBy(_._1).
+        filter {case (k,v) => v.length==2}.
+        map {case (k,v) => (k, v.map(_._2).reduce(_*_))}.toArray.
+        unzip._2.sum
     case _ => 0.0
   }
 
@@ -63,28 +72,30 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
    * @param input an Instance which is added up
    * @return an Instance representing the added Instances
    */
-  override def add(input: Instance): DenseSingleLabelInstance = input match {
-    case DenseSingleLabelInstance(f,l) =>
-      new DenseSingleLabelInstance((features zip f).
-        map{case (x,y) => x+y}, label)
+  override def add(input: Instance): SparseSingleLabelInstance = input match {
+    case SparseSingleLabelInstance(i,v,l) => {
+      var addedInstance = ((i zip v) ++ (indexes zip values)).groupBy(_._1).
+                            map {case (k,v) => (k, v.map(_._2).sum)}.
+                            toArray.filter(_._2 != 0).unzip
+      new SparseSingleLabelInstance(addedInstance._1.toArray,
+                                   addedInstance._2.toArray, label)
+    }
     case _ => this
   }
 
-  /** Add a feature to the instance
+  /** Append a feature to the instance
    *
-   * @param index the index at which the value is added
-   * @param input the feature value which is added up
+   * @param input the value which is added up
    * @return an Instance representing the new feature vector
    */
-  override def setFeature(index: Int, input: Double):DenseSingleLabelInstance =
-    new DenseSingleLabelInstance(features:+input,label)
+  override def setFeature(index: Int, input: Double):SparseSingleLabelInstance =
+    new SparseSingleLabelInstance(indexes:+index,values:+input,label)
 
   /** Apply an operation to every feature of the Instance (essentially a map)
    * TODO try to extend map to this case
    * @param func the function for the transformation
    * @return a new Instance with the transformed features
    */
-  override def mapFeatures(func: Double=>Double): DenseSingleLabelInstance =
-    new DenseSingleLabelInstance(features.map{case x => func(x)}, label)
-  
+  override def mapFeatures(func: Double=>Double): SparseSingleLabelInstance =
+    new SparseSingleLabelInstance(indexes, values.map{case x => func(x)}, label) 
 }
