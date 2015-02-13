@@ -41,8 +41,6 @@ class SocketTextStreamReader extends StreamReader{
     //transform stream into stream of instances
     //instances come as tab delimited lines, where the first item is the label,
     //and the rest of the items are the values of the features
-    text.map(
-      x => new Example(new DenseSingleLabelInstance(x.split("\t").toArray.map(_.toDouble),
-        x.split("\t")(0).toDouble)))
+    text.map(x => new Example(DenseSingleLabelInstance.parse(x)))
   }
 }

@@ -78,7 +78,7 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
                             map {case (k,v) => (k, v.map(_._2).sum)}.
                             toArray.filter(_._2 != 0).unzip
       new SparseSingleLabelInstance(addedInstance._1.toArray,
-                                   addedInstance._2.toArray, label)
+                                    addedInstance._2.toArray, label)
     }
     case _ => this
   }
@@ -98,4 +98,20 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
    */
   override def mapFeatures(func: Double=>Double): SparseSingleLabelInstance =
     new SparseSingleLabelInstance(indexes, values.map{case x => func(x)}, label) 
+}
+
+object SparseSingleLabelInstance extends Serializable {
+  
+  /** Parse the input string as an SparseInstance class
+   *
+   * @param input the String line to be read
+   * @return a DenseInstance which is parsed from input
+   */
+  def parse(input: String): SparseSingleLabelInstance = {
+    val tokens = input.split("\t")
+    val features = tokens.tail.map(_.split(":"))
+    new SparseSingleLabelInstance(features.map(_(0).toInt),
+                                  features.map(_(1).toDouble),
+                                  tokens.head.toDouble)
+  }
 }

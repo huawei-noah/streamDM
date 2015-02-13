@@ -88,3 +88,17 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
     new DenseSingleLabelInstance(features.map{case x => func(x)}, label)
   
 }
+
+object DenseSingleLabelInstance extends Serializable {
+  
+  /** Parse the input string as an DenseInstance class
+   *
+   * @param input the String line to be read
+   * @return a DenseInstance which is parsed from input
+   */
+  def parse(input: String): DenseSingleLabelInstance = {
+    val tokens = input.split("\t")
+    new DenseSingleLabelInstance(tokens.tail.map(_.toDouble),
+                                 tokens.head.toDouble)
+  }
+}
