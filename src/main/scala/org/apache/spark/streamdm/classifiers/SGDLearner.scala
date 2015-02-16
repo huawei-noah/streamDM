@@ -34,7 +34,7 @@ class SGDLearner extends Learner {
     "Number of Features", 3, 1, Integer.MAX_VALUE)
 
   val lambdaOption: FloatOption = new FloatOption("lambda", 'l',
-    "Lambda", .0001, 0, Float.MaxValue)
+    "Lambda", .01, 0, Float.MaxValue)
 
   val lossFunctionOption:ClassOption = new ClassOption("lossFunction", 'o',
     "Loss function to use", classOf[Loss], "LogisticLoss")

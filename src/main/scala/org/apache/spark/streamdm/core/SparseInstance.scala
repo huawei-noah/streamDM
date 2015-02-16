@@ -60,10 +60,10 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
   */
   override def dot(input: Instance): Double = input match { 
     case SparseSingleLabelInstance(i,v,l) =>
-      ((i zip v) ++ (indexes zip values)).groupBy(_._1).
-        filter {case (k,v) => v.length==2}.
-        map {case (k,v) => (k, v.map(_._2).reduce(_*_))}.toArray.
-        unzip._2.sum
+      dotTupleArrays(i zip v, indexes zip values)
+    case DenseSingleLabelInstance(f,l) =>
+      dotTupleArrays(f.zipWithIndex.map{case (x,y)=>(y,x)},
+                     indexes zip values)
     case _ => 0.0
   }
 
@@ -74,9 +74,13 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
    */
   override def add(input: Instance): SparseSingleLabelInstance = input match {
     case SparseSingleLabelInstance(i,v,l) => {
-      var addedInstance = ((i zip v) ++ (indexes zip values)).groupBy(_._1).
-                            map {case (k,v) => (k, v.map(_._2).sum)}.
-                            toArray.filter(_._2 != 0).unzip
+      val addedInstance = addTupleArrays(i zip v, indexes zip values).unzip
+      new SparseSingleLabelInstance(addedInstance._1.toArray,
+                                    addedInstance._2.toArray, label)
+    }
+    case DenseSingleLabelInstance(f,l) => {
+      val addedInstance = addTupleArrays(f.zipWithIndex.map{case (x,y)=>(y,x)},
+                                        indexes zip values).unzip
       new SparseSingleLabelInstance(addedInstance._1.toArray,
                                     addedInstance._2.toArray, label)
     }
@@ -98,6 +102,16 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
    */
   override def mapFeatures(func: Double=>Double): SparseSingleLabelInstance =
     new SparseSingleLabelInstance(indexes, values.map{case x => func(x)}, label) 
+  private def dotTupleArrays(l1: Array[(Int, Double)], 
+                             l2: Array[(Int, Double)]): Double =
+    (l1++l2).groupBy(_._1).filter {case (k,v) => v.length==2}.
+        map {case (k,v) => (k, v.map(_._2).reduce(_*_))}.toArray.unzip._2.sum
+
+  private def addTupleArrays(l1: Array[(Int, Double)], 
+                            l2: Array[(Int, Double)]): Array[(Int, Double)] =
+    (l1++l2).groupBy(_._1).map {case (k,v) => (k, v.map(_._2).sum)}.
+      toArray.filter(_._2 != 0)
+  
 }
 
 object SparseSingleLabelInstance extends Serializable {
