@@ -18,10 +18,10 @@
 package org.apache.spark.streamdm.core
 
 /**
- * A DenseInstance is an Instance in which the features are dense, i.e., there
- * exists a value for (almost) every feature.
- * The DenseInstance will keep an Array of the values of the features, and the
- * corresponding dot product will be based on that.
+ * A SparseInstance is an Instance in which the features are sparse, i.e., most
+ * features will not have any value.
+ * The SparseInstance will keep two Arrays: one with the values and one with the
+ * corresponding indexes.
  */
 
 case class SparseSingleLabelInstance(inIndexes:Array[Int],
@@ -54,7 +54,7 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
 
   /* Perform a dot product between two instances
   *
-  * @param input an DenseSingleLabelInstance with which the dot
+  * @param input an Instance with which the dot
   * product is performed
   * @return a Double representing the dot product 
   */
@@ -70,7 +70,7 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
   /** Perform an element by element addition between two instances
    *
    * @param input an Instance which is added up
-   * @return an Instance representing the added Instances
+   * @return a SparseInstance representing the added Instances
    */
   override def add(input: Instance): SparseSingleLabelInstance = input match {
     case SparseSingleLabelInstance(i,v,l) => {
@@ -90,15 +90,14 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
   /** Append a feature to the instance
    *
    * @param input the value which is added up
-   * @return an Instance representing the new feature vector
+   * @return a SparseInstance representing the new feature vector
    */
   override def setFeature(index: Int, input: Double):SparseSingleLabelInstance =
     new SparseSingleLabelInstance(indexes:+index,values:+input,label)
 
   /** Apply an operation to every feature of the Instance (essentially a map)
-   * TODO try to extend map to this case
    * @param func the function for the transformation
-   * @return a new Instance with the transformed features
+   * @return a new SparseInstance with the transformed features
    */
   override def mapFeatures(func: Double=>Double): SparseSingleLabelInstance =
     new SparseSingleLabelInstance(indexes, values.map{case x => func(x)}, label) 
