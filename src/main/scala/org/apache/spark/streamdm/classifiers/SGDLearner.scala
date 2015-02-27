@@ -25,8 +25,9 @@ import org.apache.spark.streaming.dstream._
 
 /**
  * The SGDLearner trains a LinearModel using the stochastic gradient descent
- * algorithm. At construction, the type of loss function, the lambda learning
- * reate parameter, and the number of features need to be specified
+ * algorithm. The type of loss function, the lambda learning
+ * reate parameter, and the number of features need to be specified in the
+ * associated Task configuration file.
  */
 class SGDLearner extends Learner {
 
@@ -36,22 +37,23 @@ class SGDLearner extends Learner {
   val lambdaOption: FloatOption = new FloatOption("lambda", 'l',
     "Lambda", .01, 0, Float.MaxValue)
 
-  val lossFunctionOption:ClassOption = new ClassOption("lossFunction", 'o',
+  val lossFunctionOption: ClassOption = new ClassOption("lossFunction", 'o',
     "Loss function to use", classOf[Loss], "LogisticLoss")
-  
+
   val regularizerOption:ClassOption = new ClassOption("regularizer",
     'r', "Regularizer to use", classOf[Regularizer], "ZeroRegularizer")
 
 
   var model: LinearModel = null
   val regularizer: Regularizer = regularizerOption.getValue()
+  val loss: Loss = lossFunctionOption.getValue()
 
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    */
   override def init(): Unit = {
-    model = new LinearModel(lossFunctionOption.getValue(),
+    model = new LinearModel(loss,
       new Example(new DenseSingleLabelInstance(
         Array.fill[Double](numFeaturesOption.getValue + 1)(0.0), 0.0)),
       numFeaturesOption.getValue)
