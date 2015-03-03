@@ -58,3 +58,11 @@ cd scripts/instance_server
 cd scripts
 ./spark
 ```
+
+or using command-line options to specify task, learner, and evaluation parameters:
+```
+#!bash
+cd scripts
+./spark "EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -o ZeroRegularizer)"
+```
+
