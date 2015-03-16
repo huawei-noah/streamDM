@@ -43,6 +43,9 @@ class SGDLearner extends Learner {
   val regularizerOption:ClassOption = new ClassOption("regularizer",
     'r', "Regularizer to use", classOf[Regularizer], "ZeroRegularizer")
 
+  val regularizerParameter: FloatOption = new FloatOption("regParam", 'p',
+    "Regularization parameter", .001, 0, Float.MaxValue)
+
 
   var model: LinearModel = null
   val regularizer: Regularizer = regularizerOption.getValue()
@@ -78,7 +81,9 @@ class SGDLearner extends Learner {
     changes.foreachRDD(rdd => {
       model = model.update(rdd.first().
                            add(model.regularize(regularizer).
-                             mapFeatures(x => lambdaOption.getValue*x)))
+                             mapFeatures(x =>
+                              lambdaOption.getValue*
+                              regularizerParameter.getValue*x)))
     })
   }
 

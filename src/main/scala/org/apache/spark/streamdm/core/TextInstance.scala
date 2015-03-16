@@ -128,7 +128,7 @@ object TextSingleLabelInstance extends Serializable {
    * @return a DenseInstance which is parsed from input
    */
   def parse(input: String): TextSingleLabelInstance = {
-    val tokens = input.split("\t")
+    val tokens = input.split("\\s+")
     val features = tokens.tail.map(_.split(":"))
     val featMap = features.groupBy(_.head).map{case (k,v) => (k,
       v.head.tail.head.toDouble)}

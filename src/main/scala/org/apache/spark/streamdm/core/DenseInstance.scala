@@ -96,7 +96,9 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
    */
   override def mapFeatures(func: Double=>Double): DenseSingleLabelInstance =
     new DenseSingleLabelInstance(features.map{case x => func(x)}, label)
-  
+ 
+  override def toString =
+      "l=%.0f v={%s}".format(label, features.mkString(","))
 }
 
 object DenseSingleLabelInstance extends Serializable {
@@ -107,7 +109,7 @@ object DenseSingleLabelInstance extends Serializable {
    * @return a DenseInstance which is parsed from input
    */
   def parse(input: String): DenseSingleLabelInstance = {
-    val tokens = input.split("\t")
+    val tokens = input.split("\\s+")
     new DenseSingleLabelInstance(tokens.tail.map(_.toDouble),
                                  tokens.head.toDouble)
   }

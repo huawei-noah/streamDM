@@ -76,4 +76,6 @@ class Example(instance: Instance) extends Serializable {
    */
   def mapFeatures(func: Double=>Double): Example = 
     new Example(inst.mapFeatures(func))
+
+  override def toString = inst.toString
 }

@@ -30,7 +30,7 @@ class LogisticLoss extends Loss with Serializable {
    * @return the loss value 
    */
   def loss(label: Double, dot: Double): Double = {
-    val y = if(label<0) -1 else 1
+    val y = if(label<=0) -1 else 1
     math.log(1+math.exp(-y*dot))
   }
 
@@ -40,7 +40,7 @@ class LogisticLoss extends Loss with Serializable {
    * @return the gradient value 
    */
   def gradient(label: Double, dot: Double): Double = {
-    val y = if(label<0) -1 else 1
+    val y = if(label<=0) -1 else 1
     -y*(1.0-1.0/(1.0+math.exp(-y*dot)))
   }
 
@@ -50,6 +50,6 @@ class LogisticLoss extends Loss with Serializable {
    */
   def predict(dot: Double): Double = {
     val f = 1.0 / (1.0+math.exp(-dot))
-    if (f>0.5) 0 else 1
+    if (f>0.5) 1 else 0
   }
 }
