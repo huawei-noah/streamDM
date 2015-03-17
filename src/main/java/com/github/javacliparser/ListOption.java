@@ -17,9 +17,6 @@
 
 package com.github.javacliparser;
 
-import com.github.javacliparser.AbstractOption;
-import com.github.javacliparser.Option;
-
 /**
  * List option.
  *
