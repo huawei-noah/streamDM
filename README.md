@@ -49,7 +49,7 @@ cd scripts/instance_server
 #!bash
 
 cd scripts/instance_server
-./server.py
+./server.py syn.dat 1000
 ```
 * In the second terminal: use Spark to learn the model and output accuracy:
 
@@ -65,4 +65,3 @@ or using command-line options to specify task, learner, and evaluation parameter
 cd scripts
 ./spark "EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -o ZeroRegularizer)"
 ```
-
