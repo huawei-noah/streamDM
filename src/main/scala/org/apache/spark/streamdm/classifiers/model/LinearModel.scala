@@ -24,20 +24,21 @@ import org.apache.spark.streamdm.core._
  * provides methods for updating the model and for predicting the label of a
  * given Instance
  */
-class LinearModel(lossFunction: Loss, initialModel: Example)
+class LinearModel(lossFunction: Loss, initialModel: Example, numberFeatures:Int)
   extends Model with Serializable {
 
   type T = LinearModel
   
   val loss = lossFunction
   val modelInstance = initialModel
+  val numFeatures = numberFeatures
   /* Update the model, depending on an Instance given for training
    *
    * @param instance the Instance based on which the Model is updated
    * @return the updated Model
    */
   override def update(changeInstance: Example): LinearModel =
-    new LinearModel(loss, modelInstance.add(changeInstance)) 
+    new LinearModel(loss, modelInstance.add(changeInstance), numFeatures) 
 
   /* Predict the label of the Instance, given the current Model
    *
@@ -45,7 +46,7 @@ class LinearModel(lossFunction: Loss, initialModel: Example)
    * @return a Double representing the class predicted
    */
   def predict(instance: Example): Double =
-    loss.predict(modelInstance.dot(instance.append(1.0)))
+    loss.predict(modelInstance.dot(instance.setFeature(numFeatures,1.0)))
 
   /* Compute the loss of the direction of the change
    * @param instance the Instance for which the gradient is computed
@@ -53,11 +54,14 @@ class LinearModel(lossFunction: Loss, initialModel: Example)
    */
   def gradient(instance: Example): Example = {
     //compute the gradient based on the dot product, then compute the changes
-    val ch = loss.gradient(instance.inst.label,
-                           modelInstance.dot(instance.append(1.0)))
+    val ch = -loss.gradient(instance.inst.label,
+                           modelInstance.dot(instance.
+                             setFeature(numFeatures,1.0)))
     instance.mapFeatures(x => ch*x)
   }
 
   def regularize(regularizer: Regularizer): Example = 
     modelInstance.mapFeatures(x => -regularizer.gradient(x))
+  
+  override def toString = "Model %s".format(modelInstance.toString)
 }

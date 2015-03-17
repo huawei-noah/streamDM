@@ -17,21 +17,20 @@
 
 package org.apache.spark.streamdm.classifiers.model.model
 
-import scala.math
-
 /**
- * Implementation of the logistic loss function.
+ * Implementation of the squared loss function.
  */
 
-class LogisticLoss extends Loss with Serializable {
+class HingeLoss extends Loss with Serializable {
   /** Computes the value of the loss function
    * @param value the label against which the loss is computed   
    * @param dot the dot product of the linear model and the instance
    * @return the loss value 
    */
   def loss(label: Double, dot: Double): Double = {
-    val y = if(label<=0) -1 else 1
-    math.log(1+math.exp(-y*dot))
+    val l = if (label==0) -1.0 else 1
+    val v = 1.0 - l*dot
+    if (v<0) 0 else v
   }
 
   /** Computes the value of the gradient function
@@ -40,16 +39,15 @@ class LogisticLoss extends Loss with Serializable {
    * @return the gradient value 
    */
   def gradient(label: Double, dot: Double): Double = {
-    val y = if(label<=0) -1 else 1
-    -y*(1.0-1.0/(1.0+math.exp(-y*dot)))
+    val l = if (label==0) -1.0 else 1
+    val d = l*dot
+    if (d<1) -l else 0
   }
 
   /** Computes the binary prediction based on a dot prodcut
    * @param dot the dot product of the linear model and the instance
    * @return the predicted binary class
    */
-  def predict(dot: Double): Double = {
-    val f = 1.0 / (1.0+math.exp(-dot))
-    if (f>0.5) 1 else 0
-  }
+  def predict(dot: Double): Double =
+    if (dot>=0) 1 else 0
 }
