@@ -25,8 +25,9 @@ import org.apache.spark.streaming.dstream._
 
 /**
  * The SGDLearner trains a LinearModel using the stochastic gradient descent
- * algorithm. At construction, the type of loss function, the lambda learning
- * reate parameter, and the number of features need to be specified
+ * algorithm. The type of loss function, the lambda learning
+ * reate parameter, and the number of features need to be specified in the
+ * associated Task configuration file.
  */
 class SGDLearner extends Learner {
 
@@ -34,27 +35,31 @@ class SGDLearner extends Learner {
     "Number of Features", 3, 1, Integer.MAX_VALUE)
 
   val lambdaOption: FloatOption = new FloatOption("lambda", 'l',
-    "Lambda", .1, 0, Float.MaxValue)
+    "Lambda", .01, 0, Float.MaxValue)
 
-  val lossFunctionOption:ClassOption = new ClassOption("lossFunction", 'o',
+  val lossFunctionOption: ClassOption = new ClassOption("lossFunction", 'o',
     "Loss function to use", classOf[Loss], "LogisticLoss")
-  
+
   val regularizerOption:ClassOption = new ClassOption("regularizer",
     'r', "Regularizer to use", classOf[Regularizer], "ZeroRegularizer")
+
+  val regularizerParameter: FloatOption = new FloatOption("regParam", 'p',
+    "Regularization parameter", .001, 0, Float.MaxValue)
 
 
   var model: LinearModel = null
   val regularizer: Regularizer = regularizerOption.getValue()
+  val loss: Loss = lossFunctionOption.getValue()
 
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    */
   override def init(): Unit = {
-    model = new LinearModel(lossFunctionOption.getValue(),
+    model = new LinearModel(loss,
       new Example(new DenseSingleLabelInstance(
-        Array.fill[Double](numFeaturesOption.getValue + 1)(0.0), 0.0)))
-
+        Array.fill[Double](numFeaturesOption.getValue + 1)(0.0), 0.0)),
+      numFeaturesOption.getValue)
   }
 
   /* Train the model using stochastic gradient descent.
@@ -76,7 +81,9 @@ class SGDLearner extends Learner {
     changes.foreachRDD(rdd => {
       model = model.update(rdd.first().
                            add(model.regularize(regularizer).
-                             mapFeatures(x => lambdaOption.getValue*x)))
+                             mapFeatures(x =>
+                              lambdaOption.getValue*
+                              regularizerParameter.getValue*x)))
     })
   }
 

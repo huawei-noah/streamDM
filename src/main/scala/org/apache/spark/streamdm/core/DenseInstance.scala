@@ -55,6 +55,8 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
   override def dot(input: Instance): Double = input match { 
     case DenseSingleLabelInstance(f,l) =>
       ((features zip f).map{case (x,y)=>x*y}).reduce(_+_)
+    case SparseSingleLabelInstance(i,v,l) =>
+      input.dot(this)
     case _ => 0.0
   }
 
@@ -67,16 +69,25 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
     case DenseSingleLabelInstance(f,l) =>
       new DenseSingleLabelInstance((features zip f).
         map{case (x,y) => x+y}, label)
+    case SparseSingleLabelInstance(i,v,l) => {
+      //the below uses a mutable Array, but I can't see any other way that
+      //only uses one pass over the structures in SparseInstance
+      var arrayFromSparse = Array.fill[Double](features.length)(0.0)
+      (i zip v).foreach{ case (x,y) => arrayFromSparse.update(x,y)}
+      new DenseSingleLabelInstance((features zip arrayFromSparse).
+        map{case (x,y) => x+y}, label)
+    }
     case _ => this
   }
 
-  /** Append a feature to the instance
+  /** Add a feature to the instance
    *
-   * @param input the value which is added up
+   * @param index the index at which the value is added
+   * @param input the feature value which is added up
    * @return an Instance representing the new feature vector
    */
-  override def append(input: Double): DenseSingleLabelInstance =
-    new DenseSingleLabelInstance(features:+1.0,label)
+  override def setFeature(index: Int, input: Double):DenseSingleLabelInstance =
+    new DenseSingleLabelInstance(features:+input,label)
 
   /** Apply an operation to every feature of the Instance (essentially a map)
    * TODO try to extend map to this case
@@ -85,5 +96,21 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
    */
   override def mapFeatures(func: Double=>Double): DenseSingleLabelInstance =
     new DenseSingleLabelInstance(features.map{case x => func(x)}, label)
+ 
+  override def toString =
+      "l=%.0f v={%s}".format(label, features.mkString(","))
+}
+
+object DenseSingleLabelInstance extends Serializable {
   
+  /** Parse the input string as an DenseInstance class
+   *
+   * @param input the String line to be read
+   * @return a DenseInstance which is parsed from input
+   */
+  def parse(input: String): DenseSingleLabelInstance = {
+    val tokens = input.split("\\s+")
+    new DenseSingleLabelInstance(tokens.tail.map(_.toDouble),
+                                 tokens.head.toDouble)
+  }
 }

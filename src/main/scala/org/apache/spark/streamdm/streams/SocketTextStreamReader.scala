@@ -17,8 +17,8 @@
 
 package org.apache.spark.streamdm.streams
 
-import com.github.javacliparser.{StringOption, IntOption}
-import org.apache.spark.streamdm.core.DenseSingleLabelInstance
+import com.github.javacliparser.{StringOption, IntOption, ClassOption}
+import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -32,17 +32,23 @@ class SocketTextStreamReader extends StreamReader{
   val portOption: IntOption = new IntOption("port", 'p',
     "Socket port", 9999, 0, Integer.MAX_VALUE)
 
-  val hostOption: StringOption = new StringOption("host",
-    'h',"Host", "localhost")
+  val hostOption: StringOption = new StringOption("host", 'h',"Host",
+    "localhost")
+
+  val instanceOption: StringOption = new StringOption("instanceType", 't',
+    "Type of the instance to use", "dense")
 
   def getInstances(ssc:StreamingContext): DStream[Example] = {
     //stream is a localhost socket stream
     val text = ssc.socketTextStream(hostOption.getValue, portOption.getValue)
     //transform stream into stream of instances
-    //instances come as tab delimited lines, where the first item is the label,
+    //instances come as whitespace delimited lines, where the first item is the label,
     //and the rest of the items are the values of the features
-    text.map(
-      x => new Example(new DenseSingleLabelInstance(x.split("\t").toArray.map(_.toDouble),
-        x.split("\t")(0).toDouble)))
+    instanceOption.getValue match {
+      case "dense" => 
+        text.map(x => new Example(DenseSingleLabelInstance.parse(x)))
+      case "sparse" =>
+        text.map(x => new Example(SparseSingleLabelInstance.parse(x)))
+    }
   }
 }
