@@ -75,7 +75,6 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
   override def add(input: Instance): SparseSingleLabelInstance = input match {
     case SparseSingleLabelInstance(i,v,l) => {
       val addedInstance = addTupleArrays(i zip v, indexes zip values).unzip
-      println(addedInstance)
       new SparseSingleLabelInstance(addedInstance._1.toArray,
                                     addedInstance._2.toArray, label)
     }
