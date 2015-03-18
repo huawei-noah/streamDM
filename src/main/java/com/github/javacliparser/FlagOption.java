@@ -17,8 +17,6 @@
 
 package com.github.javacliparser;
 
-import com.github.javacliparser.AbstractOption;
-
 /**
  * Flag option.
  *
