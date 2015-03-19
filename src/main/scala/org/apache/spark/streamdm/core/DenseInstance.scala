@@ -53,8 +53,17 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
   * @return a Double representing the dot product 
   */
   override def dot(input: Instance): Double = input match { 
-    case DenseSingleLabelInstance(f,l) =>
-      ((features zip f).map{case (x,y)=>x*y}).reduce(_+_)
+    case DenseSingleLabelInstance(f,l) => {
+      var sum:Double = 0.0
+      var i:Int = 0
+      while (i<features.length) {
+        sum += f(i)*featureAt(i)
+        i += 1
+      }
+      sum
+    }
+      //normally it should be implemented as below
+      //(0 until features.length).foldLeft(0.0)((d,i) => d + features(i)*f(i))
     case SparseSingleLabelInstance(i,v,l) =>
       input.dot(this)
     case _ => 0.0
