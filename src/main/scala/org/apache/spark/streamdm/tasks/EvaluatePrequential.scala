@@ -20,7 +20,7 @@ package org.apache.spark.streamdm.tasks
 import com.github.javacliparser.ClassOption
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
-import org.apache.spark.streamdm.streams.StreamReader
+import org.apache.spark.streamdm.streams._
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streamdm.evaluation.Evaluator
 
