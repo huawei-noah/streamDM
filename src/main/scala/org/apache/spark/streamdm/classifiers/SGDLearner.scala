@@ -18,6 +18,7 @@
 package org.apache.spark.streamdm.classifiers
 
 import com.github.javacliparser.{ClassOption, FloatOption, IntOption}
+import org.apache.spark.Logging
 import org.apache.spark.streamdm._
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.model.model._
@@ -68,23 +69,42 @@ class SGDLearner extends Learner {
    * @return the updated Model
    */
   override def train(input: DStream[Example]): Unit = {
+    input.foreachRDD(rdd=> {
+      val chModels = rdd.aggregate(
+        (new LinearModel(loss,model.modelInstance,model.numFeatures),0.0))(
+        (mod,inst) => {
+          val grad = mod._1.gradient(inst)
+          val reg = mod._1.regularize(regularizer).mapFeatures(f =>
+              f*regularizerParameter.getValue)
+          val change = grad.add(reg).mapFeatures(f => f*lambdaOption.getValue)
+          (mod._1.update(change),1.0)
+        },
+        (mod1,mod2) =>
+          (mod1._1.update(mod2._1.modelInstance),mod1._2+mod2._2)
+        )
+      if(chModels._2>0)
+        model = new LinearModel(loss,
+          chModels._1.modelInstance.mapFeatures(f => f/chModels._2),
+          model.numFeatures)
+    })
+    /*
     //train the changes
     //first, compute the gradient
     //then, add the gradients together
     //finally, apply lambda
-    val changes = input.map(x => model.gradient(x)).
-      reduce((x, y) => x.add(y)).
-      map(x => x.mapFeatures(x => lambdaOption.getValue * x))
+    val changes = input.map(inst => (model.gradient(inst),1.0)).
+      reduce((grad1, grad2) => (grad1._1.add(grad2._1), grad1._2+grad2._2)).
+      map(sumGrad => sumGrad._1.mapFeatures(f => lambdaOption.getValue *
+        (f/sumGrad._2)))
     //apply the final changes to the new model in two steps:
     //- first, add the regularizer (for now, weighted by lambda
     //- second, apply the change vector to the model
     changes.foreachRDD(rdd => {
-      model = model.update(rdd.first().
-                           add(model.regularize(regularizer).
-                             mapFeatures(x =>
-                              lambdaOption.getValue*
-                              regularizerParameter.getValue*x)))
+      model =
+        model.update(rdd.first().add(model.regularize(regularizer)                           mapFeatures(f => lambdaOption.getValue*
+                                       regularizerParameter.getValue*f)))
     })
+    */
   }
 
   /* Predict the label of the Instance, given the current Model
