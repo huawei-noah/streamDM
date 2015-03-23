@@ -71,8 +71,11 @@ class SGDLearner extends Learner {
   override def train(input: DStream[Example]): Unit = {
     input.foreachRDD(rdd=> {
       val chModels = rdd.aggregate(
+        //initialize with the previous model
         (new LinearModel(loss,model.modelInstance,model.numFeatures),0.0))(
         (mod,inst) => {
+          //for each instance in the RDD,
+          //add the gradient and the regularizer and update the model
           val grad = mod._1.gradient(inst)
           val reg = mod._1.regularize(regularizer).mapFeatures(f =>
               f*regularizerParameter.getValue)
@@ -80,31 +83,15 @@ class SGDLearner extends Learner {
           (mod._1.update(change),1.0)
         },
         (mod1,mod2) =>
+          //add all the models together, keeping the count of the RDDs used
           (mod1._1.update(mod2._1.modelInstance),mod1._2+mod2._2)
         )
       if(chModels._2>0)
+        //finally, take the average of the models as the new model
         model = new LinearModel(loss,
           chModels._1.modelInstance.mapFeatures(f => f/chModels._2),
           model.numFeatures)
     })
-    /*
-    //train the changes
-    //first, compute the gradient
-    //then, add the gradients together
-    //finally, apply lambda
-    val changes = input.map(inst => (model.gradient(inst),1.0)).
-      reduce((grad1, grad2) => (grad1._1.add(grad2._1), grad1._2+grad2._2)).
-      map(sumGrad => sumGrad._1.mapFeatures(f => lambdaOption.getValue *
-        (f/sumGrad._2)))
-    //apply the final changes to the new model in two steps:
-    //- first, add the regularizer (for now, weighted by lambda
-    //- second, apply the change vector to the model
-    changes.foreachRDD(rdd => {
-      model =
-        model.update(rdd.first().add(model.regularize(regularizer)                           mapFeatures(f => lambdaOption.getValue*
-                                       regularizerParameter.getValue*f)))
-    })
-    */
   }
 
   /* Predict the label of the Instance, given the current Model
