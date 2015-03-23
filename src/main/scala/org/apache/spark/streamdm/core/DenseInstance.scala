@@ -53,8 +53,7 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
   * @return a Double representing the dot product 
   */
   override def dot(input: Instance): Double = input match { 
-    case DenseSingleLabelInstance(f,l) => 
-    {
+    case DenseSingleLabelInstance(f,l) => {
       var sum:Double = 0.0
       var i:Int = 0
       while (i<features.length) {
@@ -86,13 +85,13 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
     }
       //val addedInstance = (0 until features.length).map(i => features(i)+f(i))
       //new DenseSingleLabelInstance(addedInstance.toArray, label)
-    case SparseSingleLabelInstance(i,v,l) => {
-      //the below uses a mutable Array, but I can't see any other way that
-      //only uses one pass over the structures in SparseInstance
-      var arrayFromSparse = Array.fill[Double](features.length)(0.0)
-      (i zip v).foreach{ case (x,y) => arrayFromSparse.update(x,y)}
-      new DenseSingleLabelInstance((features zip arrayFromSparse).
-        map{case (x,y) => x+y}, label)
+    case SparseSingleLabelInstance(ind,v,l) => {
+      var i: Int = 0
+      while (i<ind.length) {
+        features(ind(i)) += v(i)
+        i += 1
+      }
+      new DenseSingleLabelInstance(features, label)
     }
     case _ => this
   }

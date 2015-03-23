@@ -41,8 +41,17 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
   * @return a Double representing the feature value
   */
   def featureAt(index: Int): Double = {
-    val tuple = (indexes zip values).filter(_._1==index)
-    if (tuple.length>0) tuple(0)._2 else 0.0
+    var i: Int = 0
+    var value: Double = 0.0
+    var found = false
+    while(i<indexes.length && !found) {
+      if(indexes(i)==index) {
+        value = values(i)
+        found = true
+      }
+      i += 1
+    }
+    value
   }
   
   /*Get the class value present at position index
@@ -58,13 +67,14 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
   * product is performed
   * @return a Double representing the dot product 
   */
-  override def dot(input: Instance): Double = input match { 
-    case SparseSingleLabelInstance(i,v,l) =>
-      dotTupleArrays(i zip v, indexes zip values)
-    case DenseSingleLabelInstance(f,l) =>
-      dotTupleArrays(f.zipWithIndex.map{case (x,y)=>(y,x)},
-                     indexes zip values)
-    case _ => 0.0
+  override def dot(input: Instance): Double = {
+    var i: Int = 0
+    var dot: Double = 0.0
+    while(i<indexes.length) {
+      dot += values(i)*input.featureAt(indexes(i))
+      i += 1
+    }
+    dot
   }
 
   /** Perform an element by element addition between two instances
@@ -73,16 +83,42 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
    * @return a SparseInstance representing the added Instances
    */
   override def add(input: Instance): SparseSingleLabelInstance = input match {
-    case SparseSingleLabelInstance(i,v,l) => {
-      val addedInstance = addTupleArrays(i zip v, indexes zip values).unzip
-      new SparseSingleLabelInstance(addedInstance._1.toArray,
-                                    addedInstance._2.toArray, label)
+    case SparseSingleLabelInstance(ind,v,l) => {
+      var i: Int = 0
+      var addedFeatures: Array[Double] = Array()
+      var addedIndexes: Array[Int] = Array()
+      while(i<ind.length) {
+        val sum = v(i) + featureAt(ind(i))
+        if(v(i)!=0 && sum!=0) {
+          addedIndexes :+= ind(i)
+          addedFeatures :+= sum
+        }
+        i += 1
+      }
+      i = 0
+      while(i<indexes.length) {
+        val other = input.featureAt(indexes(i))
+        if(other==0 && values(indexes(i))!=0) {
+          addedIndexes :+= indexes(i)
+          addedFeatures :+= values(indexes(i))
+        }
+        i += 1
+      }
+      new SparseSingleLabelInstance(addedIndexes, addedFeatures, label)
     }
     case DenseSingleLabelInstance(f,l) => {
-      val addedInstance = addTupleArrays(f.zipWithIndex.map{case (x,y)=>(y,x)},
-                                        indexes zip values).unzip
-      new SparseSingleLabelInstance(addedInstance._1.toArray,
-                                    addedInstance._2.toArray, label)
+      var i: Int = 0
+      var addedFeatures: Array[Double] = Array()
+      var addedIndexes: Array[Int] = Array()
+      while(i<f.length) {
+        val sum = f(i) + featureAt(i)
+        if(sum!=0) {
+          addedIndexes :+= i
+          addedFeatures :+= sum
+        }
+        i += 1
+      }
+      new SparseSingleLabelInstance(addedIndexes, addedFeatures, label)
     }
     case _ => this
   }
@@ -121,13 +157,13 @@ object SparseSingleLabelInstance extends Serializable {
   
   /** Parse the input string as an SparseInstance class
    *
-   * @param input the String line to be read
+   * @param input the String line to be read, in LibSVM format
    * @return a DenseInstance which is parsed from input
    */
   def parse(input: String): SparseSingleLabelInstance = {
     val tokens = input.split("\\s+")
     val features = tokens.tail.map(_.split(":"))
-    new SparseSingleLabelInstance(features.map(_(0).toInt),
+    new SparseSingleLabelInstance(features.map(_(0).toInt).map(_-1),
                                   features.map(_(1).toDouble),
                                   tokens.head.toDouble)
   }
