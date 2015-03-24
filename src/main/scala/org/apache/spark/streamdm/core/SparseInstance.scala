@@ -98,9 +98,9 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
       i = 0
       while(i<indexes.length) {
         val other = input.featureAt(indexes(i))
-        if(other==0 && values(indexes(i))!=0) {
+        if(other==0 && values(i)!=0) {
           addedIndexes :+= indexes(i)
-          addedFeatures :+= values(indexes(i))
+          addedFeatures :+= values(i)
         }
         i += 1
       }
@@ -136,16 +136,7 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
    * @return a new SparseInstance with the transformed features
    */
   override def mapFeatures(func: Double=>Double): SparseSingleLabelInstance =
-    new SparseSingleLabelInstance(indexes, values.map{case x => func(x)}, label) 
-  private def dotTupleArrays(l1: Array[(Int, Double)], 
-                             l2: Array[(Int, Double)]): Double =
-    (l1++l2).groupBy(_._1).filter {case (k,v) => v.length==2}.
-        map {case (k,v) => (k, v.map(_._2).reduce(_*_))}.toArray.unzip._2.sum
-
-  private def addTupleArrays(l1: Array[(Int, Double)], 
-                            l2: Array[(Int, Double)]): Array[(Int, Double)] =
-    (l1++l2).groupBy(_._1).map {case (k,v) => (k, v.map(_._2).sum)}.
-      toArray.filter(_._2 != 0)
+    new SparseSingleLabelInstance(indexes, values.map{case x => func(x)}, label)
 
   override def toString =
       "l=%.0f i={%s} v={%s}".format(label, indexes.mkString(","),
@@ -163,7 +154,7 @@ object SparseSingleLabelInstance extends Serializable {
   def parse(input: String): SparseSingleLabelInstance = {
     val tokens = input.split("\\s+")
     val features = tokens.tail.map(_.split(":"))
-    new SparseSingleLabelInstance(features.map(_(0).toInt).map(_-1),
+    new SparseSingleLabelInstance(features.map(_(0).toInt-1),
                                   features.map(_(1).toDouble),
                                   tokens.head.toDouble)
   }
