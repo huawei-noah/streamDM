@@ -53,8 +53,17 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
   * @return a Double representing the dot product 
   */
   override def dot(input: Instance): Double = input match { 
-    case DenseSingleLabelInstance(f,l) =>
-      ((features zip f).map{case (x,y)=>x*y}).reduce(_+_)
+    case DenseSingleLabelInstance(f,l) => {
+      var sum:Double = 0.0
+      var i:Int = 0
+      while (i<features.length) {
+        sum += f(i)*featureAt(i)
+        i += 1
+      }
+      sum
+    }
+    //normally it should be implemented as below
+    //  (0 until features.length).foldLeft(0.0)((d,i) => d + features(i)*f(i))
     case SparseSingleLabelInstance(i,v,l) =>
       input.dot(this)
     case _ => 0.0
@@ -66,16 +75,23 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
    * @return an Instance representing the added Instances
    */
   override def add(input: Instance): DenseSingleLabelInstance = input match {
-    case DenseSingleLabelInstance(f,l) =>
-      new DenseSingleLabelInstance((features zip f).
-        map{case (x,y) => x+y}, label)
-    case SparseSingleLabelInstance(i,v,l) => {
-      //the below uses a mutable Array, but I can't see any other way that
-      //only uses one pass over the structures in SparseInstance
-      var arrayFromSparse = Array.fill[Double](features.length)(0.0)
-      (i zip v).foreach{ case (x,y) => arrayFromSparse.update(x,y)}
-      new DenseSingleLabelInstance((features zip arrayFromSparse).
-        map{case (x,y) => x+y}, label)
+    case DenseSingleLabelInstance(f,l) => {
+      var i: Int = 0
+      while (i<features.length) {
+        features(i) += f(i)
+        i += 1
+      }
+      new DenseSingleLabelInstance(features, label)
+    }
+      //val addedInstance = (0 until features.length).map(i => features(i)+f(i))
+      //new DenseSingleLabelInstance(addedInstance.toArray, label)
+    case SparseSingleLabelInstance(ind,v,l) => {
+      var i: Int = 0
+      while (i<ind.length) {
+        features(ind(i)) += v(i)
+        i += 1
+      }
+      new DenseSingleLabelInstance(features, label)
     }
     case _ => this
   }

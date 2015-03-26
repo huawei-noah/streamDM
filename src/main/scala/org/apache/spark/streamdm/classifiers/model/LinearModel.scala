@@ -54,10 +54,10 @@ class LinearModel(lossFunction: Loss, initialModel: Example, numberFeatures:Int)
    */
   def gradient(instance: Example): Example = {
     //compute the gradient based on the dot product, then compute the changes
+    val ins = instance.setFeature(numFeatures,1.0)
     val ch = -loss.gradient(instance.inst.label,
-                           modelInstance.dot(instance.
-                             setFeature(numFeatures,1.0)))
-    instance.mapFeatures(x => ch*x)
+                            modelInstance.dot(ins))
+    ins.mapFeatures(x => ch*x)
   }
 
   def regularize(regularizer: Regularizer): Example = 
