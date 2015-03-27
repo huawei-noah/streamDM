@@ -38,15 +38,15 @@ class DenseInstanceSuite extends FunSuite {
 
   test("It should have a dot operation") {
     val instance1 = DenseSingleLabelInstance(Array(1.4, 1.3, 2.1), 1.0)
-    val instance2 = DenseSingleLabelInstance(Array(1.4, 1.3, 2.1), 1.0)
-    assert(instance1.dot(instance2) == 8.06)
+    val instance2 = DenseSingleLabelInstance(Array(0.4, 0.3, 1.1), 1.0)
+    assert(instance1.dot(instance2) == 1.4*0.4+1.3*0.3+2.1*1.1)
   }
 
   test("It should have an add operation of instances") {
     val instance1 = DenseSingleLabelInstance(Array(1.4, 1.3, 2.1), 1.0)
-    val instance2 = DenseSingleLabelInstance(Array(1.4, 1.3, 2.1), 1.0)
+    val instance2 = DenseSingleLabelInstance(Array(0.4, 0.3, 1.1), 1.0)
     val sumInstance = instance1.add(instance2);
-    val instance3 = DenseSingleLabelInstance(Array(1.4+1.4, 1.3+1.3, 2.1+2.1), 1.0)
+    val instance3 = DenseSingleLabelInstance(Array(1.4+0.4, 1.3+0.3, 2.1+1.1), 1.0)
     (sumInstance.features zip instance3.features).map{case (x,y)=> assert(x==y)}
     assert(instance1.add(instance2).labelAt(0) == instance3.labelAt(0))
   }
