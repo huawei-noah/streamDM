@@ -27,7 +27,7 @@ class NaiveBayes(val model: NaiveBayesModel) extends Learner with Serializable {
    * from the stream of instances given for training.
    *
    */
-  def init(): Unit = {}
+  override def init(): Unit = {}
 
   /* Train the model based on the algorithm implemented in the learner, 
    * from the stream of instances given for training.
@@ -35,7 +35,7 @@ class NaiveBayes(val model: NaiveBayesModel) extends Learner with Serializable {
    * @param input a stream of instances
    * @return the updated Model
    */
-  def train(input: DStream[Example]): Unit = {
+  override def train(input: DStream[Example]): Unit = {
     input.map { model.train(_) }
   }
 
@@ -44,7 +44,7 @@ class NaiveBayes(val model: NaiveBayesModel) extends Learner with Serializable {
    * @param instance the Instance which needs a class predicted
    * @return a tuple containing the original instance and the predicted value
    */
-  def predict(input: DStream[Example]): DStream[(Example, Double)] = {
+  override def predict(input: DStream[Example]): DStream[(Example, Double)] = {
     input.map { x => (x, model.predict(x)) }
   }
 }
@@ -83,7 +83,7 @@ class DenseNaiveBayesModel extends NaiveBayesModel with Serializable {
    * @param changeInstance the Instance based on which the Model is updated
    * @return Unit
    */
-  def train(changeInstance: Example): Unit = {
+  override def train(changeInstance: Example): Unit = {
     labels(changeInstance.labelAt(0).toInt) += 1
     for (i <- 0 until featurelen) {
       aggregate(changeInstance.labelAt(0).toInt)(i) += changeInstance.featureAt(i)
