@@ -84,9 +84,9 @@ class DenseNaiveBayesModel extends NaiveBayesModel with Serializable {
    * @return Unit
    */
   def train(changeInstance: Example): Unit = {
-    labels(changeInstance.labelAt(0).asInstanceOf[Int]) += 1
+    labels(changeInstance.labelAt(0).toInt) += 1
     for (i <- 0 until featurelen) {
-      aggregate(changeInstance.labelAt(0).asInstanceOf[Int])(i) += changeInstance.featureAt(i)
+      aggregate(changeInstance.labelAt(0).toInt)(i) += changeInstance.featureAt(i)
     }
   }
 
