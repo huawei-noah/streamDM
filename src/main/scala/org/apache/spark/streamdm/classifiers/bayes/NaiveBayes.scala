@@ -135,7 +135,7 @@ class DenseNaiveBayesModel extends NaiveBayesModel with Serializable {
     val pi = new Array[Double](range)
     val theta = Array.fill(range)(new Array[Double](featurelen))
     for (i <- 0 until range) {
-      val thetalogDemon = math.log(aggregate(i).foldLeft(0.0)(_ + _) + featurelen * lamda)
+      val thetalogDemon = math.log(aggregate(i).sum + featurelen * lamda)
       pi(i) = math.log(labels(i) + lamda) - piLogDemon
       for (j <- 0 until featurelen) {
         theta(i)(j) = math.log(aggregate(i)(j) + lamda) - thetalogDemon
