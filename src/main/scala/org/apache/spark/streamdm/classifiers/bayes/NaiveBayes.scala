@@ -62,20 +62,20 @@ class DenseNaiveBayesModel extends NaiveBayesModel with Serializable {
   type T = DenseNaiveBayesModel
 
   var range: Int = 0
-  var featurelen: Int = 0
-  var lamda: Int = 1
+  var featureLength: Int = 0
+  var lambda: Int = 1
   var labels: Array[Int] = null
   var pointNum: Int = 0
   var aggregate: Array[Array[Double]] = null
   var outlierNum: Int = 0
 
-  def this(range: Int, featurelen: Int, lambda: Int) {
+  def this(range: Int, featureLength: Int, lambda: Int) {
     this()
     this.range = range
-    this.featurelen = featurelen
-    this.lamda = lambda
+    this.featureLength = featureLength
+    this.lambda = lambda
     labels = new Array[Int](range)
-    aggregate = Array.fill(range)(new Array[Double](featurelen))
+    aggregate = Array.fill(range)(new Array[Double](featureLength))
   }
 
   /* train the model, depending on the Instance given for training
@@ -85,7 +85,7 @@ class DenseNaiveBayesModel extends NaiveBayesModel with Serializable {
    */
   override def train(changeInstance: Example): Unit = {
     labels(changeInstance.labelAt(0).toInt) += 1
-    for (i <- 0 until featurelen) {
+    for (i <- 0 until featureLength) {
       aggregate(changeInstance.labelAt(0).toInt)(i) += changeInstance.featureAt(i)
     }
   }
@@ -131,14 +131,14 @@ class DenseNaiveBayesModel extends NaiveBayesModel with Serializable {
    * @return a Double Array representing the probabilities
    */
   private def predictPi(instance: Example): Array[Double] = {
-    val piLogDemon = math.log(pointNum + range * lamda)
+    val piLogDenom = math.log(pointNum + range * lambda)
     val pi = new Array[Double](range)
-    val theta = Array.fill(range)(new Array[Double](featurelen))
+    val theta = Array.fill(range)(new Array[Double](featureLength))
     for (i <- 0 until range) {
-      val thetalogDemon = math.log(aggregate(i).sum + featurelen * lamda)
-      pi(i) = math.log(labels(i) + lamda) - piLogDemon
-      for (j <- 0 until featurelen) {
-        theta(i)(j) = math.log(aggregate(i)(j) + lamda) - thetalogDemon
+      val thetaLogDenom = math.log(aggregate(i).sum + featureLength * lambda)
+      pi(i) = math.log(labels(i) + lambda) - piLogDenom
+      for (j <- 0 until featureLength) {
+        theta(i)(j) = math.log(aggregate(i)(j) + lambda) - thetaLogDenom
         pi(i) += theta(i)(j) + instance.featureAt(j)
       }
     }
