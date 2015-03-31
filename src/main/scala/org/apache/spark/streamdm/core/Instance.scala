@@ -18,29 +18,21 @@
 package org.apache.spark.streamdm.core
 
 /**
- * An Instance represents the input of any learning algorithm. It is normally
- * composed of a feature vector (with various implementations) and an optional
- * label vector
+ * An Instance represents the input or output of any learning algorithm. It is
+ * normally composed of a feature vector (with various implementations) 
  */
 
 trait Instance extends Serializable {
   
   type T <: Instance
 
-  val label: Double
-  /** Get the feature value present at position index
+  /** Get the value present at position index
    *
    * @param index the index of the features
-   * @return a Double representing the feature value
+   * @return a Double representing the feature value, or 0 if the index is not
+   * present in the underlying data structure
    */
-  def featureAt(index: Int): Double
-  
-  /** Get the class value present at position index
-   *
-   * @param index the index of the class
-   * @return a Double representing the value fo the class
-   */
-  def labelAt(index: Int): Double
+  def apply(index: Int): Double
 
   /** Perform a dot product between two instances
    *
@@ -62,12 +54,12 @@ trait Instance extends Serializable {
    * @param input the feature value which is added up
    * @return an Instance representing the new feature vector
    */
-  def setFeature(index: Int, input: Double): T
+  def set(index: Int, input: Double): T
 
   /** Apply an operation to every feature of the Instance (essentially a map)
    *
    * @param func the function for the transformation
    * @return a new Instance with the transformed features
    */
-  def mapFeatures(func: Double=>Double): T
+  def map(func: Double=>Double): T
 }

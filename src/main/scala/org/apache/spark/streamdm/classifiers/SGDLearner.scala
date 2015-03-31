@@ -57,10 +57,8 @@ class SGDLearner extends Learner {
    *
    */
   override def init(): Unit = {
-    model = new LinearModel(loss,
-      new Example(new DenseSingleLabelInstance(
-        Array.fill[Double](numFeaturesOption.getValue + 1)(0.0), 0.0)),
-      numFeaturesOption.getValue)
+    model = new LinearModel(loss, new DenseInstance(Array.fill[Double]
+      (numFeaturesOption.getValue + 1)(0.0)), numFeaturesOption.getValue)
   }
 
   /* Train the model using stochastic gradient descent.
@@ -77,19 +75,19 @@ class SGDLearner extends Learner {
           //for each instance in the RDD,
           //add the gradient and the regularizer and update the model
           val grad = mod._1.gradient(inst)
-          val reg = mod._1.regularize(regularizer).mapFeatures(f =>
+          val reg = mod._1.regularize(regularizer).map(f =>
               f*regularizerParameter.getValue)
-          val change = grad.add(reg).mapFeatures(f => f*lambdaOption.getValue)
+          val change = grad.add(reg).map(f => f*lambdaOption.getValue)
           (mod._1.update(change),1.0)
         },
         (mod1,mod2) =>
           //add all the models together, keeping the count of the RDDs used
-          (mod1._1.update(mod2._1.modelInstance),mod1._2+mod2._2)
+          (mod1._1.update(mod2._1.modelInstance), mod1._2+mod2._2)
         )
       if(chModels._2>0)
         //finally, take the average of the models as the new model
         model = new LinearModel(loss,
-          chModels._1.modelInstance.mapFeatures(f => f/chModels._2),
+          chModels._1.modelInstance.map(f => f/chModels._2),
           model.numFeatures)
     })
   }

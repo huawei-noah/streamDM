@@ -50,10 +50,10 @@ class BasicClassificationEvaluator extends Evaluator{
 object ConfusionMatrix extends Serializable{
   def confusion(x: (Example,Double)):
   (Double, Double, Double, Double) = {
-    val a = if ((x._1.inst.label==x._2)&&(x._2==0.0)) 1.0 else 0.0
-    val b = if ((x._1.inst.label!=x._2)&&(x._2==0.0)) 1.0 else 0.0
-    val c = if ((x._1.inst.label!=x._2)&&(x._2==1.0)) 1.0 else 0.0
-    val d = if ((x._1.inst.label==x._2)&&(x._2==1.0)) 1.0 else 0.0
+    val a = if ((x._1.labelAt(0)==x._2)&&(x._2==0.0)) 1.0 else 0.0
+    val b = if ((x._1.labelAt(0)!=x._2)&&(x._2==0.0)) 1.0 else 0.0
+    val c = if ((x._1.labelAt(0)!=x._2)&&(x._2==1.0)) 1.0 else 0.0
+    val d = if ((x._1.labelAt(0)==x._2)&&(x._2==1.0)) 1.0 else 0.0
     (a,b,c,d)
   }
 
