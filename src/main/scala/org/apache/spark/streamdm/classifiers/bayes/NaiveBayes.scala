@@ -19,7 +19,7 @@ package org.apache.spark.streamdm.classifiers.bayes
 
 import com.github.javacliparser.{ ClassOption, FloatOption, IntOption }
 import org.apache.spark.streamdm.classifiers.model.model.Model
-import org.apache.spark.streamdm.classifiers.Learner
+import org.apache.spark.streamdm.classifiers.IncrementalLearner
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 
@@ -31,26 +31,26 @@ import org.apache.spark.streaming.dstream._
  * for its simplicity and low computational cost. Given n different classes, the
  * trained Naive Bayes classiﬁer predicts for every unlabelled instance I the
  * class C to which it belongs with high accuracy.
-*/
+ */
 
-class NaiveBayesMultinomial extends Learner with Serializable {
+class NaiveBayesMultinomial extends IncrementalLearner{
 
   val numClassesOption: IntOption = new IntOption("numClasses", 'c',
     "Number of Classes", 2, 2, Integer.MAX_VALUE)
-  
-    val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
+
+  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "Number of Features", 3, 1, Integer.MAX_VALUE)
-  
+
   val laplaceSmoothingFactorOption: IntOption = new IntOption("laplaceSmoothingFactor", 's',
     "laplace Smoothing Factor", 1, 1, Integer.MAX_VALUE)
-  
-    var model :NaiveBayesModel = null
+
+  var model: NaiveBayesModel = null
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    */
   override def init(): Unit = {
-    model = new DenseNaiveBayesMultinomialModel(numClassesOption.getValue,numFeaturesOption.getValue,laplaceSmoothingFactorOption.getValue)
+    model = new DenseNaiveBayesMultinomialModel(numClassesOption.getValue, numFeaturesOption.getValue, laplaceSmoothingFactorOption.getValue)
   }
 
   /* Train the model based on the algorithm implemented in the learner, 
@@ -71,6 +71,22 @@ class NaiveBayesMultinomial extends Learner with Serializable {
   override def predict(input: DStream[Example]): DStream[(Example, Double)] = {
     input.map { x => (x, model.predict(x)) }
   }
+
+  /* run for evaluation, first predict the label of the Instance, then update the model
+   *
+   * @param instance the Instance which needs a class predicted
+   * @return a tuple containing the original instance and the predicted value
+   */
+  override def evaluate(input: DStream[Example]): DStream[(Example, Double)] = {
+    input.map { x =>
+      {
+        val predict = model.predict(x)
+        model.train(x)
+        (x, model.predict(x))
+      }
+    }
+  }
+
 }
 
 trait NaiveBayesModel extends Model with Serializable {
