@@ -17,17 +17,41 @@
 
 package org.apache.spark.streamdm.classifiers.bayes
 
-import org.apache.spark.streamdm.classifiers.model.Model
+import com.github.javacliparser.{ ClassOption, FloatOption, IntOption }
+import org.apache.spark.streamdm.classifiers.model.model.Model
 import org.apache.spark.streamdm.classifiers.Learner
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 
-class NaiveBayes(val model: NaiveBayesModel) extends Learner with Serializable {
+/**
+ * Naive Bayes incremental learner.
+ *
+ * Performs classic bayesian prediction while making naive assumption that
+ * all inputs are independent. Naive Bayes is a classiﬁer algorithm known
+ * for its simplicity and low computational cost. Given n different classes, the
+ * trained Naive Bayes classiﬁer predicts for every unlabelled instance I the
+ * class C to which it belongs with high accuracy.
+*/
+
+class NaiveBayesMultinomial extends Learner with Serializable {
+
+  val numClassesOption: IntOption = new IntOption("numClasses", 'c',
+    "Number of Classes", 2, 2, Integer.MAX_VALUE)
+  
+    val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
+    "Number of Features", 3, 1, Integer.MAX_VALUE)
+  
+  val laplaceSmoothingFactorOption: IntOption = new IntOption("laplaceSmoothingFactor", 's',
+    "laplace Smoothing Factor", 1, 1, Integer.MAX_VALUE)
+  
+    var model :NaiveBayesModel = null
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    */
-  override def init(): Unit = {}
+  override def init(): Unit = {
+    model = new DenseNaiveBayesMultinomialModel(numClassesOption.getValue,numFeaturesOption.getValue,laplaceSmoothingFactorOption.getValue)
+  }
 
   /* Train the model based on the algorithm implemented in the learner, 
    * from the stream of instances given for training.
@@ -58,24 +82,24 @@ trait NaiveBayesModel extends Model with Serializable {
   def train(changeInstance: Example): Unit
 }
 
-class DenseNaiveBayesModel extends NaiveBayesModel with Serializable {
-  type T = DenseNaiveBayesModel
+class DenseNaiveBayesMultinomialModel extends NaiveBayesModel with Serializable {
+  type T = DenseNaiveBayesMultinomialModel
 
-  var range: Int = 0
-  var featureLength: Int = 0
-  var lambda: Int = 1
+  var numClasses: Int = 0
+  var numFeatures: Int = 0
+  var laplaceSmoothingFactor: Int = 1
   var labels: Array[Int] = null
   var pointNum: Int = 0
   var aggregate: Array[Array[Double]] = null
   var outlierNum: Int = 0
 
-  def this(range: Int, featureLength: Int, lambda: Int) {
+  def this(numClasses: Int, numFeatures: Int, laplaceSmoothingFactor: Int) {
     this()
-    this.range = range
-    this.featureLength = featureLength
-    this.lambda = lambda
-    labels = new Array[Int](range)
-    aggregate = Array.fill(range)(new Array[Double](featureLength))
+    this.numClasses = numClasses
+    this.numFeatures = numFeatures
+    this.laplaceSmoothingFactor = laplaceSmoothingFactor
+    labels = new Array[Int](numClasses)
+    aggregate = Array.fill(numClasses)(new Array[Double](numFeatures))
   }
 
   /* train the model, depending on the Instance given for training
@@ -85,7 +109,7 @@ class DenseNaiveBayesModel extends NaiveBayesModel with Serializable {
    */
   override def train(changeInstance: Example): Unit = {
     labels(changeInstance.labelAt(0).toInt) += 1
-    for (i <- 0 until featureLength) {
+    for (i <- 0 until numFeatures) {
       aggregate(changeInstance.labelAt(0).toInt)(i) += changeInstance.featureAt(i)
     }
   }
@@ -131,18 +155,18 @@ class DenseNaiveBayesModel extends NaiveBayesModel with Serializable {
    * @return a Double Array representing the probabilities
    */
   private def predictPi(instance: Example): Array[Double] = {
-    val piLogDenom = math.log(pointNum + range * lambda)
-    val pi = new Array[Double](range)
-    val theta = Array.fill(range)(new Array[Double](featureLength))
-    for (i <- 0 until range) {
-      val thetaLogDenom = math.log(aggregate(i).sum + featureLength * lambda)
-      pi(i) = math.log(labels(i) + lambda) - piLogDenom
-      for (j <- 0 until featureLength) {
-        theta(i)(j) = math.log(aggregate(i)(j) + lambda) - thetaLogDenom
-        pi(i) += theta(i)(j) + instance.featureAt(j)
+    val logNumberDocuments = math.log(pointNum + numClasses * laplaceSmoothingFactor)
+    val logProbability = new Array[Double](numClasses)
+    val logConditionalProbability = Array.fill(numClasses)(new Array[Double](numFeatures))
+    for (i <- 0 until numClasses) {
+      val logNumberDocumentsOfClass = math.log(aggregate(i).sum + numFeatures * laplaceSmoothingFactor)
+      logProbability(i) = math.log(labels(i) + laplaceSmoothingFactor) - logNumberDocuments
+      for (j <- 0 until numFeatures) {
+        logConditionalProbability(i)(j) = math.log(aggregate(i)(j) + laplaceSmoothingFactor) - logNumberDocumentsOfClass
+        logProbability(i) += logConditionalProbability(i)(j) + instance.featureAt(j)
       }
     }
-    pi
+    logProbability
   }
 
 }
