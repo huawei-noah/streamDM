@@ -20,7 +20,9 @@ package org.apache.spark.streamdm.tasks
 import com.github.javacliparser.ClassOption
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
+import org.apache.spark.streamdm.classifiers.IncrementalLearner
 import org.apache.spark.streamdm.classifiers.bayes._
+import org.apache.spark.streamdm.classifiers.bayes.NaiveBayesMultinomial
 import org.apache.spark.streamdm.streams._
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streamdm.evaluation.Evaluator
@@ -32,7 +34,7 @@ import org.apache.spark.streamdm.evaluation.Evaluator
 class EvaluateIncremental extends Task {
 
   val learnerOption: ClassOption = new ClassOption("learner", 'l',
-    "Learner to use", classOf[IncrementalLearner], "NaiveBayesMultinomial")
+    "Learner to use", classOf[NaiveBayesMultinomial], "NaiveBayesMultinomial")
 
   val evaluatorOption: ClassOption = new ClassOption("evaluator", 'e',
     "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")
@@ -64,6 +66,5 @@ object EvaluateIncremental{
     val ei = new EvaluateIncremental
     val ep = new EvaluatePrequential
     println(ei)
-    println(ep)
   }
 }
