@@ -17,8 +17,8 @@ creates a text socket sending dense instance
 HOST = ''
 PORT = 9999
 features = 3
-sltime = 1.0 / float(sys.argv[2])
-filein = sys.argv[1]
+sltime = 1.0 / float(sys.argv[2] if len(sys.argv) > 2 else 1000)
+filein = sys.argv[1] if len(sys.argv) > 1 else 'syn.dat'
 
 def label(feat, func):
   value = 1 if sum([x*y for (x,y) in zip(feat,func[:features-1])])>\

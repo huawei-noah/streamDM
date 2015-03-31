@@ -33,7 +33,7 @@ def generate():
     featgen = [random.uniform(-5,5) for i in range(features)]
     lab = label(featgen,func)
     sendstr = '%d' % lab
-    for feat in featgen: sendstr += ',%.3f' % random.gauss(feat,0.5)
+    for feat in featgen: sendstr += ' %.3f' % random.gauss(feat,0.5)
     f.write(sendstr+'\n')
   f.close()
 
