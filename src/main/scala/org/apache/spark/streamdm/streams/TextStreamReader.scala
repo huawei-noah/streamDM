@@ -24,7 +24,7 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streamdm.core.Instance
 
 /**
- * Stream reader that gets instances from a socket stream
+ * Stream reader that gets instances from a file stream
  */
 class TextStreamReader extends StreamReader{
 

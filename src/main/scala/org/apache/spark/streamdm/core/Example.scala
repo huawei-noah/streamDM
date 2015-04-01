@@ -18,12 +18,11 @@
 package org.apache.spark.streamdm.core
 
 /**
- * An Example is a wrapper on top of the Instance class hierarchy. It
- * contains a reference to an input Instance and an output Instance, and provides every method that the
- * instance provides. This is done so that the DStream accepts any type on
- * Instance in the parameters, and that the same DStream contains multiple types
- * of Instance. Every operation and class -- except Reader classes -- operate on
- * Example instead on Instance.
+ * An Example is a wrapper on top of the Instance class hierarchy. It contains a
+ * reference to an input Instance and an output Instance, and provides setters
+ * and getters for the features and labels. This is done so that the DStream
+ * accepts any type on Instance in the parameters, and that the same DStream
+ * contains multiple types of Instance.
  */
 
 class Example(inInstance: Instance, outInstance: Instance) 
@@ -54,29 +53,16 @@ class Example(inInstance: Instance, outInstance: Instance)
    */
   def setFeature(index: Int, input: Double): Example =
     new Example(in.set(index, input),out)
-  
-  /** Perform a dot product between two instances
-   *
-   * @param input an Example with which the dot product is performed
-   * @return a Double representing the dot product 
-   */
-  def dot(input: Instance): Double = in.dot(input)
 
-  /** Perform an element by element addition between two Examples
+   /** Add a feature to the instance in the example
    *
-   * @param input an Instance which is added up
-   * @return an Instance representing the added Instances
+   * @param index the index at which the value is added
+   * @param input the label value which is added up
+   * @return an Example containing an Instance with the new labels
    */
-  def add(input: Instance): Instance = in.add(input)
+  def setLabel(index: Int, input: Double): Example =
+    new Example(in, out.set(index, input))
 
-  /** Apply an operation to every feature of the input Instance contained in the
-   * Example (essentially a map)
-   *
-   * @param func the function for the transformation
-   * @return a new Example with the transformed input features
-   */
-  def mapFeatures(func: Double=>Double): Example = 
-    new Example(in.map(func),out)
 
   override def toString = "%s %s".format(out.toString, in.toString)
 }
@@ -85,7 +71,11 @@ object Example extends Serializable {
   
   /** Parse the input string as an SparseInstance class
    *
-   * @param input the String line to be read, in LibSVM format
+   * @param input the String line to be read, where the input and output
+   * instances are separated by a whitespace character, of the form
+   * "output_instance<whitespace>input_instance"
+   * @param inType String specifying the format of the input instance
+   * @param outType String specifying the format of the output instance
    * @return a DenseInstance which is parsed from input
    */
   def parse(input: String, inType: String, outType: String): Example = {
@@ -94,6 +84,12 @@ object Example extends Serializable {
                 getInstance(tokens.head, outType))
   }
 
+  /** Parse the input string based on the type of Instance, by calling the
+   * associated .parse static method
+   * @param input the String to be parsed
+   * @param instType the type of instance to be parsed ("dense" or "sparse")
+   * @return the parsed Instance, or null if the type is not properly explained
+   */
   private def getInstance(input: String, instType: String): Instance = 
     instType match {
       case "dense" => DenseInstance.parse(input)

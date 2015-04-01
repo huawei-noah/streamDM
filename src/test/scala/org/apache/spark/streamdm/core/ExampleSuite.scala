@@ -20,7 +20,7 @@ package org.apache.spark.streamdm.core
 import org.scalatest.FunSuite
 
 /**
- * Test suite for the SparseInstance.
+ * Test suite for the Example.
  */
 class ExampleSuite extends FunSuite {
 
