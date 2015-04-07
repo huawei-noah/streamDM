@@ -23,7 +23,6 @@ import org.apache.spark.streamdm.classifiers.model.model.Model
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 
-
 /**
  * Incremental Multinomial Naive Bayes learner. Builds a bayesian text classifier
  * making the naive assumption that all inputs are independent and that feature
@@ -33,7 +32,7 @@ import org.apache.spark.streaming.dstream._
  * Text Categorization', 1998.<br/> <br/>
  */
 
-class MultinomialNaiveBayes extends Learner{
+class MultinomialNaiveBayes extends Learner {
 
   val numClassesOption: IntOption = new IntOption("numClasses", 'c',
     "Number of Classes", 2, 2, Integer.MAX_VALUE)
@@ -80,17 +79,32 @@ class MultinomialNaiveBayesModel(numClasses: Int, numFeatures: Int, laplaceSmoot
   var classStatistics: Array[Int] = null
   var classFeatureStatistics: Array[Array[Double]] = null
 
+  var isReady: Boolean = false
+
+  var logNumberDocuments: Double = 0
+  var logProbability: Array[Double] = null
+  var logConditionalProbability: Array[Array[Double]] = null
+  var logNumberDocumentsOfClass: Double = 0
+
   def init() = {
     classStatistics = new Array[Int](numClasses)
     classFeatureStatistics = Array.fill(numClasses)(new Array[Double](numFeatures))
+    logProbability = new Array[Double](numClasses)
+    logConditionalProbability = Array.fill(numClasses)(new Array[Double](numFeatures))
   }
 
+  override def update(instance: Instance): MultinomialNaiveBayesModel = {
+    this
+  }
   /* Update the model, depending on an Instance given for training
    *
    * @param instance the Instance based on which the Model is updated
    * @return the updated Model
    */
-  override def update(instance: Example): MultinomialNaiveBayesModel = {
+  def update(instance: Example): MultinomialNaiveBayesModel = {
+    if (isReady) {
+      isReady = false
+    }
     if (classStatistics == null) init
     classStatistics(instance.labelAt(0).toInt) += 1
     for (i <- 0 until numFeatures) {
@@ -99,6 +113,24 @@ class MultinomialNaiveBayesModel(numClasses: Int, numFeatures: Int, laplaceSmoot
     this
   }
 
+  /* Prepare the model
+   * 
+   */
+  private def prepare(): Boolean = {
+    if (classStatistics != null && !isReady) {
+      val totalnum = classFeatureStatistics.map { x => x.sum }.sum
+      logNumberDocuments = math.log(totalnum + numClasses * laplaceSmoothingFactor)
+      for (i <- 0 until numClasses) {
+        val logNumberDocumentsOfClass = math.log(classFeatureStatistics(i).sum + numFeatures * laplaceSmoothingFactor)
+        logProbability(i) = math.log(classStatistics(i) + laplaceSmoothingFactor) - logNumberDocuments
+        for (j <- 0 until numFeatures) {
+          logConditionalProbability(i)(j) = math.log(classFeatureStatistics(i)(j) + laplaceSmoothingFactor) - logNumberDocumentsOfClass
+        }
+      }
+      isReady = true
+    }
+    return isReady
+  }
 
   /* Predict the label of the Instance, given the current Model
    *
@@ -106,19 +138,15 @@ class MultinomialNaiveBayesModel(numClasses: Int, numFeatures: Int, laplaceSmoot
    * @return a Double representing the class predicted
    */
   override def predict(instance: Example): Double = {
-    if (classStatistics != null) {
-      val logNumberDocuments = math.log(numClasses * laplaceSmoothingFactor)
-      val logProbability = new Array[Double](numClasses)
-      val logConditionalProbability = Array.fill(numClasses)(new Array[Double](numFeatures))
+    if (prepare()) {
+      val predictlogProbability = new Array[Double](numClasses)
       for (i <- 0 until numClasses) {
-        val logNumberDocumentsOfClass = math.log(classFeatureStatistics(i).sum + numFeatures * laplaceSmoothingFactor)
-        logProbability(i) = math.log(classStatistics(i) + laplaceSmoothingFactor) - logNumberDocuments
+        predictlogProbability(i) = logProbability(i)
         for (j <- 0 until numFeatures) {
-          logConditionalProbability(i)(j) = math.log(classFeatureStatistics(i)(j) + laplaceSmoothingFactor) - logNumberDocumentsOfClass
-          logProbability(i) += logConditionalProbability(i)(j) + instance.featureAt(j)
+          predictlogProbability(i) += logConditionalProbability(i)(j) * instance.featureAt(j)
         }
       }
-      argMax(logProbability)
+      argMax(predictlogProbability)
     } else 0
   }
 
