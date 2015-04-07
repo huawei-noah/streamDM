@@ -24,23 +24,20 @@ package org.apache.spark.streamdm.core
  * corresponding indexes.
  */
 
-case class SparseSingleLabelInstance(inIndexes:Array[Int],
-                                     inValues:Array[Double],
-                                     inLabel: Double)
+case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
   extends Instance with Serializable {
   
-  type T = SparseSingleLabelInstance
+  type T = SparseInstance
 
   val indexes = inIndexes
   val values = inValues
-  override val label = inLabel
 
-  /* Get the feature value present at position index
+  /* Get the value present at position index
   *
   * @param index the index of the features
-  * @return a Double representing the feature value
+  * @return a Double representing the value, or 0.0 if not found
   */
-  def featureAt(index: Int): Double = {
+  def apply(index: Int): Double = {
     var i: Int = 0
     var value: Double = 0.0
     var found = false
@@ -53,13 +50,6 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
     }
     value
   }
-  
-  /*Get the class value present at position index
-  *
-  * @param index the index of the class
-  * @return a Double representing the value fo the class
-  */
-  def labelAt(index: Int): Double = label
 
   /* Perform a dot product between two instances
   *
@@ -71,7 +61,7 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
     var i: Int = 0
     var dot: Double = 0.0
     while(i<indexes.length) {
-      dot += values(i)*input.featureAt(indexes(i))
+      dot += values(i)*input(indexes(i))
       i += 1
     }
     dot
@@ -82,13 +72,13 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
    * @param input an Instance which is added up
    * @return a SparseInstance representing the added Instances
    */
-  override def add(input: Instance): SparseSingleLabelInstance = input match {
-    case SparseSingleLabelInstance(ind,v,l) => {
+  override def add(input: Instance): SparseInstance = input match {
+    case SparseInstance(ind,v) => {
       var i: Int = 0
       var addedFeatures: Array[Double] = Array()
       var addedIndexes: Array[Int] = Array()
       while(i<ind.length) {
-        val sum = v(i) + featureAt(ind(i))
+        val sum = v(i) + apply(ind(i))
         if(v(i)!=0 && sum!=0) {
           addedIndexes :+= ind(i)
           addedFeatures :+= sum
@@ -97,28 +87,28 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
       }
       i = 0
       while(i<indexes.length) {
-        val other = input.featureAt(indexes(i))
+        val other = input(indexes(i))
         if(other==0 && values(i)!=0) {
           addedIndexes :+= indexes(i)
           addedFeatures :+= values(i)
         }
         i += 1
       }
-      new SparseSingleLabelInstance(addedIndexes, addedFeatures, label)
+      new SparseInstance(addedIndexes, addedFeatures)
     }
-    case DenseSingleLabelInstance(f,l) => {
+    case DenseInstance(f) => {
       var i: Int = 0
       var addedFeatures: Array[Double] = Array()
       var addedIndexes: Array[Int] = Array()
       while(i<f.length) {
-        val sum = f(i) + featureAt(i)
+        val sum = f(i) + this(i)
         if(sum!=0) {
           addedIndexes :+= i
           addedFeatures :+= sum
         }
         i += 1
       }
-      new SparseSingleLabelInstance(addedIndexes, addedFeatures, label)
+      new SparseInstance(addedIndexes, addedFeatures)
     }
     case _ => this
   }
@@ -128,34 +118,31 @@ case class SparseSingleLabelInstance(inIndexes:Array[Int],
    * @param input the value which is added up
    * @return a SparseInstance representing the new feature vector
    */
-  override def setFeature(index: Int, input: Double):SparseSingleLabelInstance =
-    new SparseSingleLabelInstance(indexes:+index,values:+input,label)
+  override def set(index: Int, input: Double): SparseInstance =
+    new SparseInstance(indexes:+index,values:+input)
 
   /** Apply an operation to every feature of the Instance (essentially a map)
    * @param func the function for the transformation
    * @return a new SparseInstance with the transformed features
    */
-  override def mapFeatures(func: Double=>Double): SparseSingleLabelInstance =
-    new SparseSingleLabelInstance(indexes, values.map{case x => func(x)}, label)
+  override def map(func: Double=>Double): SparseInstance =
+    new SparseInstance(indexes, values.map{case x => func(x)})
 
-  override def toString =
-      "l=%.0f i={%s} v={%s}".format(label, indexes.mkString(","),
-        values.mkString(","))
+    override def toString = (indexes zip values).map{ case (i,v) =>
+                              "%d:%f".format(i+1,v)}.mkString(",")
   
 }
 
-object SparseSingleLabelInstance extends Serializable {
+object SparseInstance extends Serializable {
   
   /** Parse the input string as an SparseInstance class
    *
    * @param input the String line to be read, in LibSVM format
    * @return a DenseInstance which is parsed from input
    */
-  def parse(input: String): SparseSingleLabelInstance = {
-    val tokens = input.split("\\s+")
-    val features = tokens.tail.map(_.split(":"))
-    new SparseSingleLabelInstance(features.map(_(0).toInt-1),
-                                  features.map(_(1).toDouble),
-                                  tokens.head.toDouble)
+  def parse(input: String): SparseInstance = {
+    val tokens = input.split(",")
+    val features = tokens.map(_.split(":"))
+    new SparseInstance(features.map(_(0).toInt-1),features.map(_(1).toDouble))
   }
 }

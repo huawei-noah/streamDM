@@ -24,37 +24,72 @@ import org.scalatest.FunSuite
  */
 class DenseInstanceSuite extends FunSuite {
 
-  test("A Dense Instance should return its features given indices") {
-    val instance = DenseSingleLabelInstance(Array(1.4,1.3,2.1), 1.0)
-    assert(instance.featureAt(0) == 1.4)
-    assert(instance.featureAt(1) == 1.3)
-    assert(instance.featureAt(2) == 2.1)
+  test("A DenseInstance should return its features given indices") {
+    val instance = DenseInstance(Array(1.4,1.3,2.1))
+    assert(instance(0) == 1.4)
+    assert(instance(1) == 1.3)
+    assert(instance(2) == 2.1)
     }
 
-  test("It should return its class label") {
-    val instance = DenseSingleLabelInstance(Array(1.4,1.3,2.1), 1.0)
-    assert(instance.labelAt(0) == 1.0)
-  }
+  test("A DenseInstance should return 0.0 for a out of bounds index") {
+    val instance = DenseInstance(Array(1.4,1.3,2.1))
+    assert(instance(-1) == 0.0)
+    assert(instance(3) == 0.0)
+    }
 
-  test("It should have a dot operation") {
-    val instance1 = DenseSingleLabelInstance(Array(1.4, 1.3, 2.1), 1.0)
-    val instance2 = DenseSingleLabelInstance(Array(0.4, 0.3, 1.1), 1.0)
+  test("A DenseInstance should have a dot operation with another DenseInstance") {
+    val instance1 = DenseInstance(Array(1.4, 1.3, 2.1))
+    val instance2 = DenseInstance(Array(0.4, 0.3, 1.1))
     assert(instance1.dot(instance2) == 1.4*0.4+1.3*0.3+2.1*1.1)
   }
 
-  test("It should have an add operation of instances") {
-    val instance1 = DenseSingleLabelInstance(Array(1.4, 1.3, 2.1), 1.0)
-    val instance2 = DenseSingleLabelInstance(Array(0.4, 0.3, 1.1), 1.0)
+  test("A DenseInstance should be able to add another DenseInstance") {
+    val instance1 = DenseInstance(Array(1.4, 1.3, 2.1))
+    val instance2 = DenseInstance(Array(0.4, 0.3, 1.1))
     val sumInstance = instance1.add(instance2);
-    val instance3 = DenseSingleLabelInstance(Array(1.4+0.4, 1.3+0.3, 2.1+1.1), 1.0)
+    val instance3 = DenseInstance(Array(1.4+0.4, 1.3+0.3, 2.1+1.1))
     (sumInstance.features zip instance3.features).map{case (x,y)=> assert(x==y)}
-    assert(instance1.add(instance2).labelAt(0) == instance3.labelAt(0))
   }
 
-  test("It should have a map function for features") {
-    val instance1 = DenseSingleLabelInstance(Array(1.4, 1.3, 2.1), 1.0)
-    val instance2 = instance1.mapFeatures(f=>f+2.0)
-    (instance1.features zip instance2.features).map{case (x,y)=> assert(y==x+2.0)}
-    assert(instance2.labelAt(0) == instance1.labelAt(0))
+  test("A DenseInstance should be able to add a SparseInstance") {
+    val instance1 = DenseInstance(Array(1.4, 1.3, 2.1))
+    val instance2 = SparseInstance(Array(1), Array(1.2))
+    val sumInstance = instance1.add(instance2);
+    val instance3 = DenseInstance(Array(1.4+0, 1.3+1.2, 2.1+0))
+    (sumInstance.features zip instance3.features).map{case (x,y)=> assert(x==y)}
+  }
+
+  test("A DenseInstance should be able to set the value of a Feature") {
+    val instance1 = DenseInstance(Array(1.1, 1.3, 2.1))
+    val instance2 = instance1.set(1,2.0)
+    val instance3 = DenseInstance(Array(1.1, 2.0, 2.1))
+    (instance2.features zip instance3.features).map{case (x,y) => assert(x==y)}
+  }
+
+  test("A DenseInstance should be able to append a Feature") {
+    val instance1 = DenseInstance(Array(1.1, 1.3, 2.1))
+    val instance2 = instance1.set(3,2.0)
+    val instance3 = DenseInstance(Array(1.1, 1.3, 2.1, 2.0))
+    (instance2.features zip instance3.features).map{case (x,y) => assert(x==y)}
+  }
+
+  test("A DenseInstance should have a map function for features") {
+    val instance1 = DenseInstance(Array(1.4, 1.3, 2.1))
+    val instance2 = instance1.map(f=>f+2.0)
+    (instance1.features zip instance2.features).map{case (x,y)=> 
+      assert(y==x+2.0)}
+  }
+
+  test("A DenseInstance should have a parser from CSV format") {
+    val input = "1.1,1.3,2.1"
+    val parsedInstance = DenseInstance.parse(input)
+    val testInstance = DenseInstance(Array(1.1,1.3,2.1))
+    (parsedInstance.features zip testInstance.features).map{ case (x,y) =>
+      assert(x==y)}
+  }
+
+  test("A DenseInstance should have a .toString override") {
+    val instance1 = DenseInstance(Array(1.4, 1.3, 2.1))
+    assert(instance1.toString == "1.4,1.3,2.1")
   }
 }

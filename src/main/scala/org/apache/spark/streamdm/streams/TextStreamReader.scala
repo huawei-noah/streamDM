@@ -17,30 +17,26 @@
 
 package org.apache.spark.streamdm.streams
 
-import com.github.javacliparser.{StringOption, IntOption, ClassOption}
+import com.github.javacliparser._
 import org.apache.spark.streamdm.core._
-import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streamdm.core.Instance
 
 /**
- * Stream reader that gets instances from a socket stream
+ * Stream reader that gets instances from a file stream
  */
-class SocketTextStreamReader extends StreamReader{
+class TextStreamReader extends StreamReader{
 
-  val portOption: IntOption = new IntOption("port", 'p',
-    "Socket port", 9999, 0, Integer.MAX_VALUE)
-
-  val hostOption: StringOption = new StringOption("host", 'h',"Host",
-    "localhost")
+  val fileOption: StringOption = new StringOption("file", 'f',
+    "Directory where the files are", ".")
 
   val instanceOption: StringOption = new StringOption("instanceType", 't',
     "Type of the instance to use", "dense")
 
   def getInstances(ssc:StreamingContext): DStream[Example] = {
     //stream is a localhost socket stream
-    val text = ssc.socketTextStream(hostOption.getValue, portOption.getValue)
+    val text = ssc.textFileStream(fileOption.getValue)
     //transform stream into stream of instances
     //instances come as whitespace delimited lines, where the first item is the
     //instance of the label(s) and the second is the instance of the features

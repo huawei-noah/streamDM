@@ -20,31 +20,24 @@ package org.apache.spark.streamdm.core
 /**
  * A DenseInstance is an Instance in which the features are dense, i.e., there
  * exists a value for (almost) every feature.
- * The DenseInstance will keep an Array of the values of the features, and the
+ * The DenseInstance will keep an Array of the values and the
  * corresponding dot product will be based on that.
  */
 
-case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
+case class DenseInstance(inVector: Array[Double])
   extends Instance with Serializable {
   
-  type T = DenseSingleLabelInstance
+  type T = DenseInstance
 
-  val features = inFeatures
-  override val label = inLabel
+  val features = inVector
 
   /* Get the feature value present at position index
   *
-  * @param index the index of the features
+  * @param index the index of the desired value 
   * @return a Double representing the feature value
   */
-  def featureAt(index: Int): Double = features(index)
-  
-  /*Get the class value present at position index
-  *
-  * @param index the index of the class
-  * @return a Double representing the value fo the class
-  */
-  def labelAt(index: Int): Double = label
+  override def apply(index: Int): Double = 
+    if (index>=features.length||index<0) 0.0 else features(index)
 
   /* Perform a dot product between two instances
   *
@@ -53,18 +46,19 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
   * @return a Double representing the dot product 
   */
   override def dot(input: Instance): Double = input match { 
-    case DenseSingleLabelInstance(f,l) => {
+    case DenseInstance(f) => {
       var sum:Double = 0.0
       var i:Int = 0
       while (i<features.length) {
-        sum += f(i)*featureAt(i)
+        sum += f(i)*this(i)
         i += 1
       }
       sum
     }
+    //using imperative version for efficiency reasons
     //normally it should be implemented as below
     //  (0 until features.length).foldLeft(0.0)((d,i) => d + features(i)*f(i))
-    case SparseSingleLabelInstance(i,v,l) =>
+    case SparseInstance(i,v) =>
       input.dot(this)
     case _ => 0.0
   }
@@ -74,24 +68,24 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
    * @param input an Instance which is added up
    * @return an Instance representing the added Instances
    */
-  override def add(input: Instance): DenseSingleLabelInstance = input match {
-    case DenseSingleLabelInstance(f,l) => {
+  override def add(input: Instance): DenseInstance = input match {
+    case DenseInstance(f) => {
       var i: Int = 0
       while (i<features.length) {
         features(i) += f(i)
         i += 1
       }
-      new DenseSingleLabelInstance(features, label)
+      new DenseInstance(features)
     }
       //val addedInstance = (0 until features.length).map(i => features(i)+f(i))
       //new DenseSingleLabelInstance(addedInstance.toArray, label)
-    case SparseSingleLabelInstance(ind,v,l) => {
+    case SparseInstance(ind,v) => {
       var i: Int = 0
       while (i<ind.length) {
         features(ind(i)) += v(i)
         i += 1
       }
-      new DenseSingleLabelInstance(features, label)
+      new DenseInstance(features)
     }
     case _ => this
   }
@@ -102,31 +96,37 @@ case class DenseSingleLabelInstance(inFeatures: Array[Double], inLabel: Double)
    * @param input the feature value which is added up
    * @return an Instance representing the new feature vector
    */
-  override def setFeature(index: Int, input: Double):DenseSingleLabelInstance =
-    new DenseSingleLabelInstance(features:+input,label)
+  override def set(index: Int, input: Double): DenseInstance = {
+    var returnInstance = this
+    if (index>=0&&index<features.length) {
+      features(index) = input
+      returnInstance = new DenseInstance(features)
+    }
+    else if (index==features.length)
+      returnInstance = new DenseInstance(features:+input)
+    returnInstance
+  }
 
   /** Apply an operation to every feature of the Instance (essentially a map)
    * TODO try to extend map to this case
    * @param func the function for the transformation
    * @return a new Instance with the transformed features
    */
-  override def mapFeatures(func: Double=>Double): DenseSingleLabelInstance =
-    new DenseSingleLabelInstance(features.map{case x => func(x)}, label)
+  override def map(func: Double=>Double): DenseInstance =
+    new DenseInstance(features.map{case x => func(x)})
  
-  override def toString =
-      "l=%.0f v={%s}".format(label, features.mkString(","))
+  override def toString = features.mkString(",")
 }
 
-object DenseSingleLabelInstance extends Serializable {
+object DenseInstance extends Serializable {
   
   /** Parse the input string as an DenseInstance class
    *
    * @param input the String line to be read
    * @return a DenseInstance which is parsed from input
    */
-  def parse(input: String): DenseSingleLabelInstance = {
-    val tokens = input.split("\\s+")
-    new DenseSingleLabelInstance(tokens.tail.map(_.toDouble),
-                                 tokens.head.toDouble)
+  def parse(input: String): DenseInstance = {
+    val tokens = input.split(",")
+    new DenseInstance(tokens.map(_.toDouble))
   }
 }
