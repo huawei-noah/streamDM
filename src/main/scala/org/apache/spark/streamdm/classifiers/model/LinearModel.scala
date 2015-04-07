@@ -24,7 +24,7 @@ import org.apache.spark.streamdm.core._
  * provides methods for updating the model and for predicting the label of a
  * given Instance
  */
-class LinearModel(lossFunction: Loss, initialModel: Example, numberFeatures:Int)
+class LinearModel(lossFunction: Loss, initialModel: Instance,numberFeatures:Int)
   extends Model with Serializable {
 
   type T = LinearModel
@@ -37,7 +37,7 @@ class LinearModel(lossFunction: Loss, initialModel: Example, numberFeatures:Int)
    * @param instance the Instance based on which the Model is updated
    * @return the updated Model
    */
-  override def update(changeInstance: Example): LinearModel =
+  override def update(changeInstance: Instance): LinearModel =
     new LinearModel(loss, modelInstance.add(changeInstance), numFeatures) 
 
   /* Predict the label of the Instance, given the current Model
@@ -46,22 +46,21 @@ class LinearModel(lossFunction: Loss, initialModel: Example, numberFeatures:Int)
    * @return a Double representing the class predicted
    */
   def predict(instance: Example): Double =
-    loss.predict(modelInstance.dot(instance.setFeature(numFeatures,1.0)))
+    loss.predict(modelInstance.dot(instance.in.set(numFeatures,1.0)))
 
   /* Compute the loss of the direction of the change
    * @param instance the Instance for which the gradient is computed
    * @return an instance containging the gradients for every feature
    */
-  def gradient(instance: Example): Example = {
+  def gradient(instance: Example): Instance = {
     //compute the gradient based on the dot product, then compute the changes
-    val ins = instance.setFeature(numFeatures,1.0)
-    val ch = -loss.gradient(instance.inst.label,
-                            modelInstance.dot(ins))
-    ins.mapFeatures(x => ch*x)
+    val ins = instance.in.set(numFeatures,1.0)
+    val ch = -loss.gradient(instance.labelAt(0), modelInstance.dot(ins))
+    ins.map(x => ch*x)
   }
 
-  def regularize(regularizer: Regularizer): Example = 
-    modelInstance.mapFeatures(x => -regularizer.gradient(x))
+  def regularize(regularizer: Regularizer): Instance = 
+    modelInstance.map(x => -regularizer.gradient(x))
   
   override def toString = "Model %s".format(modelInstance.toString)
 }

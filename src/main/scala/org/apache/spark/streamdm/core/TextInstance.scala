@@ -22,37 +22,28 @@ package org.apache.spark.streamdm.core
  * each associated with a value.
  */
 
-case class TextSingleLabelInstance(inFeatures: Map[String, Double],
-                                   inLabel: Double)
+case class TextInstance(inFeatures: Map[String, Double])
   extends Instance with Serializable {
   
-  type T = TextSingleLabelInstance
+  type T = TextInstance
 
   val features = inFeatures
-  override val label = inLabel
 
  /* Get the feature value for a given index 
   *
   * @param index the key of the features
   * @return a Double representing the feature value
   */
-  def featureAt(index: Int): Double =
-    featureAt(index.toString)
+  def apply(index: Int): Double =
+    valueAt(index.toString)
 
   /* Get the feature value for a given key
   *
   * @param key the key of the features
   * @return a Double representing the feature value
   */
-  def featureAt(key: String): Double =
+  def valueAt(key: String): Double =
     features.getOrElse(key,0.0)
-  
-  /*Get the class value present at position index
-  *
-  * @param index the index of the class
-  * @return a Double representing the value fo the class
-  */
-  def labelAt(index: Int): Double = label
 
   /* Perform a dot product between two instances
   *
@@ -61,7 +52,7 @@ case class TextSingleLabelInstance(inFeatures: Map[String, Double],
   * @return a Double representing the dot product 
   */
   override def dot(input: Instance): Double = input match { 
-    case TextSingleLabelInstance(f,l) =>
+    case TextInstance(f) =>
       dotTupleArrays(f.toArray, features.toArray)
     case _ => 0.0
   }
@@ -71,10 +62,10 @@ case class TextSingleLabelInstance(inFeatures: Map[String, Double],
    * @param input an Instance which is added up
    * @return an Instance representing the added Instances
    */
-  override def add(input: Instance): TextSingleLabelInstance = input match {
-    case TextSingleLabelInstance(f,l) => {
+  override def add(input: Instance): TextInstance = input match {
+    case TextInstance(f) => {
       val addedInstance = addTupleArrays(f.toArray,features.toArray)
-      new TextSingleLabelInstance(arrayToMap(addedInstance), label)
+      new TextInstance(arrayToMap(addedInstance))
     }
     case _ => this
   }
@@ -85,8 +76,8 @@ case class TextSingleLabelInstance(inFeatures: Map[String, Double],
    * @param value the value on which the feature is set
    * @return an Instance representing the new feature vector
    */
-  def setFeature(key: String, value: Double): TextSingleLabelInstance =
-    new TextSingleLabelInstance((features-key)+(key->value), label)
+  def setFeature(key: String, value: Double): TextInstance =
+    new TextInstance((features-key)+(key->value))
 
   /** Append a feature to the instance
    *
@@ -94,7 +85,7 @@ case class TextSingleLabelInstance(inFeatures: Map[String, Double],
    * @param input the new value of the feature
    * @return an Instance representing the new feature vector
    */
-  def setFeature(index: Int, input: Double): TextSingleLabelInstance =
+  def set(index: Int, input: Double): TextInstance =
     setFeature(index.toString, input)
 
   /** Apply an operation to every feature of the Instance (essentially a map)
@@ -102,8 +93,8 @@ case class TextSingleLabelInstance(inFeatures: Map[String, Double],
    * @param func the function for the transformation
    * @return a new Instance with the transformed features
    */
-  override def mapFeatures(func: Double=>Double): TextSingleLabelInstance =
-    new TextSingleLabelInstance(features.mapValues{case x => func(x)}, label) 
+  override def map(func: Double=>Double): TextInstance =
+    new TextInstance(features.mapValues{case x => func(x)}) 
   
   private def dotTupleArrays(l1: Array[(String, Double)], 
                              l2: Array[(String, Double)]): Double =
@@ -120,18 +111,18 @@ case class TextSingleLabelInstance(inFeatures: Map[String, Double],
   
 }
 
-object TextSingleLabelInstance extends Serializable {
+object TextInstance extends Serializable {
   
   /** Parse the input string as an SparseInstance class
    *
    * @param input the String line to be read
    * @return a DenseInstance which is parsed from input
    */
-  def parse(input: String): TextSingleLabelInstance = {
-    val tokens = input.split("\\s+")
-    val features = tokens.tail.map(_.split(":"))
+  def parse(input: String): TextInstance = {
+    val tokens = input.split(",")
+    val features = tokens.map(_.split(":"))
     val featMap = features.groupBy(_.head).map{case (k,v) => (k,
       v.head.tail.head.toDouble)}
-    new TextSingleLabelInstance(featMap, tokens.head.toDouble)
+    new TextInstance(featMap)
   }
 }

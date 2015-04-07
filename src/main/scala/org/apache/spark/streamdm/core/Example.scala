@@ -18,31 +18,32 @@
 package org.apache.spark.streamdm.core
 
 /**
- * An Example is a wrapper on top of the Instance class hierarchy. It
- * contains a reference to an Instance, and provides every method that the
- * instance provides. This is done so that the DStream accepts any type on
- * Instance in the parameters, and that the same DStream contains multiple types
- * of Instance. Every operation and class -- except Reader classes -- operate on
- * Example instead on Instance.
+ * An Example is a wrapper on top of the Instance class hierarchy. It contains a
+ * reference to an input Instance and an output Instance, and provides setters
+ * and getters for the features and labels. This is done so that the DStream
+ * accepts any type on Instance in the parameters, and that the same DStream
+ * contains multiple types of Instance.
  */
 
-class Example(instance: Instance) extends Serializable {
+class Example(inInstance: Instance, outInstance: Instance) 
+  extends Serializable {
   
-  val inst = instance
+  val in = inInstance
+  val out = outInstance
 
   /** Get the feature value present at position index
    *
    * @param index the index of the features
    * @return a Double representing the feature value
    */
-  def featureAt(index: Int): Double = inst.featureAt(index)
+  def featureAt(index: Int): Double = in(index)
   
   /** Get the class value present at position index
    *
    * @param index the index of the class
    * @return a Double representing the value for the class
    */
-  def labelAt(index: Int): Double = inst.labelAt(index)
+  def labelAt(index: Int): Double = out(index)
 
     /** Add a feature to the instance in the example
    *
@@ -51,31 +52,48 @@ class Example(instance: Instance) extends Serializable {
    * @return an Example containing an Instance with the new features
    */
   def setFeature(index: Int, input: Double): Example =
-    new Example(inst.setFeature(index, input))
+    new Example(in.set(index, input),out)
+
+   /** Add a feature to the instance in the example
+   *
+   * @param index the index at which the value is added
+   * @param input the label value which is added up
+   * @return an Example containing an Instance with the new labels
+   */
+  def setLabel(index: Int, input: Double): Example =
+    new Example(in, out.set(index, input))
+
+
+  override def toString = "%s %s".format(out.toString, in.toString)
+}
+
+object Example extends Serializable {
   
-  /** Perform a dot product between two instances
+  /** Parse the input string as an SparseInstance class
    *
-   * @param input an Example with which the dot product is performed
-   * @return a Double representing the dot product 
+   * @param input the String line to be read, where the input and output
+   * instances are separated by a whitespace character, of the form
+   * "output_instance<whitespace>input_instance"
+   * @param inType String specifying the format of the input instance
+   * @param outType String specifying the format of the output instance
+   * @return a DenseInstance which is parsed from input
    */
-  def dot(input: Example): Double = inst.dot(input.inst)
+  def parse(input: String, inType: String, outType: String): Example = {
+    val tokens = input.split("\\s+")
+    new Example(getInstance(tokens.tail.head, inType),
+                getInstance(tokens.head, outType))
+  }
 
-  /** Perform an element by element addition between two Examples
-   *
-   * @param input an Instance which is added up
-   * @return an Instance representing the added Instances
+  /** Parse the input string based on the type of Instance, by calling the
+   * associated .parse static method
+   * @param input the String to be parsed
+   * @param instType the type of instance to be parsed ("dense" or "sparse")
+   * @return the parsed Instance, or null if the type is not properly explained
    */
-  def add(input: Example): Example =
-    new Example(inst.add(input.inst))
-
-  /** Apply an operation to every feature of the Instance contained in the
-   * Example (essentially a map)
-   *
-   * @param func the function for the transformation
-   * @return a new Instance with the transformed features
-   */
-  def mapFeatures(func: Double=>Double): Example = 
-    new Example(inst.mapFeatures(func))
-
-  override def toString = inst.toString
+  private def getInstance(input: String, instType: String): Instance = 
+    instType match {
+      case "dense" => DenseInstance.parse(input)
+      case "sparse" => SparseInstance.parse(input)
+      case _ => null
+    }
 }
