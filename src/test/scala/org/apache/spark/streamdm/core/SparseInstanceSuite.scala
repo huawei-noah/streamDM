@@ -78,9 +78,10 @@ class SparseInstanceSuite extends FunSuite {
   test("able to compute the distance to a DenseInstance") {
     val instance1 = SparseInstance(Array(0,2), Array(1.4, 2.1))
     val instance2 = DenseInstance(Array(0.0, 1.6, 2.0))
-    val sumInstance = instance1.add(instance2);
-    val instance3 = SparseInstance(Array(0,1,2), Array(1.4, 1.6, 2.1+2.0))
-    sumInstance.indexes.map{ case x => assert(sumInstance(x)==instance3(x))}
+    val dist = instance1.distanceTo(instance2);
+    val trueDist = math.sqrt(math.pow(1.4,2)+math.pow(1.6,2)+
+                   math.pow(2.1-2.0,2))
+    assert(dist==trueDist)
   }
 
   test("able to append a Feature") {
