@@ -60,7 +60,11 @@ class MultinomialNaiveBayes extends Learner {
    * @return the updated Model
    */
   override def train(input: DStream[Example]): Unit = {
-    input.map(model.update)
+    input.foreachRDD {
+      rdd =>
+        val tmodel = rdd.aggregate(new MultinomialNaiveBayesModel(model.numClasses, model.numFeatures, model.laplaceSmoothingFactor))((mod, example) => { mod.update(example) }, (mod1, mod2) => mod1.merge(mod2))
+        model.merge(tmodel)
+    }
   }
 
   /* Predict the label of the Instance, given the current Model
@@ -73,25 +77,19 @@ class MultinomialNaiveBayes extends Learner {
   }
 }
 
-class MultinomialNaiveBayesModel(numClasses: Int, numFeatures: Int, laplaceSmoothingFactor: Int) extends Model with Serializable {
+class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val laplaceSmoothingFactor: Int) extends Model with Serializable {
   type T = MultinomialNaiveBayesModel
 
-  var classStatistics: Array[Int] = null
-  var classFeatureStatistics: Array[Array[Double]] = null
+  var classStatistics: Array[Int] = new Array[Int](numClasses)
+  var classFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatures))
 
-  var isReady: Boolean = false
+  @transient var isReady: Boolean = false
 
-  var logNumberDocuments: Double = 0
-  var logProbability: Array[Double] = null
-  var logConditionalProbability: Array[Array[Double]] = null
-  var logNumberDocumentsOfClass: Double = 0
-
-  def init() = {
-    classStatistics = new Array[Int](numClasses)
-    classFeatureStatistics = Array.fill(numClasses)(new Array[Double](numFeatures))
-    logProbability = new Array[Double](numClasses)
-    logConditionalProbability = Array.fill(numClasses)(new Array[Double](numFeatures))
-  }
+  // varialbles for prediction
+  @transient var logNumberDocuments: Double = 0
+  @transient var logProbability: Array[Double] = null
+  @transient var logConditionalProbability: Array[Array[Double]] = null
+  @transient var logNumberDocumentsOfClass: Double = 0
 
   override def update(instance: Instance): MultinomialNaiveBayesModel = {
     this
@@ -105,7 +103,6 @@ class MultinomialNaiveBayesModel(numClasses: Int, numFeatures: Int, laplaceSmoot
     if (isReady) {
       isReady = false
     }
-    if (classStatistics == null) init
     classStatistics(instance.labelAt(0).toInt) += 1
     for (i <- 0 until numFeatures) {
       classFeatureStatistics(instance.labelAt(0).toInt)(i) += instance.featureAt(i)
@@ -117,7 +114,9 @@ class MultinomialNaiveBayesModel(numClasses: Int, numFeatures: Int, laplaceSmoot
    * 
    */
   private def prepare(): Boolean = {
-    if (classStatistics != null && !isReady) {
+    if (!isReady) {
+      logProbability = new Array[Double](numClasses)
+      logConditionalProbability = Array.fill(numClasses)(new Array[Double](numFeatures))
       val totalnum = classFeatureStatistics.map { x => x.sum }.sum
       logNumberDocuments = math.log(totalnum + numClasses * laplaceSmoothingFactor)
       for (i <- 0 until numClasses) {
@@ -155,4 +154,22 @@ class MultinomialNaiveBayesModel(numClasses: Int, numFeatures: Int, laplaceSmoot
    * @return a Double
    */
   private def argMax(array: Array[Double]): Double = array.zipWithIndex.maxBy(_._1)._2
+
+  /*
+   * merge the statistics into current model
+   * @param MultinomialNaiveBayesModel
+   * @return MultinomialNaiveBayesModel
+   */
+  def merge(mod2: MultinomialNaiveBayesModel): MultinomialNaiveBayesModel = {
+
+    val mergeClassStatistics = this.classStatistics.zip(mod2.classStatistics).map { case (x, y) => x + y }
+    val mergeClassFeatureStatistics = this.classFeatureStatistics.zip(mod2.classFeatureStatistics).map { case (a1, a2) => a1.zip(a2).map { case (x, y) => x + y } }
+    this.classStatistics = mergeClassStatistics
+    this.classFeatureStatistics = mergeClassFeatureStatistics
+
+    this
+  }
+
 }
+
+
