@@ -30,7 +30,7 @@ import org.apache.spark.streaming.dstream._
  * reate parameter, and the number of features need to be specified in the
  * associated Task configuration file.
  */
-class SGDLearner extends Learner {
+class SGDLearner extends Classifier {
 
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "Number of Features", 3, 1, Integer.MAX_VALUE)

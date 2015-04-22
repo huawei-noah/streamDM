@@ -17,7 +17,6 @@
 
 package org.apache.spark.streamdm.clusterers
 
-import com.github.javacliparser.Configurable
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 
@@ -26,16 +25,7 @@ import org.apache.spark.streaming.dstream._
  * clustering algorithm. It provides methods for clustering and for returning
  * the computed cluster.
  */
-trait Clusterer extends Configurable  with Serializable {
-
-  /* Init the underlying cluster data structure
-   */
-  def init: Unit
-
-  /* Cluster a stream of input examples
-   * @param input a DStream containing Example
-   * */
-  def cluster(input: DStream[Example]): Unit
+trait Clusterer extends Learner  with Serializable {
 
   /* Get the currently computed clusters
    * @return an Array of Examples representing the clusters

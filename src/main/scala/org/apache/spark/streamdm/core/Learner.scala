@@ -15,7 +15,7 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers
+package org.apache.spark.streamdm.core
 
 import com.github.javacliparser.Configurable
 import org.apache.spark.streamdm.core._
@@ -32,7 +32,7 @@ trait Learner extends Configurable  with Serializable {
    * from the stream of instances given for training.
    *
    */
-  def init(): Unit
+  def init: Unit
 
   /* Train the model based on the algorithm implemented in the learner, 
    * from the stream of instances given for training.
@@ -41,11 +41,4 @@ trait Learner extends Configurable  with Serializable {
    * @return the updated Model
    */
   def train(input: DStream[Example]): Unit
-
-  /* Predict the label of the Instance, given the current Model
-   *
-   * @param instance the Instance which needs a class predicted
-   * @return a tuple containing the original instance and the predicted value
-   */
-  def predict(input: DStream[Example]): DStream[(Example,Double)]
 }
