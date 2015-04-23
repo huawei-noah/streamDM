@@ -89,7 +89,7 @@ case class DenseInstance(inVector: Array[Double])
       }
       new DenseInstance(features)
     }
-    case _ => this
+    case _ => new DenseInstance(features)
   }
 
   /** Compute the Euclidean distance to another Instance 

@@ -112,7 +112,7 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
       }
       new SparseInstance(addedIndexes, addedFeatures)
     }
-    case _ => this
+    case _ => new SparseInstance(indexes, values)
   }
 
   /** Compute the Euclidean distance to another Instance 
