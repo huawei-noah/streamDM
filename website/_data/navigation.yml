@@ -1,0 +1,15 @@
+# Site navigation links
+
+- title: About
+  url: /
+
+- title: Getting Started
+  url: /docs/GettingStarted.html
+
+- title: Documentation
+  url: /docs/
+
+- title: Contributors
+  url: /docs/Contributors.html
+
+
