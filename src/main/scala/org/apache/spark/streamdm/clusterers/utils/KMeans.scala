@@ -20,6 +20,7 @@ package org.apache.spark.streamdm.clusterers.utils
 import org.apache.spark.streamdm.core._
 
 import scala.util.Random
+import scala.io.Source
 
 /**
  * The KMeans object computes the weighted k-means clustering given an array of
@@ -48,8 +49,6 @@ object KMeans extends Serializable {
         (a._1, a._2+1)
       }
     })._1
-    println("initial")
-    printCentroids(centroids)
     for(i <- 0 until iterations) {
       //initialize new empty clusters
       //each cluster will contain the sum of the instances in the cluster and
@@ -77,8 +76,6 @@ object KMeans extends Serializable {
           else cl._1.map(x => x/cl._2)
         a:+centroid
       })
-      println("iter %d".format(i))
-      printCentroids(centroids)
     }
     centroids
   }
@@ -93,10 +90,31 @@ object KMeans extends Serializable {
         (left._1.add(right._1.map(x=>x*right._2)),left._2+right._2)
     }
 
-  //DEBUG only
-  private def printCentroids(input: Array[Instance]): Unit = {
-    input.zipWithIndex.foreach{ case (x,i) => 
-      println("\t%d => %s".format(i,x.toString))
-    }
+}
+
+
+/**
+ * TestKmeans is used to test offline the k-means algorithm, and can be run via:
+ * {{{
+ *   sbt "run-main org.apache.spark.streamdm.clusterers.utils.TestKMeans
+ *    <input_file> <k> <iterations> <instance_type=dense|sparse>"
+ * }}}
+ */
+object TestKMeans {
+
+  private def printCentroids(input: Array[Instance]): Unit =
+    input.foreach{ case x => println(x) }
+
+  def main(args: Array[String]) {
+
+    var data: Array[Example] = Array[Example]()
+
+    for(line <- Source.fromFile(args(0)).getLines())
+      data = data :+ Example.parse(line,args(3),"dense")
+
+    var centroids = KMeans.cluster(data, args(1).toInt, args(2).toInt)
+
+    printCentroids(centroids)
+
   }
 }
