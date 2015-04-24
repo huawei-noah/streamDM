@@ -11,7 +11,7 @@ import org.scalatest.FunSuite
  */
 class MultinomialNaiveBayesSuite extends FunSuite {
 
-  test("The merge function must merge statistics and return a new model") {
+  test("the merge function must merge statistics and return a new model") {
     val ct1: Array[Double] = Array(1, 0)
     val ct2: Array[Double] = Array(0, 1)
     val cfs1: Array[Array[Double]] = Array(Array(1.0, 0, 0), Array(0, 2, 0))
@@ -27,7 +27,7 @@ class MultinomialNaiveBayesSuite extends FunSuite {
 
   }
 
-  test("The create function must init as the input") {
+  test("the create function must init as the input") {
     val ct1: Array[Double] = Array(1, 0)
     val ct2: Array[Double] = Array(0, 1)
     val cfs1: Array[Array[Double]] = Array(Array(1.0, 0, 0), Array(0, 2, 0))
@@ -59,7 +59,7 @@ class MultinomialNaiveBayesSuite extends FunSuite {
     assert(mod1.predict(instance2) == 1)
   }
 
-  test("udate labeled data must add to the statistics") {
+  test("updated labeled data must be added to the statistics") {
     val ct1: Array[Double] = Array(1, 1)
     val cfs1: Array[Array[Double]] = Array(Array(1, 0), Array(0, 1))
     val mod1 = new MultinomialNaiveBayesModel(2, 2, 1, ct1, cfs1)
