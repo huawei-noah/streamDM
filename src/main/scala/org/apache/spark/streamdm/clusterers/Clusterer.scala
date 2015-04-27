@@ -15,16 +15,20 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model
+package org.apache.spark.streamdm.clusterers
+
+import org.apache.spark.streamdm.core._
+import org.apache.spark.streaming.dstream._
 
 /**
- * A regularizer trait defines the gradient operation for computing regularized
- * models. 
+ * A Clusterer trait defines the needed operations for any implemented
+ * clustering algorithm. It provides methods for clustering and for returning
+ * the computed cluster.
  */
-trait Regularizer extends Serializable {
-  /** Computes the value of the gradient function
-   * @param value the weight for which the gradient is computed   
-   * @return the gradient value 
+trait Clusterer extends Learner  with Serializable {
+
+  /* Get the currently computed clusters
+   * @return an Array of Examples representing the clusters
    */
-  def gradient(weight: Double): Double
+  def getClusters: Array[Example]
 }

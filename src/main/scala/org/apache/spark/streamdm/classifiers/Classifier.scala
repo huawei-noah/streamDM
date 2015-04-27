@@ -15,30 +15,22 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model.model
+package org.apache.spark.streamdm.classifiers
 
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streaming.dstream._
 
 /**
- * A Model trait defines the needed operations on any learning Model. It
- * provides methods for updating the model and for predicting the label of a
- * given Instance
+ * A Classifier trait defines the needed operations on any implemented
+ * classifier. It provides methods for training the model and for predicting the
+ * labels for a stream of Instance RDDs.
  */
-trait Model extends Serializable {
-
-  type T <: Model
-
-  /* Update the model, depending on the Instance given for training
-   *
-   * @param changeInstance the Instance based on which the Model is updated
-   * @return the updated Model
-   */
-  def update(changeInstance: Instance): T
+trait Classifier extends Learner with Serializable {
 
   /* Predict the label of the Instance, given the current Model
    *
    * @param instance the Instance which needs a class predicted
-   * @return a Double representing the class predicted
+   * @return a tuple containing the original instance and the predicted value
    */
-  def predict(instance: Example): Double
+  def predict(input: DStream[Example]): DStream[(Example,Double)]
 }

@@ -15,16 +15,21 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model
+package org.apache.spark.streamdm.core
 
 /**
- * A regularizer trait defines the gradient operation for computing regularized
- * models. 
+ * A Model trait defines the needed operations on any learning Model. It
+ * provides methods for updating the model and for predicting the label of a
+ * given Instance
  */
-trait Regularizer extends Serializable {
-  /** Computes the value of the gradient function
-   * @param value the weight for which the gradient is computed   
-   * @return the gradient value 
+trait Model extends Serializable {
+
+  type T <: Model
+
+  /* Update the model, depending on the Instance given for training
+   *
+   * @param changeInstance the Instance based on which the Model is updated
+   * @return the updated Model
    */
-  def gradient(weight: Double): Double
+  def update(change: Example): T
 }

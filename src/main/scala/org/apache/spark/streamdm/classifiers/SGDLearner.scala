@@ -21,7 +21,7 @@ import com.github.javacliparser.{ClassOption, FloatOption, IntOption}
 import org.apache.spark.Logging
 import org.apache.spark.streamdm._
 import org.apache.spark.streamdm.core._
-import org.apache.spark.streamdm.classifiers.model.model._
+import org.apache.spark.streamdm.classifiers.model._
 import org.apache.spark.streaming.dstream._
 
 /**
@@ -30,7 +30,9 @@ import org.apache.spark.streaming.dstream._
  * reate parameter, and the number of features need to be specified in the
  * associated Task configuration file.
  */
-class SGDLearner extends Learner {
+class SGDLearner extends Classifier {
+
+  type T = LinearModel
 
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "Number of Features", 3, 1, Integer.MAX_VALUE)
@@ -78,11 +80,12 @@ class SGDLearner extends Learner {
           val reg = mod._1.regularize(regularizer).map(f =>
               f*regularizerParameter.getValue)
           val change = grad.add(reg).map(f => f*lambdaOption.getValue)
-          (mod._1.update(change),1.0)
+          (mod._1.update(new Example(change)),1.0)
         },
         (mod1,mod2) =>
           //add all the models together, keeping the count of the RDDs used
-          (mod1._1.update(mod2._1.modelInstance), mod1._2+mod2._2)
+          (mod1._1.update(new Example(mod2._1.modelInstance)), 
+                           mod1._2+mod2._2)
         )
       if(chModels._2>0)
         //finally, take the average of the models as the new model
@@ -99,4 +102,10 @@ class SGDLearner extends Learner {
    */
   override def predict(input: DStream[Example]): DStream[(Example, Double)] =
     input.map(x => (x, model.predict(x)))
+
+  /* Gets the current Model used for the Learner.
+   * 
+   * @return the Model object used for training
+   */
+  override def getModel: LinearModel = model
 }
