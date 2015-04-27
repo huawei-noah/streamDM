@@ -5,7 +5,7 @@ image:
   feature: screen_finance.png
 ---
 
-streamDM is an open source software for mining Big Data streams using Spark Streaming. streamDM is licensed under an Apache Software License v2.0.
+streamDM is an open source software for mining Big Data streams using Spark Streaming developed at HUAWEI Noah's Ark Lab. streamDM is licensed under an Apache Software License v2.0.
 
 <p align="center"><img height="100" width="100" src="images/huawei-logo.png" alt="Huawei"></p>
 

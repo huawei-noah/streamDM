@@ -4,9 +4,6 @@ title: Documentation
 image:
   feature: screen_network.png
 ---
-
-# Documentation
-
 ## Big Data Stream Learning 
 
  Big Data stream learning is more challenging that batch learning, since:
@@ -50,10 +47,10 @@ In comparison with MLLib, users of streamDM have no need to compile code to chan
 
 In this first release of streamDM, currently we have implemented:
 
-* Logistic Regression using SGD
-* Perceptron
-* Naive Bayes
-* CluStream
+* [SGD Learner](SGD.html) (Logistic Regression,...)
+* [Perceptron](SGD.html/#perceptron)
+* [NB](NB.html)
+* [CluStream](CluStream.html)
 
 In the next 4 weeks we plan to release
 
