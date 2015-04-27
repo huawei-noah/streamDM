@@ -18,8 +18,7 @@
 package org.apache.spark.streamdm.classifiers.bayes
 
 import com.github.javacliparser.IntOption
-import org.apache.spark.streamdm.classifiers.Learner
-import org.apache.spark.streamdm.classifiers.model.model.Model
+import org.apache.spark.streamdm.classifiers.Classifier
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 
@@ -32,7 +31,9 @@ import org.apache.spark.streaming.dstream._
  * Text Categorization', 1998.<br/> <br/>
  */
 
-class MultinomialNaiveBayes extends Learner {
+class MultinomialNaiveBayes extends Classifier {
+
+  type T = MultinomialNaiveBayesModel
 
   val numClassesOption: IntOption = new IntOption("numClasses", 'c',
     "Number of Classes", 2, 2, Integer.MAX_VALUE)
@@ -79,6 +80,12 @@ class MultinomialNaiveBayes extends Learner {
   override def predict(input: DStream[Example]): DStream[(Example, Double)] = {
     input.map { x => (x, model.predict(x)) }
   }
+
+  /* Gets the current Model used for the Learner.
+   * 
+   * @return the Model object used for training
+   */
+  override def getModel: MultinomialNaiveBayesModel = model 
 }
 
 class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val laplaceSmoothingFactor: Int)
@@ -102,21 +109,20 @@ class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val 
     this.classStatistics = classStatistics
     this.classFeatureStatistics = classFeatureStatistics
   }
-  override def update(instance: Instance): MultinomialNaiveBayesModel = {
-    this
-  }
+
   /* Update the model, depending on an Instance given for training
    *
    * @param instance the Instance based on which the Model is updated
    * @return the updated Model
    */
-  def update(instance: Example): MultinomialNaiveBayesModel = {
+  override def update(instance: Example): MultinomialNaiveBayesModel = {
     if (isReady) {
       isReady = false
     }
     classStatistics(instance.labelAt(0).toInt) += 1
     for (i <- 0 until numFeatures) {
-      classFeatureStatistics(instance.labelAt(0).toInt)(i) += instance.featureAt(i)
+      classFeatureStatistics(instance.labelAt(0).toInt)(i) +=
+        instance.featureAt(i)
     }
     this
   }
@@ -148,7 +154,7 @@ class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val 
    * @param instance the Instance which needs a class predicted
    * @return a Double representing the class predicted
    */
-  override def predict(instance: Example): Double = {
+  def predict(instance: Example): Double = {
     if (prepare()) {
       val predictlogProbability = new Array[Double](numClasses)
       for (i <- 0 until numClasses) {
