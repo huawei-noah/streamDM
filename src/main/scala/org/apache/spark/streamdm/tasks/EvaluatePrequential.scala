@@ -31,7 +31,7 @@ import org.apache.spark.streamdm.evaluation.Evaluator
 class EvaluatePrequential extends Task {
 
   val learnerOption:ClassOption = new ClassOption("learner", 'l',
-    "Learner to use", classOf[Learner], "SGDLearner")
+    "Learner to use", classOf[Learner], "bayes.MultinomialNaiveBayes")
 
   val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
     "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")
@@ -41,7 +41,7 @@ class EvaluatePrequential extends Task {
 
   def run(ssc:StreamingContext): Unit = {
 
-    val learner:SGDLearner = this.learnerOption.getValue()
+    val learner:Learner = this.learnerOption.getValue()
     learner.init()
     val evaluator:Evaluator = this.evaluatorOption.getValue()
 
