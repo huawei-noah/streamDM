@@ -20,7 +20,7 @@ package org.apache.spark.streamdm.classifiers
 import com.github.javacliparser.{ClassOption, FloatOption, IntOption}
 import org.apache.spark.streamdm._
 import org.apache.spark.streamdm.core._
-import org.apache.spark.streamdm.classifiers.model.model._
+import org.apache.spark.streamdm.classifiers.model._
 import org.apache.spark.streaming.dstream._
 
 /**

@@ -25,14 +25,14 @@ import org.apache.spark.streamdm.core._
  * data structure. It mainly provides a method to update the data structure
  * based on an Instance.
  */
-trait Clusters extends Serializable {
+trait Clusters extends Model {
 
   type T <: Clusters
 
-  /* Update the clustering data structure, depending on the Instance given
+  /* Update the clustering data structure, depending on the Example given
    *
-   * @param inst the Instance based on which the Model is updated
-   * @return the updated Clusters
+   * @param inst the Example based on which the Model is updated
+   * @return the updated Clusters object
    */
-  def update(inst: Instance): T
+  override def update(change: Example): T
 }

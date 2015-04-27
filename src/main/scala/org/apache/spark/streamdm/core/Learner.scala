@@ -28,6 +28,8 @@ import org.apache.spark.streaming.dstream._
  */
 trait Learner extends Configurable  with Serializable {
 
+  type T <: Model
+  
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
@@ -41,4 +43,10 @@ trait Learner extends Configurable  with Serializable {
    * @return the updated Model
    */
   def train(input: DStream[Example]): Unit
+
+  /* Gets the current Model used for the Learner.
+   * 
+   * @return the Model object used for training
+   */
+  def getModel: T
 }
