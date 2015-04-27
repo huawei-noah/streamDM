@@ -22,6 +22,6 @@ The tools and algorithms in streamDM are specifically designed for the data stre
 * Ease of use. Experiments can be executed from the command-line, as in WEKA or MOA.
 * No dependence on third-part libraries, specially on the linear algebra package Breeze. MLlib uses  Breeze, which depends on netlib-java, and jblas that depend on native Fortran routines. Due to license issues, netlib-java’s native libraries are not included in MLlib’s dependency set under default settings. 
 * Ease of extensibility
-* Advanced machine learning methods as streaming decision trees, streaming Random Forests, streaming clustering methods as CluStream and StreamKM++. 
+* Advanced machine learning methods will be available as streaming decision trees, streaming Random Forests, streaming clustering methods as CluStream and StreamKM++. 
 
 
