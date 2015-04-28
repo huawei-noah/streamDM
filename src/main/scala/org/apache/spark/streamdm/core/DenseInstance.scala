@@ -92,6 +92,31 @@ case class DenseInstance(inVector: Array[Double])
     case _ => new DenseInstance(features)
   }
 
+  /** Perform an element by element multiplication between two instances
+   *
+   * @param input an Instance which is multiplied
+   * @return an Instance representing the Hadamard product
+   */
+  override def hadamard(input: Instance): DenseInstance = input match {
+    case DenseInstance(f) => {
+      var i: Int = 0
+      while (i<features.length) {
+        features(i) *= f(i)
+        i += 1
+      }
+      new DenseInstance(features)
+    }
+    case SparseInstance(ind,v) => {
+      var i: Int = 0
+      while (i<ind.length) {
+        features(ind(i)) *= v(i)
+        i += 1
+      }
+      new DenseInstance(features)
+    }
+    case _ => new DenseInstance(features)
+  }
+
   /** Compute the Euclidean distance to another Instance 
    *
    * @param input the Instance to which the distance is computed
@@ -148,6 +173,14 @@ case class DenseInstance(inVector: Array[Double])
    */
   override def map(func: Double=>Double): DenseInstance =
     new DenseInstance(features.map{case x => func(x)})
+
+  /** Aggregate the values of an instance 
+   *
+   * @param func the function for the transformation
+   * @return the reduced value
+   */
+  override def reduce(func: (Double,Double)=>Double): Double =
+    features.reduce(func)
  
   override def toString = features.mkString(",")
 }
