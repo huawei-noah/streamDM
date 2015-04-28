@@ -48,7 +48,7 @@ In comparison with MLLib, users of streamDM have no need to compile code to chan
 In this first release of streamDM, currently we have implemented:
 
 * [SGD Learner](SGD.html) (Logistic Regression,...)
-* [Perceptron](SGD.html/#perceptron)
+* [Perceptron](SGD.html#perceptron)
 * [NB](NB.html)
 * [CluStream](CluStream.html)
 
