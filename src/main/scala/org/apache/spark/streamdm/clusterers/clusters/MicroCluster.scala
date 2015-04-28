@@ -41,9 +41,14 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
    * @param time the timestamp of the Instance
    * @return the new MicroCluster
    */
-  def insert(inst: Instance, time: Long): MicroCluster =
-    new MicroCluster(sum.add(inst), sqSum.add(inst.map(x=>x*x)), timeSum+time,
-                     sqTimeSum+time.toDouble*time.toDouble, num+1)
+  def insert(inst: Instance, time: Long): MicroCluster = sum match {
+    case NullInstance() =>
+      new MicroCluster(inst.map(x=>x),inst.map(x=>x*x), time,
+        time.toDouble*time.toDouble, 1)
+    case _ =>
+      new MicroCluster(sum.add(inst), sqSum.add(inst.map(x=>x*x)), timeSum+time,
+                       sqTimeSum+time.toDouble*time.toDouble, num+1)
+  }
    
   /* Merges two microclusters together 
    *
