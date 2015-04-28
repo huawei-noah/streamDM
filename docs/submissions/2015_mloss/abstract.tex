@@ -1,0 +1,73 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{palatino}
+\usepackage{xspace}
+\usepackage{fullpage}
+\usepackage{microtype}
+\usepackage{hyperref}
+
+%Macros
+\def\streamdm{\textsc{streamDM}\xspace}
+
+%opening
+\title{\streamdm: Advanced Data Stream Mining with Spark Streaming}
+\author{Albert Bifet, Silviu Maniu, Jianfeng Qian, Guangjian Tian\\
+%Alphabetical Order
+Huawei Noah's Ark Lab \\
+Science Park, Sha Tin, Hong Kong
+}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+
+
+Real-time Analytics are becoming increasingly important due to the large amount
+of data that is being created continuously. Drawing from our experiences at
+Huawei Noah's Ark Lab, we present {\bf \streamdm}, a new open source data mining and
+machine learning library, designed on top of Spark Streaming, an extension of
+the core Spark API that enables scalable, high-throughput, fault-tolerant stream
+processing of data streams.  \streamdm is designed to be easily extended and
+used, and is the first library to contain advanced stream mining algorithms for
+Spark Streaming. 
+ 
+Due to the large amount of data that is created -- and needs to
+be processed -- in real-time streams, methods on such streams need to be extremely
+time-efficient while using very small amounts memory. \streamdm
+includes advanced stream mining algorithms, and is intended to be the gathering
+point of practical implementation and deployments for large-scale data
+streams.
+
+This new library will contain methods for classification, regression, clustering
+and frequent pattern mining. In its current iteration, it contains Stochastic
+Gradient Descent, Perceptron, Naive Bayes for classification, and CluStream for
+clustering streams. Compared to the current main machine learning libraries on
+top of Spark (\emph{spark.ml} and \emph{MLlib}), the main advantages of
+\streamdm are:
+\begin{itemize}
+  \item {\bf Ease of use} Experiments can be executed from the command-line, without
+   the need for compiling tasks, similar to the WEKA and MOA libraries.
+ \item {\bf No dependence on third-party libraries} For example, MLlib uses the
+   linear algebra package Breeze, which in turn depends on netlib-java (among
+   others).  Due to licensing issues, \emph{netlib-java}'s native libraries are
+   not included in MLlib’s dependency set under default settings, complicating
+   the compilation process. We aim to avoid this in \streamdm. 
+ \item {\bf Ease of extensibility}, relying on a simple but powerful hierarchy of
+   classes.
+ \item {\bf Advanced stream machine learning methods} such as streaming decision trees,
+   streaming Random Forests, streaming clustering methods as CluStream and
+   StreamKM++. To the best of our knowledge, this is the first planned
+   implementation of such methods on top of Spark Streaming.
+\end{itemize}
+
+In terms of future implementation, we expect to include streaming decision
+trees, streaming Random Forests and StreamKM++ in the next release, planned for
+late June 2015.
+
+The current version of \streamdm is available at
+\url{http://streamdm.noahlab.com.hk/} and \url{https://mloss.org/software/view/???/}
+
+
+\end{document}
