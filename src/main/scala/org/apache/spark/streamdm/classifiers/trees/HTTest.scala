@@ -3,7 +3,6 @@ package org.apache.spark.streamdm.classifiers.trees
 import scala.math.{ log }
 import scala.util.Random
 import org.apache.spark.streamdm.core._
-import org.apache.spark.streamdm.classifiers.trees.FeatureSplit
 
 object HTTest {
   def main(args: Array[String]) {
@@ -27,7 +26,7 @@ object HTTest {
     val featureTypes: Array[FeatureType] = Array[FeatureType](new NominalFeatureType, new NominalFeatureType, new NominalFeatureType, new NominalFeatureType)
     val htm: HoeffdingTreeModel = new HoeffdingTreeModel(3, 4, 10, featureTypes)
     val examples = randomExample(3, 4, 10, 100000)
-    examples.foreach { x => htm.train(x) }
+    examples.foreach { x => htm.update(x) }
     println(htm.root)
   }
 
