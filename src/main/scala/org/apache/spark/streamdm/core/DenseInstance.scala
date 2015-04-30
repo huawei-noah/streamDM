@@ -17,6 +17,8 @@
 
 package org.apache.spark.streamdm.core
 
+import math._
+
 /**
  * A DenseInstance is an Instance in which the features are dense, i.e., there
  * exists a value for (almost) every feature.
@@ -87,7 +89,39 @@ case class DenseInstance(inVector: Array[Double])
       }
       new DenseInstance(features)
     }
-    case _ => this
+    case _ => new DenseInstance(features)
+  }
+
+  /** Compute the Euclidean distance to another Instance 
+   *
+   * @param input the Instance to which the distance is computed
+   * @return a Double representing the distance value
+   */
+  override def distanceTo(input: Instance): Double = input match {
+    case DenseInstance(f) => {
+      var sum: Double = 0.0
+      var i: Int = 0
+      while (i<features.length) {
+        sum += math.pow(features(i)-f(i),2.0)
+        i += 1
+      }
+      math.sqrt(sum)
+    }
+    case SparseInstance(ind,v) => {
+      var sum: Double = 0.0
+      var i: Int = 0
+      while (i<ind.length) {
+        if(v(i)!=0) sum+= math.pow(features(ind(i))-v(i),2.0)
+        i += 1
+      }
+      i = 0
+      while (i<features.length) {
+        if(input(i)==0) sum += math.pow(features(i),2.0)
+        i += 1
+      }
+      math.sqrt(sum)
+    }
+    case _ => Double.MaxValue
   }
 
   /** Add a feature to the instance

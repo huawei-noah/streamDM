@@ -15,7 +15,7 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model.model
+package org.apache.spark.streamdm.classifiers.model
 
 /**
  * A Loss trait defines the operation needed to compute the loss function, the

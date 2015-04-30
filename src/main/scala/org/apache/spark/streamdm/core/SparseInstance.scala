@@ -17,6 +17,8 @@
 
 package org.apache.spark.streamdm.core
 
+import math._
+
 /**
  * A SparseInstance is an Instance in which the features are sparse, i.e., most
  * features will not have any value.
@@ -110,7 +112,32 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
       }
       new SparseInstance(addedIndexes, addedFeatures)
     }
-    case _ => this
+    case _ => new SparseInstance(indexes, values)
+  }
+
+  /** Compute the Euclidean distance to another Instance 
+   *
+   * @param input the Instance to which the distance is computed
+   * @return a Double representing the distance value
+   */
+  override def distanceTo(input: Instance): Double = input match {
+    case SparseInstance(ind,v) => {
+      var i: Int = 0
+      var sum: Double = 0.0
+      while(i<ind.length) {
+        if(v(i)!=0) sum += math.pow(v(i)-this(ind(i)),2)
+        i += 1
+      }
+      i = 0
+      while(i<indexes.length) {
+        val other = input(indexes(i))
+        if(other==0) sum += math.pow(values(i),2)
+        i += 1
+      }
+      math.sqrt(sum)
+    }
+    case DenseInstance(f) => input.distanceTo(this)
+    case _ => Double.MaxValue
   }
 
   /** Append a feature to the instance

@@ -70,6 +70,23 @@ case class TextInstance(inFeatures: Map[String, Double])
     case _ => this
   }
 
+  /** Compute the Euclidean distance to another Instance 
+   *
+   * @param input the Instance to which the distance is computed
+   * @return a Double representing the distance value
+   */
+  override def distanceTo(input: Instance): Double = input match {
+    case TextInstance(f) => {
+      var sum: Double = 0.0
+      for ((k,v) <- f) 
+        if (v!=0) sum += math.pow(valueAt(k)-v,2.0)
+      for ((k,v) <- features)
+        if (f.getOrElse(k,0.0)==0) sum += math.pow(v,2.0)
+      math.sqrt(sum)
+    }
+    case _ => Double.MaxValue
+  }
+
   /** Append a feature to the instance
    *
    * @param key the key on which the feature is set

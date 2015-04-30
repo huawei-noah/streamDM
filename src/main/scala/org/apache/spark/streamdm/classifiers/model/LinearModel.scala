@@ -15,7 +15,7 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model.model
+package org.apache.spark.streamdm.classifiers.model
 
 import org.apache.spark.streamdm.core._
 
@@ -37,8 +37,8 @@ class LinearModel(lossFunction: Loss, initialModel: Instance,numberFeatures:Int)
    * @param instance the Instance based on which the Model is updated
    * @return the updated Model
    */
-  override def update(changeInstance: Instance): LinearModel =
-    new LinearModel(loss, modelInstance.add(changeInstance), numFeatures) 
+  override def update(change: Example): LinearModel =
+    new LinearModel(loss, modelInstance.add(change.in), numFeatures) 
 
   /* Predict the label of the Instance, given the current Model
    *

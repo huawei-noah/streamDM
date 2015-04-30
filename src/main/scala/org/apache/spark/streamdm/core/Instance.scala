@@ -41,6 +41,13 @@ trait Instance extends Serializable {
    */
   def dot(input: Instance): Double
 
+  /** Compute the Euclidean distance to another Instance 
+   *
+   * @param input the Instance to which the distance is computed
+   * @return a Double representing the distance value
+   */
+  def distanceTo(input: Instance): Double
+
   /** Perform an element by element addition between two instances
    *
    * @param input an Instance which is added up

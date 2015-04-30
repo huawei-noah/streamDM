@@ -39,7 +39,14 @@ case class NullInstance extends Instance with Serializable {
   * product is performed
   * @return a Double representing the dot product 
   */
-  override def dot(input: Instance): Double = 0.0 
+  override def dot(input: Instance): Double = 0.0
+
+  /** Compute the Euclidean distance to another Instance 
+   *
+   * @param input the Instance to which the distance is computed
+   * @return a Double representing the distance value
+   */
+  def distanceTo(input: Instance): Double = Double.MaxValue
 
   /** Perform an element by element addition between two instances
    *
