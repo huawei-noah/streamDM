@@ -115,6 +115,43 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
     case _ => new SparseInstance(indexes, values)
   }
 
+  /** Perform an element by element multiplication between two instances
+   *
+   * @param input an Instance which is multiplied
+   * @return an Instance representing the Hadamard product
+   */
+  override def hadamard(input: Instance): SparseInstance = input match {
+    case SparseInstance(ind,v) => {
+      var i: Int = 0
+      var addedFeatures: Array[Double] = Array()
+      var addedIndexes: Array[Int] = Array()
+      while(i<ind.length) {
+        val sum = v(i) * apply(ind(i))
+        if(v(i)!=0 && sum!=0) {
+          addedIndexes :+= ind(i)
+          addedFeatures :+= sum
+        }
+        i += 1
+      }
+      new SparseInstance(addedIndexes, addedFeatures)
+    }
+    case DenseInstance(f) => {
+      var i: Int = 0
+      var addedFeatures: Array[Double] = Array()
+      var addedIndexes: Array[Int] = Array()
+      while(i<f.length) {
+        val sum = f(i) * this(i)
+        if(sum!=0) {
+          addedIndexes :+= i
+          addedFeatures :+= sum
+        }
+        i += 1
+      }
+      new SparseInstance(addedIndexes, addedFeatures)
+    }
+    case _ => new SparseInstance(indexes, values)
+  }
+
   /** Compute the Euclidean distance to another Instance 
    *
    * @param input the Instance to which the distance is computed
@@ -155,8 +192,16 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
   override def map(func: Double=>Double): SparseInstance =
     new SparseInstance(indexes, values.map{case x => func(x)})
 
-    override def toString = (indexes zip values).map{ case (i,v) =>
-                              "%d:%f".format(i+1,v)}.mkString(",")
+  /** Aggregate the values of an instance 
+   *
+   * @param func the function for the transformation
+   * @return the reduced value
+   */
+  override def reduce(func: (Double,Double)=>Double): Double =
+    values.reduce(func)
+
+  override def toString = (indexes zip values).map{ case (i,v) =>
+                            "%d:%f".format(i+1,v)}.mkString(",")
   
 }
 

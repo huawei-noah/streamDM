@@ -37,7 +37,7 @@ object KMeans extends Serializable {
    * @param iterations the number of loops of k-means (default 1000)
    */
   def cluster(input: Array[Example], k: Int = 10, iterations: Int = 1000)
-      : Array[Instance] = {
+      : Array[Example] = {
     //sample k centroids from the input array
     //uses reservoir sampling to sample in one go
     var centroids = input.foldLeft((Array[Instance](),0))((a,e) => {
@@ -77,7 +77,7 @@ object KMeans extends Serializable {
         a:+centroid
       })
     }
-    centroids
+    centroids.map(new Example(_))
   }
 
   private def addInstancesToCluster(left: (Instance,Double), 
@@ -102,7 +102,7 @@ object KMeans extends Serializable {
  */
 object TestKMeans {
 
-  private def printCentroids(input: Array[Instance]): Unit =
+  private def printCentroids(input: Array[Example]): Unit =
     input.foreach{ case x => println(x) }
 
   def main(args: Array[String]) {
