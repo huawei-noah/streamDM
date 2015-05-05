@@ -9,4 +9,7 @@ class FeatureSplit(val conditionalTest: ConditionalTest, val merit: Double, val 
     else 0
   }
   def numSplit: Int = result.length
+
+  def distributionFromSplit(splitIndex: Int): Array[Double] = result(splitIndex)
+
 }

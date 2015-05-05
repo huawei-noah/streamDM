@@ -7,13 +7,18 @@ import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 
 class HoeffdingTreeLearner extends Learner with Serializable {
+
+  type T = HoeffdingTreeModel
   override def init(): Unit = {
 
   }
+  var model: HoeffdingTreeModel = null
+  override def getModel: HoeffdingTreeModel = model
 
   override def train(input: DStream[Example]): Unit = {
 
   }
+
   def predict(input: DStream[Example]): DStream[(Example, Double)] = { null }
 }
 
@@ -24,12 +29,16 @@ class HoeffdingTreeModel(
   var growthAllowed: Boolean = true, val binaryOnly: Boolean = false,
   val graceNum: Int = 200, tieThreshold: Double = 0.05,
   val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0)
-  extends Serializable {
+  extends Model with Serializable {
+
+  type T = HoeffdingTreeModel
 
   var activeNodeCount: Int = 0
   var inactiveNodeCount: Int = 0
   var deactiveNodeCount: Int = 0
   var decisionNodeCount: Int = 0
+
+  var examplenum: Int = 0
 
   val featureObservers: ArrayBuffer[FeatureClassObserver] = new ArrayBuffer[FeatureClassObserver]()
 
@@ -44,14 +53,19 @@ class HoeffdingTreeModel(
     activeNodeCount += 1
   }
 
-  def train(point: Example): Unit = {
-    if (root == null) init
+  override def update(point: Example): HoeffdingTreeModel = {
+    examplenum += 1
+    if (root == null) {
+      init
+      println("init root")
+    }
     val foundNode = root.filterToLeaf(point, null, -1)
     var leafNode = foundNode.node
     if (leafNode == null) {
       leafNode = createLearningNode(learningNodeType, featureObservers.toArray, numClasses)
       foundNode.parent.setChild(foundNode.index, leafNode)
       activeNodeCount += 1
+      assert(false)
     }
     if (leafNode.isInstanceOf[LearningNode]) {
       val learnNode = leafNode.asInstanceOf[LearningNode]
@@ -66,19 +80,30 @@ class HoeffdingTreeModel(
       }
       //println("learning")
     }
+    this
   }
+
   def attemptToSplit(activeNode: ActiveLearningNode, parent: SplitNode, pIndex: Int): Unit = {
     if (!activeNode.isPure()) {
       var bestSuggestions: Array[FeatureSplit] = activeNode.getBestSplitSuggestions(splitCriterion, this)
       bestSuggestions = bestSuggestions.sorted
       if (shouldSplit(activeNode, bestSuggestions)) {
-        println("yes,split")
+        println("yes,split,current data num:" + examplenum)
         val best: FeatureSplit = bestSuggestions.last
         if (best.conditionalTest == null) {
+          println("deactivate")
           deactiveLearningNode(activeNode, parent, pIndex)
         } else {
-          val splitNode: SplitNode = new SplitNode(activeNode.classDistribution, best.conditionalTest)
+          println("split")
+          val splitNode: SplitNode = new SplitNode(activeNode.classDistribution, best.conditionalTest, best.numSplit)
+
+          //addSplitNode(splitNode, parent, pIndex)
+          for (index <- 0 until best.numSplit) {
+            splitNode.setChild(index,
+              createLearningNode(learningNodeType, featureObservers.toArray, best.distributionFromSplit(index)))
+          }
           addSplitNode(splitNode, parent, pIndex)
+          println("parent:" + parent + "at: " + pIndex)
         }
       }
       // todo manage memory

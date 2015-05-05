@@ -6,28 +6,21 @@ import org.apache.spark.streamdm.core._
 
 object HTTest {
   def main(args: Array[String]) {
-//    var fss: Array[FeatureSplit] = new Array[FeatureSplit](4)
-//    fss(0) = new FeatureSplit(null, 3, null)
-//    fss(1) = new FeatureSplit(null, 2, null)
-//    fss(2) = new FeatureSplit(null, 2, null)
-//    fss(3) = new FeatureSplit(null, 4, null)
-//    fss.sorted
-//    //fss = fss.sorted
-//    fss.foreach(x => println(x.merit))
-//
-//    println(fss(0) == fss(1))
-//    println(fss(2) == new FeatureSplit(null, 3, null))
-//
-//    for (i <- 0 until fss.length - 1)
-//      println(fss(i) <= fss(i + 1))
     testHTM()
   }
   def testHTM() {
     val featureTypes: Array[FeatureType] = Array[FeatureType](new NominalFeatureType, new NominalFeatureType, new NominalFeatureType, new NominalFeatureType)
     val htm: HoeffdingTreeModel = new HoeffdingTreeModel(3, 4, 10, featureTypes)
-    val examples = randomExample(3, 4, 10, 100000)
+    val examples = randomExample(3, 4, 10, 10000)
     examples.foreach { x => htm.update(x) }
+    println("Hoeffding Tree")
     println(htm.root)
+    println(htm.root.sum())
+    println(htm.activeNodeCount)
+    println(htm.inactiveNodeCount)
+    println(htm.deactiveNodeCount)
+    println(htm.decisionNodeCount)
+    println(htm.examplenum)
   }
 
   def randomExample(numClasses: Int, numFeatures: Int, valueRange: Int, num: Int): Array[Example] = {
