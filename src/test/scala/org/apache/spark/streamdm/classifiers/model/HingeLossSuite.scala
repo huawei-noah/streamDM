@@ -17,7 +17,6 @@
 
 package org.apache.spark.streamdm.classifiers.model
 
-import org.apache.spark.streamdm.classifiers.model.model.HingeLoss
 import org.scalatest.FunSuite
 
 /**
