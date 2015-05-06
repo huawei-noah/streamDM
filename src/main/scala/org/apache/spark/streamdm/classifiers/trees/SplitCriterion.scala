@@ -3,15 +3,44 @@ package org.apache.spark.streamdm.classifiers.trees
 import scala.math.{ log, max }
 
 trait SplitCriterionType
+
 case class InfoGainSplitCriterionType() extends SplitCriterionType
+
 case class GiniSplitCriterionType() extends SplitCriterionType
+
 case class VarianceReductionSplitCriterionType() extends SplitCriterionType
 
+/**
+ * trait SplitCriterion for computing splitting criteria with respect to distributions of class values.
+ * The split criterion is used as a parameter on decision trees and decision stumps.
+ * The two split criteria most used are Information Gain and Gini.
+ */
+
 trait SplitCriterion extends Serializable {
+  /**
+   * Computes the merit of splitting for a given distribution before and after the split.
+   *
+   * @param pre the class distribution before the split
+   * @param post the class distribution after the split
+   * @return value of the merit of splitting
+   */
   def merit(pre: Array[Double], post: Array[Array[Double]]): Double
+
+  /**
+   * Computes the range of splitting merit
+   *
+   * @param pre the class distribution before the split
+   * @return value of the range of splitting merit
+   */
+
   def rangeMerit(pre: Array[Double]): Double
-  def negtive(pre: Array[Double]): Boolean = (pre.filter(x => x < 0).length > 0)
+
 }
+/**
+ * trait SplitCriterion for computing splitting criteria using Information Gain
+ * with respect to distributions of class values.
+ * The split criterion is used as a parameter on decision trees and decision stumps.
+ */
 
 class InfoGainSplitCriterion(val minBranch: Double = 0.01) extends SplitCriterion with Serializable {
 
@@ -42,7 +71,15 @@ class InfoGainSplitCriterion(val minBranch: Double = 0.01) extends SplitCriterio
     post.map { _.zipWithIndex.map { x => sums(x._2) += x._1 } }
     sums.filter(_ > sums.sum * minFrac).length
   }
+
+   private[trees] def negtive(pre: Array[Double]): Boolean = (pre.filter(x => x < 0).length > 0)
 }
+
+/**
+ * trait SplitCriterion for computing splitting criteria using Gini.
+ * with respect to distributions of class values.
+ * The split criterion is used as a parameter on decision trees and decision stumps.
+ */
 
 class GiniSplitCriterion extends SplitCriterion with Serializable {
 
