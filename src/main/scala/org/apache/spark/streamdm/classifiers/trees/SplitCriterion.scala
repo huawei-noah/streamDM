@@ -45,14 +45,25 @@ class InfoGainSplitCriterion(val minBranch: Double = 0.01) extends SplitCriterio
 }
 
 class GiniSplitCriterion extends SplitCriterion with Serializable {
-  //todo
-  override def merit(pre: Array[Double], post: Array[Array[Double]]): Double = 0
-  override def rangeMerit(pre: Array[Double]): Double = 0
+
+  override def merit(pre: Array[Double], post: Array[Array[Double]]): Double = {
+    val sums = post.map(_.sum)
+    val totalWeight = sums.sum
+    val ginis: Array[Double] = post.zip(sums).map {
+      case (x, y) => computeGini(x, y) * y / totalWeight
+    }
+    1.0 - ginis.sum
+  }
+
+  private[trees] def computeGini(dist: Array[Double], sum: Double): Double =
+    1.0 - dist.map { x => x * x / sum / sum }.sum
+
+  override def rangeMerit(pre: Array[Double]): Double = 1.0
 }
 class VarianceReductionSplitCriterion extends SplitCriterion with Serializable {
   //todo
   override def merit(pre: Array[Double], post: Array[Array[Double]]): Double = 0
-  override def rangeMerit(pre: Array[Double]): Double = 0
+  override def rangeMerit(pre: Array[Double]): Double = 0.0
 }
 
 object SplitCriterion {
