@@ -72,7 +72,7 @@ class InfoGainSplitCriterion(val minBranch: Double = 0.01) extends SplitCriterio
     sums.filter(_ > sums.sum * minFrac).length
   }
 
-   private[trees] def negtive(pre: Array[Double]): Boolean = (pre.filter(x => x < 0).length > 0)
+  private[trees] def negtive(pre: Array[Double]): Boolean = (pre.filter(x => x < 0).length > 0)
 }
 
 /**
@@ -104,7 +104,8 @@ class VarianceReductionSplitCriterion extends SplitCriterion with Serializable {
 }
 
 object SplitCriterion {
-  def createSplitCriterion(scType: SplitCriterionType, minBranch: Double = 0.01): SplitCriterion = scType match {
+  def createSplitCriterion(
+    scType: SplitCriterionType, minBranch: Double = 0.01): SplitCriterion = scType match {
     case infoGrain: InfoGainSplitCriterionType   => new InfoGainSplitCriterion(minBranch)
     case gini: GiniSplitCriterionType            => new GiniSplitCriterion()
     case vr: VarianceReductionSplitCriterionType => new VarianceReductionSplitCriterion()
