@@ -5,12 +5,12 @@ import org.apache.spark.streamdm.classifiers.trees._
 import scala.math.{ log, abs }
 class SplitCriterionSuite extends FunSuite {
 
-  test("InfoGainSplitCriterion,test negtive function") {
+  test("InfoGainSplitCriterion, test negtive function") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
     assert(ig.negtive(Array(0, -1.0, 2)))
   }
 
-  test("InfoGainSplitCriterion,test entropy of array") {
+  test("InfoGainSplitCriterion, test entropy of array") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
     assert(ig.entropy(Array[Double](2.0, 4, 8)) == (log(2.0 + 4 + 8) - (2.0 * log(2.0) + 4 * log(4.0) + 8 * log(8.0)) / (2.0 + 4 + 8)))
     assert(abs(ig.entropy(Array(0.5, 0.5)) - 0.6931471805599453) < 0.00001)
@@ -28,12 +28,22 @@ class SplitCriterionSuite extends FunSuite {
     assert(ig.numFrac(Array(Array(1, -1, 1), Array(-1, 1, 0)), 0.01) == 1)
     assert(ig.numFrac(Array(Array(1, 1, 1), Array(-1, 1, 1)), 0.01) == 2)
   }
-  test("InfoGainSplitCriterion, test getRangeMerit") {
+  test("InfoGainSplitCriterion, test rangeMerit") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
     assert(ig.rangeMerit(Array(1.0, 1)) == log(2))
   }
-  test("InfoGainSplitCriterion, test getMerit") {
+  test("InfoGainSplitCriterion, test merit") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
     assert(ig.merit(Array(1.0, 1, 1), Array(Array(1, -1, 1), Array(-1, 1, 0))) == Double.NegativeInfinity)
   }
+
+  test("GiniSplitCriterion, test computeGini") {
+    val gc: GiniSplitCriterion = new GiniSplitCriterion()
+    assert(gc.computeGini(Array[Double](1, 1, 1), 3) == 1.0 - 3.0 * 1.0 / 9)
+  }
+  test("GiniSplitCriterion, test merit") {
+    val gc: GiniSplitCriterion = new GiniSplitCriterion()
+    assert(abs(gc.merit(Array(1.0 / 3, 1.0 / 3, 1.0 / 3), Array(Array(1.0 / 6, 1.0 / 6, 1.0 / 6), Array(1.0 / 6, 1.0 / 6, 1.0 / 6)))-0.33333333333)<0.000001)
+  }
+
 }
