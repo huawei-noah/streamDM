@@ -43,7 +43,8 @@ class SplitCriterionSuite extends FunSuite {
   }
   test("GiniSplitCriterion, test merit") {
     val gc: GiniSplitCriterion = new GiniSplitCriterion()
-    assert(abs(gc.merit(Array(1.0 / 3, 1.0 / 3, 1.0 / 3), Array(Array(1.0 / 6, 1.0 / 6, 1.0 / 6), Array(1.0 / 6, 1.0 / 6, 1.0 / 6)))-0.33333333333)<0.000001)
+    assert(abs(gc.merit(Array(1.0 / 3, 1.0 / 3, 1.0 / 3),
+      Array(Array(1.0 / 6, 1.0 / 6, 1.0 / 6), Array(1.0 / 6, 1.0 / 6, 1.0 / 6))) - 0.33333333333) < 0.000001)
   }
 
 }
