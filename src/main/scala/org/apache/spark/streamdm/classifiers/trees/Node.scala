@@ -3,46 +3,50 @@ package org.apache.spark.streamdm.classifiers.trees
 import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streamdm.util.Util._
-class Node extends Serializable {
-  var classDistribution: Array[Double] = null
-  var level_ : Int = 1
-  def this(classDistribution: Array[Double]) = {
-    this()
-    this.classDistribution = classDistribution
+
+/**
+ * trait Node for hoeffding Tree
+ */
+trait Node extends Serializable {
+
+  var level_ : Int = 0
+
+  def filterToLeaf(point: Example, parent: SplitNode, index: Int): FoundNode = new FoundNode(this, parent, index)
+
+  def classVotes(ht: HoeffdingTreeModel, point: Example): Array[Double]
+
+  def isLeaf() = true
+
+  def level() = level_
+
+  def setLevel(level: Int): Unit = {
+    level_ = level
+    if (this.isInstanceOf[SplitNode]) {
+      val splidNode = this.asInstanceOf[SplitNode]
+      splidNode.children.foreach { _.setLevel(level + 1) }
+    }
   }
 
-  def setClassDistribution(classDistribution: Array[Double]): Node = {
-    this.classDistribution = classDistribution
-    this
-  }
-  def filterToLeaf(point: Example, parent: SplitNode, index: Int): FoundNode = new FoundNode(this, parent, index)
-  def classVotes(ht: HoeffdingTreeModel, point: Example): Array[Double] = classDistribution
-  def isLeaf() = true
-  def level() = level_
-  def setLevel(level: Int): Unit = { level_ = level }
-  def sum():Int = 0
+  def sum(): Int = 0
 }
 
 class FoundNode(val node: Node, val parent: SplitNode, val index: Int) extends Serializable {
 
 }
+/**
+ * branch node for Hoeffding Tree
+ */
+class SplitNode(val classDistribution: Array[Double], val conditionalTest: ConditionalTest)
+  extends Node with Serializable {
 
-class SplitNode extends Node with Serializable {
-  var size: Int = 0
   val children: ArrayBuffer[Node] = new ArrayBuffer[Node]()
-  var conditionalTest: ConditionalTest = null
-  def this(classDistribution: Array[Double], conditionalTest: ConditionalTest, size: Int) {
-    this()
-    this.conditionalTest = conditionalTest
-    this.classDistribution = classDistribution
-    this.size = size
-  }
+
   override def filterToLeaf(point: Example, parent: SplitNode, index: Int): FoundNode = {
     val cIndex = childIndex(point)
     if (cIndex >= 0) {
-      if (cIndex < children.length && children(cIndex) != null)
+      if (cIndex < children.length && children(cIndex) != null) {
         children(cIndex).filterToLeaf(point, this, cIndex)
-      else new FoundNode(null, this, cIndex)
+      } else new FoundNode(null, this, cIndex)
     } else new FoundNode(this, parent, index)
   }
 
@@ -65,51 +69,42 @@ class SplitNode extends Node with Serializable {
   override def isLeaf() = false
 
   def numChildren(): Int = children.length
-  
-  override def sum():Int = {
+
+  override def sum(): Int = {
     var sum = 0
-    children.foreach { x => sum += x.sum}
+    children.foreach { x => sum += x.sum }
     sum
   }
+
+  override def classVotes(ht: HoeffdingTreeModel, point: Example): Array[Double] = classDistribution
 
   override def toString(): String = {
     var head = "level[" + level_ + "]SplitNode\n"
     for (i <- 0 until (children.length)) {
       head += "Child[" + i + "]" + children(i).toString() + "\n"
     }
-    head.substring(0, head.length()-1)
+    head.substring(0, head.length() - 1)
   }
 
 }
+/**
+ * trait learning node for Hoeffding Tree
+ */
+trait LearningNode extends Node with Serializable {
 
-abstract class LearningNode extends Node with Serializable {
+  def learn(ht: HoeffdingTreeModel, point: Example): Unit
 
-  def learn(ht: HoeffdingTreeModel, point: Example): Unit = {
-    //todo we may need extend classDistribution
-    classDistribution(point.labelAt(0).toInt) += point.weight
-  }
   def isActive(): Boolean = false
 }
+/**
+ * basic majority class active learning node for hoeffding tree
+ */
+class ActiveLearningNode(val classDistribution: Array[Double], val featureObservers: Array[FeatureClassObserver]) extends LearningNode with Serializable {
 
-class ActiveLearningNode extends LearningNode with Serializable {
+  var lastWeight_ : Double = weight()
 
-  var lastWeight_ : Double = 0.0
-  var featureObservers: Array[FeatureClassObserver] = null
-
-  def this(featureObservers: Array[FeatureClassObserver], numClasses: Int) {
-    this()
-    this.classDistribution = new Array[Double](numClasses)
-    this.featureObservers = featureObservers
-  }
-
-  def this(featureObservers: Array[FeatureClassObserver], classDistribution: Array[Double]) {
-    this()
-    this.classDistribution = classDistribution
-    this.featureObservers = featureObservers
-    lastWeight_ = weight()
-  }
   override def learn(ht: HoeffdingTreeModel, point: Example): Unit = {
-    super.learn(ht, point)
+    classDistribution(point.labelAt(0).toInt) += point.weight
     featureObservers.zipWithIndex.foreach {
       x => x._1.observeClass(point.labelAt(0).toInt, point.featureAt(x._2), point.weight)
     }
@@ -129,63 +124,45 @@ class ActiveLearningNode extends LearningNode with Serializable {
     bestSplits.toArray
   }
 
-  override def sum():Int = weight.toInt
+  override def classVotes(ht: HoeffdingTreeModel, point: Example): Array[Double] = classDistribution
+
+  override def sum(): Int = weight.toInt
+
   override def toString(): String = "level[" + level_ + "]ActiveLearningNode:" + weight
 }
+/**
+ * inactive learning node
+ */
+class InactiveLearningNode(val classDistribution: Array[Double]) extends LearningNode with Serializable {
 
-class InactiveLearningNode extends LearningNode with Serializable {
+  override def learn(ht: HoeffdingTreeModel, point: Example): Unit = {}
 
-  def this(numClasses: Int) {
-    this()
-    this.classDistribution = new Array[Double](numClasses)
-  }
+  override def classVotes(ht: HoeffdingTreeModel, point: Example): Array[Double] = classDistribution
 
-  def this(classDistribution: Array[Double]) {
-    this()
-    this.classDistribution = classDistribution
-  }
   override def toString(): String = "level[" + level_ + "]InactiveLearningNode"
 }
-
-class LearningNodeNB extends ActiveLearningNode with Serializable {
-
-  def this(featureObservers: Array[FeatureClassObserver], numClasses: Int) {
-    this()
-    this.classDistribution = new Array[Double](numClasses)
-    this.featureObservers = featureObservers
-  }
-
-  def this(featureObservers: Array[FeatureClassObserver], classDistribution: Array[Double]) {
-    this()
-    this.classDistribution = classDistribution
-    this.featureObservers = featureObservers
-    lastWeight_ = weight()
-  }
+/**
+ * naive bayes learning node
+ */
+class LearningNodeNB(classDistribution: Array[Double], featureObservers: Array[FeatureClassObserver])
+  extends ActiveLearningNode(classDistribution, featureObservers) with Serializable {
 
   override def classVotes(ht: HoeffdingTreeModel, point: Example): Array[Double] = {
-    if (weight > 0.01)
+    if (weight > 0.01) //todo
       NaiveBayes.predict(point, classDistribution, featureObservers.toArray)
     else super.classVotes(ht, point)
   }
 }
 
-class LearningNodeNBAdaptive extends ActiveLearningNode with Serializable {
+/**
+ * naive bayes adaptive learning node
+ */
+
+class LearningNodeNBAdaptive(classDistribution: Array[Double], featureObservers: Array[FeatureClassObserver])
+  extends ActiveLearningNode(classDistribution, featureObservers) with Serializable {
 
   var mcCorrectWeight: Double = 0
   var nbCorrectWeight: Double = 0
-
-  def this(featureObservers: Array[FeatureClassObserver], numClasses: Int) {
-    this()
-    this.classDistribution = new Array[Double](numClasses)
-    this.featureObservers = featureObservers
-  }
-
-  def this(featureObservers: Array[FeatureClassObserver], classDistribution: Array[Double]) {
-    this()
-    this.classDistribution = classDistribution
-    this.featureObservers = featureObservers
-    lastWeight_ = weight()
-  }
 
   override def learn(ht: HoeffdingTreeModel, point: Example): Unit = {
     super.learn(ht, point)
