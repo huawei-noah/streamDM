@@ -19,12 +19,13 @@ class FeatureSplitSuite extends FunSuite {
     fss(1) = new FeatureSplit(null, 2, null)
     fss(2) = new FeatureSplit(null, 2, null)
     fss(3) = new FeatureSplit(null, 4, null)
-    //fss.sorted
-    //assert(fss(0) == new FeatureSplit(null, 3, null))
+
     fss = fss.sorted
-    assert(fss(0) == fss(1))
-    assert(fss(2) == new FeatureSplit(null, 3, null))
-  //  for (i <- 0 until fss.length - 1)
-      //assert(fss(i) <= fss(i + 1))
+    for (i <- 0 until fss.length - 1)
+      assert(fss(i) <= fss(i + 1))
+    assert(fss(0) <= fss(1))
+    assert(fss(0) >= fss(1))
+    assert(fss(2).merit == 3)
+
   }
 }
