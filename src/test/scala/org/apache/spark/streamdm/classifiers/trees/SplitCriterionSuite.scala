@@ -7,7 +7,7 @@ class SplitCriterionSuite extends FunSuite {
 
   test("InfoGainSplitCriterion, test negtive function") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
-    assert(ig.negtive(Array(0, -1.0, 2)))
+    assert(ig.hasNegative(Array(0, -1.0, 2)))
   }
 
   test("InfoGainSplitCriterion, test entropy of array") {
