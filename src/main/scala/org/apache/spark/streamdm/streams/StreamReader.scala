@@ -28,5 +28,10 @@ import com.github.javacliparser.Configurable
  *
  */
 abstract class StreamReader extends Configurable {
+  /**
+   * Obtains a stream of Examples
+   * @param ssc a Spark Streaming Context
+   * @return a stream of Examples
+   */
   def getInstances(ssc:StreamingContext): DStream[Example]
 }

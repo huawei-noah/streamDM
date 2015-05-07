@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.tasks
 
-import com.github.javacliparser.ClassOption
+import com.github.javacliparser.{StringOption, ClassOption}
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.streams._
@@ -39,6 +39,9 @@ class EvaluatePrequential extends Task {
   val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
 
+  val textOption:StringOption = new StringOption("text", 't',
+    "Text to print", "Text")
+
   def run(ssc:StreamingContext): Unit = {
 
     val learner:SGDLearner = this.learnerOption.getValue()
@@ -48,6 +51,8 @@ class EvaluatePrequential extends Task {
     val reader:StreamReader = this.streamReaderOption.getValue()
 
     val instances = reader.getInstances(ssc)
+
+    print (textOption.getValue)
 
     //Predict
     val predPairs = learner.predict(instances)

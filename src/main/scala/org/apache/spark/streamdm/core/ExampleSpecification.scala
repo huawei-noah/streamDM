@@ -14,9 +14,9 @@
  * limitations under the License.
  *
  */
-import scala.collection.mutable.Map
-
 package org.apache.spark.streamdm.core
+
+import scala.collection.mutable.Map
 
 /**
  * An ExampleSpecification contains information about the input and output features.
