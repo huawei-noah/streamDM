@@ -39,20 +39,21 @@ class EvaluatePrequential extends Task {
   val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
 
-  val textOption:StringOption = new StringOption("text", 't',
-    "Text to print", "Text")
+  val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
+    "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
+
 
   def run(ssc:StreamingContext): Unit = {
 
-    val learner:SGDLearner = this.learnerOption.getValue()
-    learner.init()
-    val evaluator:Evaluator = this.evaluatorOption.getValue()
-
     val reader:StreamReader = this.streamReaderOption.getValue()
 
-    val instances = reader.getInstances(ssc)
+    val learner:SGDLearner = this.learnerOption.getValue()
+    learner.init(reader.getExampleSpecification())
+    val evaluator:Evaluator = this.evaluatorOption.getValue()
 
-    print (textOption.getValue)
+    val writer:StreamWriter = this.resultsWriterOption.getValue()
+
+    val instances = reader.getExamples(ssc)
 
     //Predict
     val predPairs = learner.predict(instances)
@@ -61,7 +62,7 @@ class EvaluatePrequential extends Task {
     learner.train(instances)
 
     //Evaluate
-    evaluator.addResult(predPairs)
+    writer.output(evaluator.addResult(predPairs))
 
   }
 }

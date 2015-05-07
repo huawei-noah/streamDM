@@ -30,13 +30,11 @@ class BasicClassificationEvaluator extends Evaluator{
   var numInstancesCorrect = 0;
   var numInstancesSeen = 0;
 
-  def addResult(input: DStream[(Example, Double)]): Unit = {
+  def addResult(input: DStream[(Example, Double)]): DStream[String] = {
     //print the confusion matrix for each batch
     val pred = ConfusionMatrix.computeMatrix(input)
-    pred.foreachRDD(rdd => {
-      rdd.foreach(x => {println("%.3f,%.0f,%.0f,%.0f,%.0f"
-        .format((x._1+x._4)/(x._1+x._2+x._3+x._4),x._1,x._2,x._3,x._4))})
-    })
+    pred.map(x => {"%.3f,%.0f,%.0f,%.0f,%.0f"
+      .format((x._1+x._4)/(x._1+x._2+x._3+x._4),x._1,x._2,x._3,x._4)})
   }
 
   def getResult():Double = {

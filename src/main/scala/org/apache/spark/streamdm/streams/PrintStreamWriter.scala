@@ -17,27 +17,24 @@
 
 package org.apache.spark.streamdm.streams
 
-import org.apache.spark.streamdm.core.{ExampleSpecification, Example}
+import com.github.javacliparser._
+import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import com.github.javacliparser.Configurable
+import org.apache.spark.streamdm.core.Instance
 
 /**
- * Abstract class Reader that outputs a Dstream of instances to be used 
- * inside tasks
- *
+ * Stream writer that output text to the standard output
  */
-abstract class StreamReader extends Configurable {
-  /**
-   * Obtains a stream of Examples
-   * @param ssc a Spark Streaming Context
-   * @return a stream of Examples
-   */
-  def getExamples(ssc:StreamingContext): DStream[Example]
+class PrintStreamWriter extends StreamWriter{
 
   /**
-   * Obtains the specification of the examples in the stream
-   * @return an specification of the examples
+   * Output a stream of Strings to stdout
+   * @param stream a stream to output
    */
-  def getExampleSpecification(): ExampleSpecification
+  def output(stream: DStream[String]) = {
+    stream.foreachRDD(rdd => {
+      rdd.foreach(x => {println(x)})
+    })
+  }
 }

@@ -18,7 +18,7 @@ package org.apache.spark.streamdm.streams.generators
 
 import com.github.javacliparser.IntOption
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streamdm.core.{DenseInstance, Instance, Example}
+import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.streams.StreamReader
 import org.apache.spark.streaming.{Duration, Time, StreamingContext}
 import org.apache.spark.streaming.dstream.{InputDStream, DStream}
@@ -47,7 +47,7 @@ class HyperplaneGenerator extends StreamReader {
    * @param ssc a Spark Streaming Context
    * @return a stream of Examples
    */
-  def getInstances(ssc:StreamingContext): DStream[Example] = {
+  def getExamples(ssc:StreamingContext): DStream[Example] = {
     new InputDStream[Example](ssc){
 
       override def start(): Unit = {}
@@ -64,13 +64,19 @@ class HyperplaneGenerator extends StreamReader {
       }
 
       def getExample(): Example = {
-        val inputInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)( 10 * Random.nextDouble() - 5))
-        new Example(inputInstance, new DenseInstance(Array.fill[Double](1)(label(inputInstance))))
+        val inputInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(5.0 * getRandomNumber()))
+        val noiseInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getNoise()))
+        //System.out.println(inputInstance.features(0)+","+inputInstance.features(1)+","+inputInstance.features(2))
+        new Example(noiseInstance.add(noiseInstance), new DenseInstance(Array.fill[Double](1)(label(inputInstance))))
       }
 
-      val weight = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(2.0 * Random.nextDouble() - 1.0))
+      def getRandomNumber():Double = 2.0 * Random.nextDouble() - 1.0 // Uniform number between -1 and 1
 
-      val bias:Double = 2.0 * Random.nextDouble() - 1.0
+      def getNoise():Double = 0 // 0.5 * Random.nextGaussian()
+
+      val weight = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getRandomNumber()))
+
+      val bias:Double = getRandomNumber()
 
       def label(inputInstance: Instance):Double = {
         val sum = weight.dot(inputInstance)
@@ -81,5 +87,11 @@ class HyperplaneGenerator extends StreamReader {
   }
 
   def init(): Unit = {}
+
+  /**
+   * Obtains the specification of the examples in the stream
+   * @return an specification of the examples
+   */
+  def getExampleSpecification(): ExampleSpecification = new ExampleSpecification(new InstanceSpecification(), new InstanceSpecification())
 
 }

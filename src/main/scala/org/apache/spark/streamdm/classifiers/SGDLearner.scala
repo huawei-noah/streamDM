@@ -56,7 +56,7 @@ class SGDLearner extends Learner {
    * from the stream of instances given for training.
    *
    */
-  override def init(): Unit = {
+  override def init(exampleSpecification: ExampleSpecification): Unit = {
     model = new LinearModel(loss, new DenseInstance(Array.fill[Double]
       (numFeaturesOption.getValue + 1)(0.0)), numFeaturesOption.getValue)
   }
