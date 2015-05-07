@@ -52,7 +52,7 @@ class InfoGainSplitCriterion(val minBranch: Double = 0.01) extends SplitCriterio
   override def rangeMerit(pre: Array[Double]): Double = log(max(pre.length, 2))
 
   def entropy(pre: Array[Double]): Double = {
-    if (pre == null || pre.sum <= 0 || negtive(pre)) 0.0
+    if (pre == null || pre.sum <= 0 || hasNegative(pre)) 0.0
     log(pre.sum) - pre.filter(_ > 0).map(x => x * log(x)).sum / pre.sum
   }
 
@@ -71,12 +71,15 @@ class InfoGainSplitCriterion(val minBranch: Double = 0.01) extends SplitCriterio
     post.map { _.zipWithIndex.map { x => sums(x._2) += x._1 } }
     sums.filter(_ > sums.sum * minFrac).length
   }
+  /*
+   * check whether a array has a negative value
+   */
+  private[trees] def hasNegative(pre: Array[Double]): Boolean = pre.filter(x => x < 0).length > 0
 
-  private[trees] def negtive(pre: Array[Double]): Boolean = (pre.filter(x => x < 0).length > 0)
 }
 
 /**
- * trait SplitCriterion for computing splitting criteria using Gini.
+ * trait SplitCriterion for computing splitting criteria using Gini
  * with respect to distributions of class values.
  * The split criterion is used as a parameter on decision trees and decision stumps.
  */
@@ -96,14 +99,20 @@ class GiniSplitCriterion extends SplitCriterion with Serializable {
     1.0 - dist.map { x => x * x / sum / sum }.sum
 
   override def rangeMerit(pre: Array[Double]): Double = 1.0
+
 }
+
 class VarianceReductionSplitCriterion extends SplitCriterion with Serializable {
   //todo
   override def merit(pre: Array[Double], post: Array[Array[Double]]): Double = 0
+
   override def rangeMerit(pre: Array[Double]): Double = 0.0
 }
 
 object SplitCriterion {
+  /*
+   * return a new SplitCriterion, the default will be InfoGainSplitCriterion.
+   */
   def createSplitCriterion(
     scType: SplitCriterionType, minBranch: Double = 0.01): SplitCriterion = scType match {
     case infoGrain: InfoGainSplitCriterionType   => new InfoGainSplitCriterion(minBranch)

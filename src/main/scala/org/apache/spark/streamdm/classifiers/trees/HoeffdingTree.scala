@@ -109,7 +109,8 @@ class HoeffdingTreeModel(
   val FeatureTypes: Array[FeatureType], val numericObserverType: Int = 0,
   val splitCriterion: SplitCriterion = new InfoGainSplitCriterion(),
   var growthAllowed: Boolean = true, val binaryOnly: Boolean = false,
-  val graceNum: Int = 200, tieThreshold: Double = 0.05,
+  val graceNum: Int = 200, val tieThreshold: Double = 0.05,
+  val nbThreshold: Int = 0,
   val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0)
   extends Model with Serializable {
 
@@ -209,17 +210,17 @@ class HoeffdingTreeModel(
     }
   }
   def createLearningNode(nodeType: Int, featureObservers: Array[FeatureClassObserver], classDistribution: Array[Double]): LearningNode = nodeType match {
-    case 0 => new ActiveLearningNode(classDistribution,featureObservers)
-    case 1 => new LearningNodeNB(classDistribution,featureObservers)
-    case 2 => new LearningNodeNBAdaptive(classDistribution,featureObservers)
-    case _ => new ActiveLearningNode(classDistribution,featureObservers)
+    case 0 => new ActiveLearningNode(classDistribution, featureObservers)
+    case 1 => new LearningNodeNB(classDistribution, featureObservers)
+    case 2 => new LearningNodeNBAdaptive(classDistribution, featureObservers)
+    case _ => new ActiveLearningNode(classDistribution, featureObservers)
   }
 
   def createLearningNode(nodeType: Int, featureObservers: Array[FeatureClassObserver], numClasses: Int): LearningNode = nodeType match {
-    case 0 => new ActiveLearningNode(new Array[Double](numClasses),featureObservers)
-    case 1 => new LearningNodeNB(new Array[Double](numClasses),featureObservers)
-    case 2 => new LearningNodeNBAdaptive(new Array[Double](numClasses),featureObservers)
-    case _ => new ActiveLearningNode(new Array[Double](numClasses),featureObservers)
+    case 0 => new ActiveLearningNode(new Array[Double](numClasses), featureObservers)
+    case 1 => new LearningNodeNB(new Array[Double](numClasses), featureObservers)
+    case 2 => new LearningNodeNBAdaptive(new Array[Double](numClasses), featureObservers)
+    case _ => new ActiveLearningNode(new Array[Double](numClasses), featureObservers)
   }
   def activeLearningNode(inactiveNode: InactiveLearningNode, parent: SplitNode, pIndex: Int): Unit = {
     val activeNode = createLearningNode(learningNodeType, featureObservers.toArray, inactiveNode.classDistribution)
