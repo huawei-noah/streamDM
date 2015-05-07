@@ -17,11 +17,15 @@
 
 package org.apache.spark.streamdm.classifiers.bayes
 
+import scala.math.{ log, log10 }
+
 import com.github.javacliparser.IntOption
-import org.apache.spark.streamdm.classifiers.Classifier
-import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 
+import org.apache.spark.streamdm.classifiers.Classifier
+import org.apache.spark.streamdm.core._
+
+import org.apache.spark.streamdm.classifiers.trees._
 /**
  * Incremental Multinomial Naive Bayes learner. Builds a bayesian text classifier
  * making the naive assumption that all inputs are independent and that feature
@@ -85,7 +89,7 @@ class MultinomialNaiveBayes extends Classifier {
    * 
    * @return the Model object used for training
    */
-  override def getModel: MultinomialNaiveBayesModel = model 
+  override def getModel: MultinomialNaiveBayesModel = model
 }
 
 class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val laplaceSmoothingFactor: Int)
@@ -188,6 +192,26 @@ class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val 
       mergeClassStatistics, mergeClassFeatureStatistics)
   }
 
+}
+
+object NaiveBayes {
+  // predict the probabilities of all features for Hoeffding Tree
+  def predict(point: Example, classDistribution: Array[Double], featureObservers: Array[FeatureClassObserver]): Array[Double] = {
+    val votes: Array[Double] = classDistribution.map { _ / classDistribution.sum }
+    for (i <- 0 until votes.length; j <- 0 until featureObservers.length) {
+      votes(i) *= featureObservers(j).probability(i, point.featureAt(j))
+    }
+    votes
+  }
+
+  // predict the log10 probabilities of all features for Hoeffding Tree
+  def predictLog10(point: Example, classDistribution: Array[Double], featureObservers: Array[FeatureClassObserver]): Array[Double] = {
+    val votes: Array[Double] = classDistribution.map { x => log10(x / classDistribution.sum) }
+    for (i <- 0 until votes.length; j <- 0 until featureObservers.length) {
+      votes(i) += log10(featureObservers(j).probability(i, point.featureAt(j)))
+    }
+    votes
+  }
 }
 
 
