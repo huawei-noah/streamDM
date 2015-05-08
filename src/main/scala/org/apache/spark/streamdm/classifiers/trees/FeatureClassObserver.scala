@@ -105,10 +105,32 @@ class NominalFeatureClassObserver(val numClasses: Int, val numFeatureValues: Int
 class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int) extends FeatureClassObserver with Serializable {
 
   val estimators: Array[GaussianEstimator] = new Array[GaussianEstimator](numClasses)
-  
-  override def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit = {}
+  val minValuePerClass: Array[Double] = new Array[Double](numClasses)
+  val maxValuePerClass: Array[Double] = new Array[Double](numClasses)
 
-  override def probability(cIndex: Double, fValue: Double): Double = 0.0
+  override def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit = {
+    if (false) {
+      // todo, process missing value
+
+    } else {
+      if (estimators(cIndex.toInt) == null) {
+        estimators(cIndex.toInt) = new GaussianEstimator()
+        minValuePerClass(cIndex.toInt) = fValue
+        maxValuePerClass(cIndex.toInt) = fValue
+      } else {
+        if (minValuePerClass(cIndex.toInt) > fValue)
+          minValuePerClass(cIndex.toInt) = fValue
+        if (maxValuePerClass(cIndex.toInt) < fValue)
+          maxValuePerClass(cIndex.toInt) = fValue
+      }
+      estimators(cIndex.toInt).observe(fValue, weight)
+    }
+  }
+
+  override def probability(cIndex: Double, fValue: Double): Double = {
+    if (estimators(cIndex.toInt) == null) 0.0
+    else estimators(cIndex.toInt).probabilityDensity(fValue)
+  }
 
   override def bestSplit(criterion: SplitCriterion, pre: Array[Double],
                          fValue: Double, isBinarySplit: Boolean): FeatureSplit = { null }
