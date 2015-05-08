@@ -66,13 +66,12 @@ class HyperplaneGenerator extends StreamReader {
       def getExample(): Example = {
         val inputInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(5.0 * getRandomNumber()))
         val noiseInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getNoise()))
-        //System.out.println(inputInstance.features(0)+","+inputInstance.features(1)+","+inputInstance.features(2))
-        new Example(noiseInstance.add(noiseInstance), new DenseInstance(Array.fill[Double](1)(label(inputInstance))))
+        new Example(inputInstance.add(noiseInstance), new DenseInstance(Array.fill[Double](1)(label(inputInstance))))
       }
 
       def getRandomNumber():Double = 2.0 * Random.nextDouble() - 1.0 // Uniform number between -1 and 1
 
-      def getNoise():Double = 0 // 0.5 * Random.nextGaussian()
+      def getNoise():Double = 0.5 * Random.nextGaussian()
 
       val weight = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getRandomNumber()))
 
@@ -92,6 +91,19 @@ class HyperplaneGenerator extends StreamReader {
    * Obtains the specification of the examples in the stream
    * @return an specification of the examples
    */
-  def getExampleSpecification(): ExampleSpecification = new ExampleSpecification(new InstanceSpecification(), new InstanceSpecification())
+  def getExampleSpecification(): ExampleSpecification = {
+
+    //Prepare specification of class attributes
+    val outputIS = new InstanceSpecification()
+    val classFeature = new FeatureSpecification(Array("+","-"))
+    outputIS.setFeatureSpecification(0, classFeature)
+    outputIS.setName(0, "class")
+
+    //Prepare specification of input attributes
+    val inputIS = new InstanceSpecification()
+    for (i <- 1 to numFeaturesOption.getValue) inputIS.setName(i, "Feature" + i)
+
+    new ExampleSpecification(inputIS, outputIS)
+  }
 
 }
