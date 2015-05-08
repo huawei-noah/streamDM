@@ -56,8 +56,11 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
     val distance = clTuple._2
     //Compute the radius of the closest microcluster
     val radius = radiusOption.getValue * microclusters(closest).rmse
-    if(distance<=radius) //if within the radius, add it to the closest
+    if(distance<=radius) {
+      //if within the radius, add it to the closest
+      println("adding to %d".format(closest))
       addToMicrocluster(closest,change,timestamp)
+    }
     else {
       val mc = new MicroCluster(change.in.map(x=>x), change.in.map(x=>x*x),
                                 timestamp, timestamp*timestamp, 1)
@@ -73,9 +76,12 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
         }
         i += 1
       }
-      if (found)
+      if (found) {
+        println("removing %d and appending".format(tmc))
         removeMicrocluster(tmc).appendMicrocluster(mc)
-      else { //find the two closest microclusters
+      }
+      else {
+        //find the two closest microclusters
         var sm: Int = 0
         var tm: Int = 0
         var dist: Double = Double.MaxValue
@@ -94,11 +100,11 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
           }
           i += 1
         }
+        println("merging %d and %d".format(sm,tm))
         if(sm!=tm)
-          mergeMicroclusters(sm,tm).removeMicrocluster(tm).
-            appendMicrocluster(mc)
+          mergeMicroclusters(sm,tm).appendMicrocluster(mc)
         else
-          this
+          new MicroClusters(microclusters)    
       }
     }
   }
@@ -130,7 +136,7 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
    * @return the updated MicroClusters object
    */
   private def removeMicrocluster(index: Int): MicroClusters =
-    new MicroClusters(microclusters.take(index-1)++microclusters.drop(index))
+    new MicroClusters(microclusters.take(index)++microclusters.drop(index+1))
 
   /* Merge the source microcluster into the target microcluster
    *
@@ -142,8 +148,8 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
     if(target!=source) {
       var mergedMicroclusters = microclusters.updated(target,
                             microclusters(target).merge(microclusters(source)))
-      new MicroClusters(mergedMicroclusters.take(source-1)++
-                        mergedMicroclusters.drop(source))
+      new MicroClusters(mergedMicroclusters.take(source)++
+                        mergedMicroclusters.drop(source+1))
     }
     else
       this
@@ -163,4 +169,14 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
    * @return the output Example array
    */ 
   def toExampleArray: Array[Example] = microclusters.map(_.toExample)
+
+  override def toString: String = {
+    var str:String = ""
+    var idx:Int = 0
+    microclusters.foreach(mc => {
+      str += "%d: %s\n".format(idx,mc.toString)
+      idx += 1
+    })
+    str
+  }
 }
