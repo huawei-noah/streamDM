@@ -21,7 +21,7 @@ import scala.math.{ log, sqrt, Pi, sin, exp, floor, abs, pow }
  * @author Richard Kirkby (rkirkby@cs.waikato.ac.nz)
  * @version $Revision: 5619 $
  */
-class Statistics {
+object Statistics {
 
   /** Some constants */
   val MACHEP: Double = 1.11022302462515654042E-16
