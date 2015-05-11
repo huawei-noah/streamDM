@@ -1,6 +1,6 @@
 package org.apache.spark.streamdm.classifiers.trees
 
-import scala.math.{ sqrt, Pi, pow, exp }
+import scala.math.{ sqrt, Pi, pow, exp, max }
 import org.apache.spark.streamdm.util.Statistics
 
 /**
@@ -84,7 +84,7 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
         else 0.0
       }
     }
-    val gtWeight = weightSum - eqWeight - lsWeight
+    val gtWeight = max(0, weightSum - eqWeight - lsWeight)
     Array[Double](lsWeight, eqWeight, gtWeight)
   }
 }
