@@ -1,6 +1,8 @@
 package org.apache.spark.streamdm.classifiers.trees
 
 import org.apache.spark.streamdm.util.Util
+import scala.math.{ min, max }
+import scala.collection.mutable.TreeSet
 
 /**
  * Trait for observing the class distribution of one feature.
@@ -83,7 +85,7 @@ class NominalFeatureClassObserver(val numClasses: Int, val numFeatureValues: Int
         fSplit = new FeatureSplit(new NominalBinaryTest(fIndex, i), merit, post)
     }
     if (!isBinarySplit) {
-      val post = multiSplit(0.0)
+      val post = multiwaySplit(0.0)
       val merit = criterion.merit(pre, post)
       if (fSplit.merit < merit)
         fSplit = new FeatureSplit(new NominalMultiwayTest(fIndex), merit, post)
@@ -94,7 +96,7 @@ class NominalFeatureClassObserver(val numClasses: Int, val numFeatureValues: Int
   private[trees] def binarySplit(fValue: Double): Array[Array[Double]] =
     { Util.splitTranspose(classFeatureStatistics, fValue.toInt) }
 
-  private[trees] def multiSplit(fValue: Double): Array[Array[Double]] =
+  def multiwaySplit(fValue: Double): Array[Array[Double]] =
     { Util.transpose(classFeatureStatistics) }
 }
 /**
@@ -102,27 +104,22 @@ class NominalFeatureClassObserver(val numClasses: Int, val numFeatureValues: Int
  * This observer monitors the class distribution of a given feature.
  * Used in naive Bayes and decision trees to monitor data statistics on leaves.
  */
-class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int) extends FeatureClassObserver with Serializable {
+class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, val numBins: Int = 10) extends FeatureClassObserver with Serializable {
 
-  val estimators: Array[GaussianEstimator] = new Array[GaussianEstimator](numClasses)
-  val minValuePerClass: Array[Double] = new Array[Double](numClasses)
-  val maxValuePerClass: Array[Double] = new Array[Double](numClasses)
+  val estimators: Array[GaussianEstimator] = Array.fill(numClasses)(new GaussianEstimator())
+  val minValuePerClass: Array[Double] = Array.fill(numClasses)(Double.PositiveInfinity)
+  val maxValuePerClass: Array[Double] = Array.fill(numClasses)(Double.NegativeInfinity)
 
   override def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit = {
     if (false) {
       // todo, process missing value
 
     } else {
-      if (estimators(cIndex.toInt) == null) {
-        estimators(cIndex.toInt) = new GaussianEstimator()
+
+      if (minValuePerClass(cIndex.toInt) > fValue)
         minValuePerClass(cIndex.toInt) = fValue
+      if (maxValuePerClass(cIndex.toInt) < fValue)
         maxValuePerClass(cIndex.toInt) = fValue
-      } else {
-        if (minValuePerClass(cIndex.toInt) > fValue)
-          minValuePerClass(cIndex.toInt) = fValue
-        if (maxValuePerClass(cIndex.toInt) < fValue)
-          maxValuePerClass(cIndex.toInt) = fValue
-      }
       estimators(cIndex.toInt).observe(fValue, weight)
     }
   }
@@ -133,7 +130,52 @@ class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int) e
   }
 
   override def bestSplit(criterion: SplitCriterion, pre: Array[Double],
-                         fValue: Double, isBinarySplit: Boolean): FeatureSplit = { null }
+                         fValue: Double, isBinarySplit: Boolean): FeatureSplit = {
+    var fSplit: FeatureSplit = null
+    val points: Array[Double] = splitPoints()
+    for (splitValue: Double <- points) {
+      val post: Array[Array[Double]] = binarySplit(splitValue)
+      val merit = criterion.merit(pre, post)
+      if (fSplit == null || fSplit.merit < merit)
+        fSplit = new FeatureSplit(new NumericBinaryTest(fIndex, splitValue, true), merit, post)
+    }
+    fSplit
+  }
+  //values equal to splitValue go to left 
+  private[trees] def binarySplit(splitValue: Double): Array[Array[Double]] = {
+    val rst: Array[Array[Double]] = Array.fill(2)(new Array(numClasses))
+    estimators.zipWithIndex.foreach {
+      case (es, i) => {
+        if (splitValue < minValuePerClass(i)) {
+          rst(1)(i) += es.totalWeight()
+        } else if (splitValue >= maxValuePerClass(i)) {
+          rst(0)(i) += es.totalWeight()
+        } else {
+          val weights: Array[Double] = es.tripleWeights(splitValue)
+          rst(0)(i) += weights(0) + weights(1)
+          rst(1)(i) += weights(2)
+        }
+      }
+    }
+    rst
+  }
+
+  private[trees] def splitPoints(): Array[Double] = {
+    var minValue = Double.PositiveInfinity
+    var maxValue = Double.NegativeInfinity
+    val points = new TreeSet[Double]()
+    minValuePerClass.foreach { x => minValue = min(minValue, x) }
+    maxValuePerClass.foreach { x => maxValue = max(maxValue, x) }
+    if (minValue < Double.PositiveInfinity) {
+      val range = maxValue - minValue
+      for (i <- 0 until numBins) {
+        val splitValue = range * (i + 1) / (numBins) + minValue
+        if (splitValue > minValue && splitValue < maxValue)
+          points.add(splitValue)
+      }
+    }
+    points.toArray
+  }
 }
 
 object FeatureClassObserver {
