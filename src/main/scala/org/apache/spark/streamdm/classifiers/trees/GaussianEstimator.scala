@@ -1,6 +1,7 @@
 package org.apache.spark.streamdm.classifiers.trees
 
 import scala.math.{ sqrt, Pi, pow, exp }
+import org.apache.spark.streamdm.util.Statistics
 
 /**
  * Gaussian incremental estimator that uses incremental method that is more resistant to floating point imprecision.
@@ -69,5 +70,21 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
         if (value == mean) 1.0 else 0
       }
     }
+  }
+  /*
+   * return an array with lessthan, equal and greaterthan of split value
+   */
+  def tripleWeights(splitValue: Double): Array[Double] = {
+    val eqWeight = probabilityDensity(splitValue) * weightSum
+    val lsWeight = {
+      if (stdDev() > 0) {
+        Statistics.normalProbability((splitValue - getMean()) / stdDev())
+      } else {
+        if (splitValue < getMean()) weightSum - eqWeight
+        else 0.0
+      }
+    }
+    val gtWeight = weightSum - eqWeight - lsWeight
+    Array[Double](lsWeight, eqWeight, gtWeight)
   }
 }
