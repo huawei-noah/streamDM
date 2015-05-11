@@ -31,7 +31,7 @@ import org.apache.spark.streamdm.evaluation.Evaluator
 class EvaluatePrequential extends Task {
 
   val learnerOption:ClassOption = new ClassOption("learner", 'l',
-    "Learner to use", classOf[Learner], "SGDLearner")
+    "Learner to use", classOf[Classifier], "SGDLearner")
 
   val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
     "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")

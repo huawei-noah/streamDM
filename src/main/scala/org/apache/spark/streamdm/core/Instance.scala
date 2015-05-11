@@ -41,12 +41,26 @@ trait Instance extends Serializable {
    */
   def dot(input: Instance): Double
 
+  /** Compute the Euclidean distance to another Instance 
+   *
+   * @param input the Instance to which the distance is computed
+   * @return a Double representing the distance value
+   */
+  def distanceTo(input: Instance): Double
+
   /** Perform an element by element addition between two instances
    *
    * @param input an Instance which is added up
    * @return an Instance representing the added Instances
    */
   def add(input: Instance): T
+
+  /** Perform an element by element multiplication between two instances
+   *
+   * @param input an Instance which is multiplied
+   * @return an Instance representing the Hadamard product
+   */
+  def hadamard(input: Instance): T
 
   /** Add a feature to the instance
    *
@@ -62,4 +76,11 @@ trait Instance extends Serializable {
    * @return a new Instance with the transformed features
    */
   def map(func: Double=>Double): T
+
+  /** Aggregate the values of an instance 
+   *
+   * @param func the function for the transformation
+   * @return the reduced value
+   */
+  def reduce(func: (Double,Double)=>Double): Double
 }
