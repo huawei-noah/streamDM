@@ -125,6 +125,9 @@ class ActiveLearningNode(
     val bestSplits = new ArrayBuffer[FeatureSplit]()
     featureObservers.zipWithIndex.foreach(x =>
       bestSplits.append(x._1.bestSplit(splitCriterion, classDistribution, x._2, false)))
+    if (ht.prePrune) {
+      bestSplits.append(new FeatureSplit(null, splitCriterion.merit(classDistribution, Array.fill(1)(classDistribution)), new Array[Array[Double]](0)))
+    }
     bestSplits.toArray
   }
 
