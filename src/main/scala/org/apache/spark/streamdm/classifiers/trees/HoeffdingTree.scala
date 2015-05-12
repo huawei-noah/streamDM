@@ -2,15 +2,106 @@ package org.apache.spark.streamdm.classifiers.trees
 
 import scala.collection.mutable.ArrayBuffer
 import scala.math.{ log, sqrt }
+
+import com.github.javacliparser._
+
 import org.apache.spark.streaming.dstream._
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 
-class HoeffdingTreeLearner extends Learner with Serializable {
+class HoeffdingTree extends Classifier {
 
   type T = HoeffdingTreeModel
-  override def init(): Unit = {
 
+  val numClassesOption: IntOption = new IntOption("numClasses", 'c',
+    "Number of Classes", 2, 2, Integer.MAX_VALUE)
+
+  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
+    "Number of Features", 3, 1, Integer.MAX_VALUE)
+
+  val numericObserverTypeOption: IntOption = new IntOption("numericObserverType", 'n',
+    "numeric observer type, 0: gaussian", 0, 0, 2)
+
+  //    val numericEstimatorOption = new ClassOption("numericEstimator",
+  //            'n', "Numeric estimator to use.", classOf[FeatureClassObserver],
+  //            "GuassianNumericFeatureClassOberser");
+
+  val splitCriterionOption = new ClassOption("splitCriterion", 's',
+    "Split criterion to use.", classOf[SplitCriterion], "InfoGainSplitCriterion");
+
+  val growthAllowedOption: IntOption = new IntOption("growthAllowed", 'a',
+    "Whether allow to grow", 1, 0, 1)
+
+  val binaryOnlyOption: IntOption = new IntOption("binaryOnly", 'b',
+    "Whether only allow binary splits", 0, 0, 1)
+
+  val numGraceOption: IntOption = new IntOption("numGrace", 'g',
+    "The number of instances a leaf should observe between split attempts.",
+    200, 1, Int.MaxValue)
+
+  val tieThresholdOption: FloatOption = new FloatOption("tieThreshold", 't',
+    "Threshold below which a split will be forced to break ties.", 0.05, 0, 1)
+
+  val splitConfidenceOption: FloatOption = new FloatOption("splitConfidence", 'c',
+    "The allowable error in split decision, values closer to 0 will take longer to decide.",
+    0.0000001, 0.0, 1.0)
+
+  val learningNodeOption: IntOption = new IntOption("learningNodeType", 'l',
+    "learning node type of leaf", 2, 0, 2)
+
+  val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'g',
+    "naive bayes threshold", 0, 0, Int.MaxValue)
+
+  val PrePruneOption: IntOption = new IntOption("PrePrune", 'p',
+    "whether allow pre-pruning.", 0, 0, 1)
+
+  /*
+      public ClassOption numericEstimatorOption = new ClassOption("numericEstimator",
+            'n', "Numeric estimator to use.", NumericAttributeClassObserver.class,
+            "GaussianNumericAttributeClassObserver");
+
+    public ClassOption nominalEstimatorOption = new ClassOption("nominalEstimator",
+            'd', "Nominal estimator to use.", DiscreteAttributeClassObserver.class,
+            "NominalAttributeClassObserver");
+
+    public IntOption memoryEstimatePeriodOption = new IntOption(
+            "memoryEstimatePeriod", 'e',
+            "How many instances between memory consumption checks.", 1000000,
+            0, Integer.MAX_VALUE);
+
+    public FlagOption stopMemManagementOption = new FlagOption(
+            "stopMemManagement", 'z',
+            "Stop growing as soon as memory limit is hit.");
+
+    public FlagOption removePoorAttsOption = new FlagOption("removePoorAtts",
+            'r', "Disable poor attributes.");
+
+    public FlagOption noPrePruneOption = new FlagOption("noPrePrune", 'p',
+            "Disable pre-pruning.");
+  
+  
+ */
+  //  val numClasses: Int
+  //  val numFeatures: Int
+  //  val range: Int
+  //  val FeatureTypes: Array[FeatureType]
+  //  val numericObserverType: Int = 0
+  //  val splitCriterion: SplitCriterion = new InfoGainSplitCriterion()
+  //  var growthAllowed: Boolean = true
+  //  val binaryOnly: Boolean = false
+  //  val graceNum: Int = 200
+  //  val tieThreshold: Double = 0.05
+  //  val nbThreshold: Int = 0
+  //  val splitConfedence: Double = 0.0000001
+  //  val learningNodeType: Int = 0
+
+  override def init(): Unit = {
+    model = new HoeffdingTreeModel(numClassesOption.getValue, numFeaturesOption.getValue,
+      0, null, numericObserverTypeOption.getValue, null,
+      growthAllowedOption.getValue == 1, binaryOnlyOption.getValue == 1, numGraceOption.getValue,
+      tieThresholdOption.getValue, splitConfidenceOption.getValue,
+      learningNodeOption.getValue, nbThresholdOption.getValue,
+      PrePruneOption.getValue == 1)
   }
   var model: HoeffdingTreeModel = null
   override def getModel: HoeffdingTreeModel = model
@@ -110,8 +201,8 @@ class HoeffdingTreeModel(
   val splitCriterion: SplitCriterion = new InfoGainSplitCriterion(),
   var growthAllowed: Boolean = true, val binaryOnly: Boolean = false,
   val graceNum: Int = 200, val tieThreshold: Double = 0.05,
-  val nbThreshold: Int = 0,
-  val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0)
+  val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
+  val nbThreshold: Int = 0, val prePrune: Boolean = false)
   extends Model with Serializable {
 
   type T = HoeffdingTreeModel
