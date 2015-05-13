@@ -9,8 +9,9 @@ object HTTest {
     testHTM()
   }
   def testHTM() {
-    val featureTypes: Array[FeatureType] = Array[FeatureType](new NominalFeatureType, new NominalFeatureType, new NominalFeatureType, new NominalFeatureType)
-    val htm: HoeffdingTreeModel = new HoeffdingTreeModel(3, 4, 10, featureTypes)
+    val featureTypes: Array[FeatureType] = Array[FeatureType](new NominalFeatureType(10), new NominalFeatureType(10), new NominalFeatureType(10), new NominalFeatureType(10))
+    val htm: HoeffdingTreeModel = new HoeffdingTreeModel(false, 3, 4, new FeatureTypeArray(featureTypes))
+
     val examples = randomExample(3, 4, 10, 10000)
     examples.foreach { x => htm.update(x) }
     println("Hoeffding Tree")
