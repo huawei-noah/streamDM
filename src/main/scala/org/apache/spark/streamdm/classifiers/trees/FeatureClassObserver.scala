@@ -57,7 +57,7 @@ class NullFeatureClassObserver extends FeatureClassObserver with Serializable {
  * The observer monitors the class distribution of a given feature.
  * Used in naive bayes and decision trees to monitor data statistics on leaves.
  */
-class NominalFeatureClassObserver(val numClasses: Int, val numFeatureValues: Int, val fIndex: Int, laplaceSmoothingFactor: Int = 1) extends FeatureClassObserver with Serializable {
+class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numFeatureValues: Int, laplaceSmoothingFactor: Int = 1) extends FeatureClassObserver with Serializable {
 
   var classFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
 
@@ -181,7 +181,7 @@ class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, v
 object FeatureClassObserver {
   def createFeatureClassObserver(featureType: FeatureType, numClasses: Int,
                                  fIndex: Int, numFeatureValues: Int = 0): FeatureClassObserver = featureType match {
-    case nominal: NominalFeatureType => new NominalFeatureClassObserver(numClasses, numFeatureValues, fIndex)
+    case nominal: NominalFeatureType => new NominalFeatureClassObserver(numClasses, fIndex, numFeatureValues)
     case numeric: NumericFeatureType => new GuassianNumericFeatureClassOberser(numClasses, fIndex)
     case _: NullFeatureType          => new NullFeatureClassObserver
   }
