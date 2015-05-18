@@ -21,7 +21,7 @@ object HTTest {
     println(htm.inactiveNodeCount)
     println(htm.deactiveNodeCount)
     println(htm.decisionNodeCount)
-    println(htm.numExamples)
+    println(htm.blockNumExamples)
   }
 
   def randomExample(numClasses: Int, numFeatures: Int, valueRange: Int, num: Int): Array[Example] = {
