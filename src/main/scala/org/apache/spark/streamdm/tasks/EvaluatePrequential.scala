@@ -30,22 +30,25 @@ import org.apache.spark.streamdm.evaluation.Evaluator
  */
 class EvaluatePrequential extends Task {
 
-  val learnerOption:ClassOption = new ClassOption("learner", 'l',
-    "Learner to use", classOf[Classifier], "SGDLearner")
+  val learnerOption: ClassOption = new ClassOption("learner", 'l',
+    "Learner to use", classOf[Classifier], "trees.IncrementalClassfier")
 
-  val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
+//  val learnerOptionbak: ClassOption = new ClassOption("learner", 'l',
+//    "Learner to use", classOf[Classifier], "SGDLearner")
+
+  val evaluatorOption: ClassOption = new ClassOption("evaluator", 'e',
     "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")
 
-  val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
+  val streamReaderOption: ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
 
-  def run(ssc:StreamingContext): Unit = {
+  def run(ssc: StreamingContext): Unit = {
 
-    val learner:Classifier = this.learnerOption.getValue()
+    val learner: Classifier = this.learnerOption.getValue()
     learner.init
-    val evaluator:Evaluator = this.evaluatorOption.getValue()
+    val evaluator: Evaluator = this.evaluatorOption.getValue()
 
-    val reader:StreamReader = this.streamReaderOption.getValue()
+    val reader: StreamReader = this.streamReaderOption.getValue()
 
     val instances = reader.getInstances(ssc)
 
