@@ -1,5 +1,7 @@
 package org.apache.spark.streamdm.util
 
+import scala.math.{ min }
+
 object Util {
 
   def argmax(array: Array[Double]): Double = array.zipWithIndex.maxBy(_._1)._2
@@ -26,8 +28,16 @@ object Util {
     }
     output
   }
-  def main(args:Array[String])={
-        val input: Array[Array[Double]] = Array(Array(1, 2, 3), Array(4, 5, 6))
+
+  def mergeArray(array1: Array[Double], array2: Array[Double]): Array[Double] = {
+    val merge = new Array[Double](min(array1.length, array2.length))
+    for (i <- 0 until merge.length)
+      merge(i) = array1(i) + array2(i)
+    merge
+  }
+
+  def main(args: Array[String]) = {
+    val input: Array[Array[Double]] = Array(Array(1, 2, 3), Array(4, 5, 6))
     val output = Util.splitTranspose(input, 1)
     println(output.length == 2)
     println(output(0).length == 2)
