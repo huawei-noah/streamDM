@@ -20,8 +20,8 @@ class HoeffdingTree extends Classifier {
 
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "Number of Features", 3, 1, Integer.MAX_VALUE)
-  
-    val featureTypesOption = new ClassOption("featureTypes", 'k',
+
+  val featureTypesOption = new ClassOption("featureTypes", 'k',
     "feature type array.", classOf[FeatureTypeArray], "FeatureTypeArray");
 
   val numericObserverTypeOption: IntOption = new IntOption("numericObserverType", 'n',
@@ -115,7 +115,13 @@ class HoeffdingTree extends Classifier {
   override def getModel: HoeffdingTreeModel = model
 
   override def train(input: DStream[Example]): Unit = {
-
+    input.foreachRDD {
+      rdd =>
+        val tmodel = rdd.aggregate(
+          new HoeffdingTreeModel(model))(
+            (mod, example) => { mod.update(example) }, (mod1, mod2) => mod1.blockMerge(mod2, false))
+        model = tmodel
+    }
   }
 
   def predict(input: DStream[Example]): DStream[(Example, Double)] = { null }
@@ -220,22 +226,41 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
   var deactiveNodeCount: Int = 0
   var decisionNodeCount: Int = 0
 
-  var numExamples: Int = 0
+  var baseNumExamples: Int = 0
+  var blockNumExamples: Int = 0
 
-  val featureObservers: ArrayBuffer[FeatureClassObserver] = new ArrayBuffer[FeatureClassObserver]()
+  var lastExample: Example = null
+
+  val featureObservers: Array[FeatureClassObserver] = new Array[FeatureClassObserver](numFeatures)
 
   var root: Node = null
+
+  def this(model: HoeffdingTreeModel) {
+    this(model.runOnSpark, model.numClasses, model.numFeatures, model.featureTypeArray,
+      model.numericObserverType, model.splitCriterion, model.growthAllowed,
+      model.binaryOnly, model.graceNum, model.tieThreshold, model.splitConfedence,
+      model.learningNodeType, model.nbThreshold, model.prePrune)
+    activeNodeCount = model.activeNodeCount
+    this.inactiveNodeCount = model.inactiveNodeCount
+    this.deactiveNodeCount = model.deactiveNodeCount
+    this.decisionNodeCount = model.decisionNodeCount
+    baseNumExamples = model.baseNumExamples + model.blockNumExamples
+    this.root = model.root
+    for (i <- 0 until featureObservers.length)
+      featureObservers(i) = FeatureClassObserver.createFeatureClassObserver(model.featureObservers(i))
+  }
+
   def init(): Unit = {
 
-    featureTypeArray.featureTypes.zipWithIndex.foreach(x => featureObservers.append(
-      FeatureClassObserver.createFeatureClassObserver(x._1, numClasses, x._2,x._1.getRange())))
+    featureTypeArray.featureTypes.zipWithIndex.foreach(x => featureObservers(x._2) =
+      FeatureClassObserver.createFeatureClassObserver(x._1, numClasses, x._2, x._1.getRange()))
 
-    root = createLearningNode(learningNodeType, featureObservers.toArray, numClasses)
+    root = createLearningNode(learningNodeType, numClasses)
     activeNodeCount += 1
   }
 
   override def update(point: Example): HoeffdingTreeModel = {
-    numExamples += 1
+    blockNumExamples += 1
     if (root == null) {
       init
       println("init root")
@@ -243,7 +268,7 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     val foundNode = root.filterToLeaf(point, null, -1)
     var leafNode = foundNode.node
     if (leafNode == null) {
-      leafNode = createLearningNode(learningNodeType, featureObservers.toArray, numClasses)
+      leafNode = createLearningNode(learningNodeType, numClasses)
       foundNode.parent.setChild(foundNode.index, leafNode)
       activeNodeCount += 1
       assert(false)
@@ -269,12 +294,12 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
   def attemptToSplit(learnNode: LearningNode, parent: SplitNode, pIndex: Int): Unit = {
     if (growthAllowed && learnNode.isInstanceOf[ActiveLearningNode]) {
       val activeNode = learnNode.asInstanceOf[ActiveLearningNode]
-      if (activeNode.weight() - activeNode.lastWeight() >= graceNum) {
+      if (activeNode.addOnWeight() >= graceNum) {
         if (!activeNode.isPure()) {
           var bestSuggestions: Array[FeatureSplit] = activeNode.getBestSplitSuggestions(splitCriterion, this)
           bestSuggestions = bestSuggestions.sorted
           if (shouldSplit(activeNode, bestSuggestions)) {
-            println("yes,split,current data num:" + numExamples)
+            println("yes,split,current data num:" + baseNumExamples + blockNumExamples)
             val best: FeatureSplit = bestSuggestions.last
             if (best.conditionalTest == null) {
               println("deactivate")
@@ -286,7 +311,7 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
               //addSplitNode(splitNode, parent, pIndex)
               for (index <- 0 until best.numSplit) {
                 splitNode.setChild(index,
-                  createLearningNode(learningNodeType, featureObservers.toArray, best.distributionFromSplit(index)))
+                  createLearningNode(learningNodeType, best.distributionFromSplit(index)))
               }
               addSplitNode(splitNode, parent, pIndex)
               println("parent:" + parent + "at: " + pIndex)
@@ -294,7 +319,6 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
           }
           // todo manage memory
         }
-        activeNode.setLastWeight(activeNode.weight())
       }
     }
   }
@@ -316,26 +340,43 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
         false
     }
   }
-
-  def merge(that: HoeffdingTreeModel,trySplit:Boolean): HoeffdingTreeModel = {
-    
+  /*
+   * merge with another model's FeatureObservers and try to split
+   */
+  def blockMerge(that: HoeffdingTreeModel, trySplit: Boolean): HoeffdingTreeModel = {
+    for (i <- 0 until featureObservers.length)
+      featureObservers(i) = featureObservers(i).blockMerge(that.featureObservers(i))
+    if (trySplit) {
+      if (root == null) {
+        init
+        println("init root in merge, shouldn't happen")
+      }
+      // merge node
+      val foundNode = root.filterToLeaf(lastExample, null, -1)
+      var leafNode = foundNode.node
+      if (leafNode.isInstanceOf[LearningNode]) {
+        val learnNode = leafNode.asInstanceOf[LearningNode]
+        attemptToSplit(learnNode, foundNode.parent, foundNode.index)
+      }
+    }
     this
   }
-  def createLearningNode(nodeType: Int, featureObservers: Array[FeatureClassObserver], classDistribution: Array[Double]): LearningNode = nodeType match {
-    case 0 => new ActiveLearningNode(classDistribution, featureObservers)
-    case 1 => new LearningNodeNB(classDistribution, featureObservers)
-    case 2 => new LearningNodeNBAdaptive(classDistribution, featureObservers)
-    case _ => new ActiveLearningNode(classDistribution, featureObservers)
+
+  def createLearningNode(nodeType: Int, classDistribution: Array[Double]): LearningNode = nodeType match {
+    case 0 => new ActiveLearningNode(classDistribution)
+    case 1 => new LearningNodeNB(classDistribution)
+    case 2 => new LearningNodeNBAdaptive(classDistribution)
+    case _ => new ActiveLearningNode(classDistribution)
   }
 
-  def createLearningNode(nodeType: Int, featureObservers: Array[FeatureClassObserver], numClasses: Int): LearningNode = nodeType match {
-    case 0 => new ActiveLearningNode(new Array[Double](numClasses), featureObservers)
-    case 1 => new LearningNodeNB(new Array[Double](numClasses), featureObservers)
-    case 2 => new LearningNodeNBAdaptive(new Array[Double](numClasses), featureObservers)
-    case _ => new ActiveLearningNode(new Array[Double](numClasses), featureObservers)
+  def createLearningNode(nodeType: Int, numClasses: Int): LearningNode = nodeType match {
+    case 0 => new ActiveLearningNode(new Array[Double](numClasses))
+    case 1 => new LearningNodeNB(new Array[Double](numClasses))
+    case 2 => new LearningNodeNBAdaptive(new Array[Double](numClasses))
+    case _ => new ActiveLearningNode(new Array[Double](numClasses))
   }
   def activeLearningNode(inactiveNode: InactiveLearningNode, parent: SplitNode, pIndex: Int): Unit = {
-    val activeNode = createLearningNode(learningNodeType, featureObservers.toArray, inactiveNode.classDistribution)
+    val activeNode = createLearningNode(learningNodeType, inactiveNode.classDistribution)
     if (parent == null) {
       root = activeNode
     } else {
