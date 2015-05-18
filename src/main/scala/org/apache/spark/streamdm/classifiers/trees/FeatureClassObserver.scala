@@ -39,6 +39,9 @@ trait FeatureClassObserver extends Serializable {
    * @return suggestion of best feature split
    */
   def bestSplit(criterion: SplitCriterion, pre: Array[Double], fValue: Double, isBinarySplit: Boolean): FeatureSplit
+
+  def blockMerge(that: FeatureClassObserver): FeatureClassObserver
+
   // not supported yet
   def observeTarget(fValue: Double, weight: Double): Unit = {}
 
@@ -51,26 +54,39 @@ class NullFeatureClassObserver extends FeatureClassObserver with Serializable {
   override def probability(cIndex: Double, fValue: Double): Double = 0.0
 
   override def bestSplit(criterion: SplitCriterion, pre: Array[Double], fValue: Double, isBinarySplit: Boolean): FeatureSplit = { null }
+
+  override def blockMerge(that: FeatureClassObserver): FeatureClassObserver = this
 }
 /**
  * Trait for observing the class distribution of a nominal feature.
  * The observer monitors the class distribution of a given feature.
  * Used in naive bayes and decision trees to monitor data statistics on leaves.
  */
-class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numFeatureValues: Int, laplaceSmoothingFactor: Int = 1) extends FeatureClassObserver with Serializable {
+class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numFeatureValues: Int, val laplaceSmoothingFactor: Int = 1) extends FeatureClassObserver with Serializable {
 
-  var classFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
+  val baseClassFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
+
+  val blockClassFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
 
   var totalWeight: Double = 0.0
+  var blockWeight: Double = 0.0
+
+  def this(that: NominalFeatureClassObserver) {
+    this(that.numClasses, that.fIndex, that.numFeatureValues, that.laplaceSmoothingFactor)
+    for (i <- 0 until numClasses; j <- 0 until numFeatureValues)
+      baseClassFeatureStatistics(i)(j) = that.baseClassFeatureStatistics(i)(j) + that.blockClassFeatureStatistics(i)(j)
+    totalWeight = that.totalWeight + that.blockWeight
+  }
+
   override def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit = {
-    classFeatureStatistics(cIndex.toInt)(fValue.toInt) += weight
-    totalWeight += weight
+    blockClassFeatureStatistics(cIndex.toInt)(fValue.toInt) += weight
+    blockWeight += weight
   }
 
   override def probability(cIndex: Double, fValue: Double): Double = {
-    val sum = classFeatureStatistics(cIndex.toInt).sum
+    val sum = baseClassFeatureStatistics(cIndex.toInt).sum
     if (sum == 0) 0.0 else {
-      (classFeatureStatistics(cIndex.toInt)(fValue.toInt) + laplaceSmoothingFactor) /
+      (baseClassFeatureStatistics(cIndex.toInt)(fValue.toInt) + laplaceSmoothingFactor) /
         (sum + numFeatureValues * laplaceSmoothingFactor)
     }
   }
@@ -92,12 +108,32 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
     }
     fSplit
   }
+  /*
+   * merge the blockClassFeatureStatistics of that with the baseClassFeatureStatistics of this
+   * return current NominalFeatureClassObserver
+   */
+  override def blockMerge(that: FeatureClassObserver): FeatureClassObserver = {
+    if (!that.isInstanceOf[NominalFeatureClassObserver])
+      this
+    else {
+      val observer = that.asInstanceOf[NominalFeatureClassObserver]
+      if (numClasses != observer.numClasses || fIndex != observer.fIndex ||
+        numFeatureValues != observer.numFeatureValues ||
+        laplaceSmoothingFactor != observer.laplaceSmoothingFactor) this
+      else {
+        totalWeight += observer.blockWeight
+        for (i <- 0 until baseClassFeatureStatistics.length; j <- 0 until baseClassFeatureStatistics(i).length)
+          baseClassFeatureStatistics(i)(j) += observer.blockClassFeatureStatistics(i)(j)
+        this
+      }
+    }
+  }
 
   private[trees] def binarySplit(fValue: Double): Array[Array[Double]] =
-    { Util.splitTranspose(classFeatureStatistics, fValue.toInt) }
+    { Util.splitTranspose(baseClassFeatureStatistics, fValue.toInt) }
 
-  def multiwaySplit(fValue: Double): Array[Array[Double]] =
-    { Util.transpose(classFeatureStatistics) }
+  private[trees] def multiwaySplit(fValue: Double): Array[Array[Double]] =
+    { Util.transpose(baseClassFeatureStatistics) }
 }
 /**
  * Class for observing the class data distribution for a numeric feature using gaussian estimators.
@@ -109,6 +145,11 @@ class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, v
   val estimators: Array[GaussianEstimator] = Array.fill(numClasses)(new GaussianEstimator())
   val minValuePerClass: Array[Double] = Array.fill(numClasses)(Double.PositiveInfinity)
   val maxValuePerClass: Array[Double] = Array.fill(numClasses)(Double.NegativeInfinity)
+
+  def this(that: GuassianNumericFeatureClassOberser) {
+    this(that.numClasses, that.fIndex, that.numBins)
+    //todo
+  }
 
   override def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit = {
     if (false) {
@@ -176,6 +217,8 @@ class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, v
     }
     points.toArray
   }
+  // todo
+  override def blockMerge(that: FeatureClassObserver): FeatureClassObserver = this
 }
 
 object FeatureClassObserver {
@@ -185,4 +228,10 @@ object FeatureClassObserver {
     case numeric: NumericFeatureType => new GuassianNumericFeatureClassOberser(numClasses, fIndex)
     case _: NullFeatureType          => new NullFeatureClassObserver
   }
+
+  def createFeatureClassObserver(observer: FeatureClassObserver): FeatureClassObserver = observer match {
+    case nominal: NominalFeatureClassObserver => new NominalFeatureClassObserver(nominal)
+    case _: NullFeatureClassObserver          => new NullFeatureClassObserver
+  }
+
 }
