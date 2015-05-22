@@ -47,5 +47,17 @@ class ClustreamOutput extends Task {
     //Train
     clusterer.train(instances)
 
+    //Assign
+    val clpairs = clusterer.assign(instances)
+    
+    //Print
+    clpairs.print
+    /*
+    clpairs.foreach(x=> {
+      println("%s -> %s".format(x._1,x._2))
+    })
+    */
+
+
   }
 }

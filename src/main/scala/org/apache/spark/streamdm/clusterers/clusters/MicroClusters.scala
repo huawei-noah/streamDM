@@ -58,7 +58,6 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
     val radius = radiusOption.getValue * microclusters(closest).rmse
     if(distance<=radius) {
       //if within the radius, add it to the closest
-      println("adding to %d".format(closest))
       addToMicrocluster(closest,change,timestamp)
     }
     else {
@@ -77,7 +76,6 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
         i += 1
       }
       if (found) {
-        println("removing %d and appending".format(tmc))
         removeMicrocluster(tmc).appendMicrocluster(mc)
       }
       else {
@@ -100,7 +98,6 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
           }
           i += 1
         }
-        println("merging %d and %d".format(sm,tm))
         if(sm!=tm)
           mergeMicroclusters(sm,tm).appendMicrocluster(mc)
         else

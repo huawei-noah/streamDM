@@ -35,7 +35,8 @@ class Clustream extends Clusterer {
   type T = MicroClusters
 
   var microclusters: MicroClusters = null
-  var initialBuffer: Array[Example] = null 
+  var initialBuffer: Array[Example] = null
+  var clusters: Array[Example] = null
  
   val kOption: IntOption = new IntOption("numClusters", 'k',
     "Number of clusters for output", 10, 1, Integer.MAX_VALUE)
@@ -81,10 +82,10 @@ class Clustream extends Clusterer {
         //microcluster
         initialBuffer.foreach(iex => {
           val closest = centr.foldLeft((0,Double.MaxValue,0))((cl,centr) => {
-          val dist = centr.in.distanceTo(iex.in)
-          if(dist<cl._2) ((cl._3,dist,cl._3+1))
-          else ((cl._1,cl._2,cl._3+1))
-        })._1
+            val dist = centr.in.distanceTo(iex.in)
+            if(dist<cl._2) ((cl._3,dist,cl._3+1))
+            else ((cl._1,cl._2,cl._3+1))
+          })._1
         microclusters = microclusters.addToMicrocluster(closest, iex, 
                                                             timestamp)
         })
@@ -93,10 +94,20 @@ class Clustream extends Clusterer {
         fromRDDToArray(rdd).
           foreach(ex => {
             microclusters = microclusters.update(ex)
-            println(microclusters)
           })
       }
+      //perform "offline" clustering
+      if(initialBuffer.length<initOption.getValue) {
+        clusters = KMeans.cluster(initialBuffer, kOption.getValue, 
+                                  repOption.getValue)
+      }
+      else {
+        val examples = microclusters.toExampleArray
+        clusters = KMeans.cluster(examples, kOption.getValue,
+                                  repOption.getValue)
+      }
     })
+
   }
 
   /* Gets the current MicroClusters.
@@ -111,18 +122,29 @@ class Clustream extends Clusterer {
    * buffer.
    * @return an Array of Examples representing the clusters
    */
-  def getClusters: Array[Example] = {
-    if(initialBuffer.length<initOption.getValue) {
-      KMeans.cluster(initialBuffer, kOption.getValue, repOption.getValue)
-    }
-    else {
-      val examples = microclusters.toExampleArray
-      KMeans.cluster(examples, kOption.getValue, repOption.getValue)
-    }
-  }
+  def getClusters: Array[Example] =
+    if (clusters==null) Array[Example]() else clusters
 
   private def fromRDDToArray(input: RDD[Example]): Array[Example] =
     input.aggregate(Array[Example]())((arr, ex) => arr:+ex, 
                                     (arr1,arr2) => arr1++arr2)
+
+  /* Assigns examples to clusters, given the current microclusters. 
+   *
+   * @param input the DStream of Examples to be assigned a cluster
+   * @return a DStream of tuples containing the original Example and the
+   * assigned cluster.
+   */
+  def assign(input: DStream[Example]): DStream[(Example,Double)] = {
+    input.map(x => {
+      val assignedCl = getClusters.foldLeft((0,Double.MaxValue,0))(
+        (cl,centr) => {
+          val dist = centr.in.distanceTo(x.in)
+          if(dist<cl._2) ((cl._3,dist,cl._3+1))
+          else ((cl._1,cl._2,cl._3+1))
+        })._1
+      (x,assignedCl)
+    })
+  }
 
 }
