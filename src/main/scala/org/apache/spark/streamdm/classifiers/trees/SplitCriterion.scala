@@ -42,8 +42,15 @@ trait SplitCriterion extends Serializable {
  * The split criterion is used as a parameter on decision trees and decision stumps.
  */
 
-class InfoGainSplitCriterion(val minBranch: Double = 0.01) extends SplitCriterion with Serializable {
+class InfoGainSplitCriterion extends SplitCriterion with Serializable {
 
+  var minBranch: Double = 0.01
+
+  def this(minBranch: Double) {
+    this()
+    this.minBranch = minBranch
+  }
+  
   override def merit(pre: Array[Double], post: Array[Array[Double]]): Double = {
     if (numFrac(post, minBranch) < 2) Double.NegativeInfinity
     else entropy(pre) - entropy(post)
