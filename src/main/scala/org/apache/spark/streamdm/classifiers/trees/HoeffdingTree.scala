@@ -15,14 +15,16 @@ class HoeffdingTree extends Classifier {
 
   val runOnSparkOption: IntOption = new IntOption("runOnSpark", 'r',
     "run on Spark or not", 1, 0, 1)
-  val numClassesOption: IntOption = new IntOption("numClasses", 'c',
+  val numClassesOption: IntOption = new IntOption("numClasses", 'h',
     "Number of Classes", 2, 2, Integer.MAX_VALUE)
 
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
-    "Number of Features", 3, 1, Integer.MAX_VALUE)
+    "Number of Features", 2, 1, Integer.MAX_VALUE)
 
-  val featureTypesOption = new ClassOption("featureTypes", 'k',
-    "feature type array.", classOf[FeatureTypeArray], "FeatureTypeArray");
+//  val featureTypesOption = new ClassOption("featureTypes", 'k',
+//    "feature type array.", classOf[FeatureTypeArray], "trees.FeatureTypeArray")
+
+  val featureArray = new FeatureTypeArray(Array[FeatureType](new NominalFeatureType(10), new NominalFeatureType(10)))
 
   val numericObserverTypeOption: IntOption = new IntOption("numericObserverType", 'n',
     "numeric observer type, 0: gaussian", 0, 0, 2)
@@ -31,27 +33,29 @@ class HoeffdingTree extends Classifier {
   //            'n', "Numeric estimator to use.", classOf[FeatureClassObserver],
   //            "GuassianNumericFeatureClassOberser");
 
-  val splitCriterionOption = new ClassOption("splitCriterion", 's',
-    "Split criterion to use.", classOf[SplitCriterion], "InfoGainSplitCriterion");
+  val splitCriterionOption: ClassOption = new ClassOption("splitCriterion", 'c',
+    "Split criterion to use.", classOf[SplitCriterion], "InfoGainSplitCriterion")
 
-  val growthAllowedOption: IntOption = new IntOption("growthAllowed", 'a',
+  //  val splitCriterion: SplitCriterion = splitCriterionOption.getValue()
+
+  val growthAllowedOption: IntOption = new IntOption("growthAllowed", 'g',
     "Whether allow to grow", 1, 0, 1)
 
   val binaryOnlyOption: IntOption = new IntOption("binaryOnly", 'b',
     "Whether only allow binary splits", 0, 0, 1)
 
-  val numGraceOption: IntOption = new IntOption("numGrace", 'g',
+  val numGraceOption: IntOption = new IntOption("numGrace", 'm',
     "The number of instances a leaf should observe between split attempts.",
     200, 1, Int.MaxValue)
 
   val tieThresholdOption: FloatOption = new FloatOption("tieThreshold", 't',
     "Threshold below which a split will be forced to break ties.", 0.05, 0, 1)
 
-  val splitConfidenceOption: FloatOption = new FloatOption("splitConfidence", 'c',
+  val splitConfidenceOption: FloatOption = new FloatOption("splitConfidence", 'd',
     "The allowable error in split decision, values closer to 0 will take longer to decide.",
     0.0000001, 0.0, 1.0)
 
-  val learningNodeOption: IntOption = new IntOption("learningNodeType", 'l',
+  val learningNodeOption: IntOption = new IntOption("learningNodeType", 'o',
     "learning node type of leaf", 2, 0, 2)
 
   val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'a',
@@ -103,13 +107,13 @@ class HoeffdingTree extends Classifier {
   var model: HoeffdingTreeModel = null
 
   override def init(): Unit = {
-    model = new HoeffdingTreeModel(runOnSparkOption.getValue == 1,
-      numClassesOption.getValue, numFeaturesOption.getValue,
-      null, numericObserverTypeOption.getValue, null,
-      growthAllowedOption.getValue == 1, binaryOnlyOption.getValue == 1, numGraceOption.getValue,
-      tieThresholdOption.getValue, splitConfidenceOption.getValue,
-      learningNodeOption.getValue, nbThresholdOption.getValue,
-      PrePruneOption.getValue == 1)
+    model = new HoeffdingTreeModel(runOnSparkOption.getValue() == 1,
+      numClassesOption.getValue(), numFeaturesOption.getValue(),
+      featureArray, numericObserverTypeOption.getValue, splitCriterionOption.getValue(),
+      growthAllowedOption.getValue() == 1, binaryOnlyOption.getValue() == 1, numGraceOption.getValue(),
+      tieThresholdOption.getValue, splitConfidenceOption.getValue(),
+      learningNodeOption.getValue(), nbThresholdOption.getValue(),
+      PrePruneOption.getValue() == 1)
   }
 
   override def getModel: HoeffdingTreeModel = model
@@ -124,7 +128,9 @@ class HoeffdingTree extends Classifier {
     }
   }
 
-  def predict(input: DStream[Example]): DStream[(Example, Double)] = { null }
+  def predict(input: DStream[Example]): DStream[(Example, Double)] = { 
+    input.map { x => (x, model.predict(x)) }
+  }
 }
 
 /**
@@ -361,6 +367,10 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     }
     this
   }
+  
+    def predict(instance: Example): Double = {
+      0.0
+    }
 
   def createLearningNode(nodeType: Int, classDistribution: Array[Double]): LearningNode = nodeType match {
     case 0 => new ActiveLearningNode(classDistribution)
