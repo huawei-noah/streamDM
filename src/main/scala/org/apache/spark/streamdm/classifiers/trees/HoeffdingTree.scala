@@ -6,6 +6,7 @@ import scala.math.{ log, sqrt }
 import com.github.javacliparser._
 
 import org.apache.spark.streaming.dstream._
+import org.apache.spark.streamdm.util.Util.{ argmax }
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 
@@ -21,8 +22,8 @@ class HoeffdingTree extends Classifier {
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "Number of Features", 2, 1, Integer.MAX_VALUE)
 
-//  val featureTypesOption = new ClassOption("featureTypes", 'k',
-//    "feature type array.", classOf[FeatureTypeArray], "trees.FeatureTypeArray")
+  //  val featureTypesOption = new ClassOption("featureTypes", 'k',
+  //    "feature type array.", classOf[FeatureTypeArray], "trees.FeatureTypeArray")
 
   val featureArray = new FeatureTypeArray(Array[FeatureType](new NominalFeatureType(10), new NominalFeatureType(10)))
 
@@ -128,7 +129,7 @@ class HoeffdingTree extends Classifier {
     }
   }
 
-  def predict(input: DStream[Example]): DStream[(Example, Double)] = { 
+  def predict(input: DStream[Example]): DStream[(Example, Double)] = {
     input.map { x => (x, model.predict(x)) }
   }
 }
@@ -367,10 +368,17 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     }
     this
   }
-  
-    def predict(instance: Example): Double = {
-      0.0
-    }
+  /* predict the class of point */
+  def predict(point: Example): Double = {
+    if (root != null) {
+      val foundNode = root.filterToLeaf(point, null, -1)
+      var leafNode = foundNode.node
+      if (leafNode == null) {
+        leafNode = foundNode.parent
+      }
+      argmax(leafNode.classVotes(this, point))
+    } else 0.0
+  }
 
   def createLearningNode(nodeType: Int, classDistribution: Array[Double]): LearningNode = nodeType match {
     case 0 => new ActiveLearningNode(classDistribution)
