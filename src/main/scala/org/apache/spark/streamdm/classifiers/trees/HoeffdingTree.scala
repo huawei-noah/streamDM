@@ -65,45 +65,6 @@ class HoeffdingTree extends Classifier {
   val PrePruneOption: IntOption = new IntOption("PrePrune", 'p',
     "whether allow pre-pruning.", 0, 0, 1)
 
-  /*
-      public ClassOption numericEstimatorOption = new ClassOption("numericEstimator",
-            'n', "Numeric estimator to use.", NumericAttributeClassObserver.class,
-            "GaussianNumericAttributeClassObserver");
-
-    public ClassOption nominalEstimatorOption = new ClassOption("nominalEstimator",
-            'd', "Nominal estimator to use.", DiscreteAttributeClassObserver.class,
-            "NominalAttributeClassObserver");
-
-    public IntOption memoryEstimatePeriodOption = new IntOption(
-            "memoryEstimatePeriod", 'e',
-            "How many instances between memory consumption checks.", 1000000,
-            0, Integer.MAX_VALUE);
-
-    public FlagOption stopMemManagementOption = new FlagOption(
-            "stopMemManagement", 'z',
-            "Stop growing as soon as memory limit is hit.");
-
-    public FlagOption removePoorAttsOption = new FlagOption("removePoorAtts",
-            'r', "Disable poor attributes.");
-
-    public FlagOption noPrePruneOption = new FlagOption("noPrePrune", 'p',
-            "Disable pre-pruning.");
-  
-  
- */
-  //  val numClasses: Int
-  //  val numFeatures: Int
-  //  val range: Int
-  //  val FeatureTypes: Array[FeatureType]
-  //  val numericObserverType: Int = 0
-  //  val splitCriterion: SplitCriterion = new InfoGainSplitCriterion()
-  //  var growthAllowed: Boolean = true
-  //  val binaryOnly: Boolean = false
-  //  val graceNum: Int = 200
-  //  val tieThreshold: Double = 0.05
-  //  val nbThreshold: Int = 0
-  //  val splitConfedence: Double = 0.0000001
-  //  val learningNodeType: Int = 0
 
   var model: HoeffdingTreeModel = null
 
