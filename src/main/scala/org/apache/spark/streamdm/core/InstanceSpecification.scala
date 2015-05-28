@@ -91,11 +91,24 @@ class InstanceSpecification extends Serializable {
 
 class FeatureSpecification(nominalValues:Array[String]) extends Serializable {
   val values = nominalValues
+  val nameMap = Map[String,Int]()
+  values.zipWithIndex.map{ case (element, index) => (nameMap += (element -> index)) }
 
   /** Get the nominal string value present at position index
     *
     * @param index the index of the feature value
     * @return a string containing the nominal value of the feature
     */
-  def apply(index: Int): String = values(index)
+  def apply(index: Int): String =  {
+    values(index)
+  }
+
+  /** Get the position index given the nominal string value
+    *
+    * @param string a string containing the nominal value of the feature
+    * @return the index of the feature value
+    */
+  def apply(string: String): Int =  {
+    nameMap(string)
+  }
 }
