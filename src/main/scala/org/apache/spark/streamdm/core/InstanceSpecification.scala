@@ -99,16 +99,12 @@ class FeatureSpecification(nominalValues:Array[String]) extends Serializable {
     * @param index the index of the feature value
     * @return a string containing the nominal value of the feature
     */
-  def apply(index: Int): String =  {
-    values(index)
-  }
+  def apply(index: Int): String =  values(index)
 
   /** Get the position index given the nominal string value
     *
     * @param string a string containing the nominal value of the feature
     * @return the index of the feature value
     */
-  def apply(string: String): Int =  {
-    nameMap(string)
-  }
+  def apply(string: String): Int = nameMap(string)
 }
