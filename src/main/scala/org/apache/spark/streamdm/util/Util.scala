@@ -31,6 +31,15 @@ object Util {
     output
   }
 
+  def normal(input: Array[Array[Double]]): Array[Array[Double]] = {
+    val total = input.map(_.sum).sum
+    input.map { row => row.map { _ / total } }
+  }
+  def normal(input: Array[Double]): Array[Double] = {
+    val total = input.sum
+    input.map { { _ / total } }
+  }
+
   def mergeArray(array1: Array[Double], array2: Array[Double]): Array[Double] = {
     val merge = new Array[Double](min(array1.length, array2.length))
     for (i <- 0 until merge.length)
