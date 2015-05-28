@@ -18,10 +18,12 @@
 package org.apache.spark.streamdm.tasks
 
 import com.github.javacliparser.ClassOption
+
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.clusterers._
 import org.apache.spark.streamdm.streams._
 import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streamdm.evaluation.Evaluator
 
 /**
  * Task for debugging a clusterer
@@ -31,6 +33,9 @@ class ClustreamOutput extends Task {
 
   val clustererOption: ClassOption = new ClassOption("clusterer", 'c',
     "Clusterer to use", classOf[Clusterer], "Clustream")
+
+  val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
+    "Evaluator to use", classOf[Evaluator], "ClusteringCohesionEvaluator")
 
   val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
@@ -42,6 +47,9 @@ class ClustreamOutput extends Task {
 
     val reader:StreamReader = this.streamReaderOption.getValue()
 
+    val evaluator:Evaluator = this.evaluatorOption.getValue()
+
+
     val instances = reader.getInstances(ssc)
 
     //Train
@@ -50,14 +58,7 @@ class ClustreamOutput extends Task {
     //Assign
     val clpairs = clusterer.assign(instances)
     
-    //Print
-    clpairs.print
-    /*
-    clpairs.foreach(x=> {
-      println("%s -> %s".format(x._1,x._2))
-    })
-    */
-
-
+    //Print statistics
+    evaluator.addResult(clpairs)
   }
 }
