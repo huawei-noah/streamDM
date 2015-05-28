@@ -1,6 +1,8 @@
 package org.apache.spark.streamdm.classifiers.trees
 
-import scala.math.{ log, max }
+import scala.math.{ max }
+
+import org.apache.spark.streamdm.util.Util
 
 trait SplitCriterionType
 
@@ -50,33 +52,38 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
     this()
     this.minBranch = minBranch
   }
-  
+
   override def merit(pre: Array[Double], post: Array[Array[Double]]): Double = {
+    val num = numFrac(post, minBranch)
     if (numFrac(post, minBranch) < 2) Double.NegativeInfinity
-    else entropy(pre) - entropy(post)
+    else {
+      val merit = entropy(pre) - entropy(post)
+      merit
+    }
   }
 
-  override def rangeMerit(pre: Array[Double]): Double = log(max(pre.length, 2))
+  override def rangeMerit(pre: Array[Double]): Double = Util.log2(max(pre.length, 2))
 
   def entropy(pre: Array[Double]): Double = {
     if (pre == null || pre.sum <= 0 || hasNegative(pre)) 0.0
-    log(pre.sum) - pre.filter(_ > 0).map(x => x * log(x)).sum / pre.sum
+    Util.log2(pre.sum) - pre.filter(_ > 0).map(x => x * Util.log2(x)).sum / pre.sum
   }
 
   def entropy(post: Array[Array[Double]]): Double = {
     if (post == null || post.length == 0 || post(0).length == 0) 0
-    val tpost: Array[Array[Double]] = Array.fill(post(0).length)(new Array[Double](post.length))
-    post.zipWithIndex.map {
-      x => { x._1.zipWithIndex.map { y => tpost(y._2)(x._2) = post(x._2)(y._2) } }
+    else {
+      post.map { row => (row.sum * entropy(row)) }.sum / post.map(_.sum).sum
     }
-    tpost.map { x => entropy(x) * x.sum }.sum / post.map(_.sum).sum
+
   }
 
   private[trees] def numFrac(post: Array[Array[Double]], minFrac: Double): Int = {
-    if (post == null || post.length == 0) 0
-    val sums: Array[Double] = new Array[Double](post(0).length)
-    post.map { _.zipWithIndex.map { x => sums(x._2) += x._1 } }
-    sums.filter(_ > sums.sum * minFrac).length
+    if (post == null || post.length == 0) {
+      0
+    } else {
+      val sums = post.map { _.sum }
+      sums.filter(_ > sums.sum * minFrac).length
+    }
   }
   /*
    * check whether a array has a negative value

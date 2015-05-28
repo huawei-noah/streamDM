@@ -3,6 +3,7 @@ package org.apache.spark.streamdm.classifiers.trees
 import org.scalatest.FunSuite
 import org.apache.spark.streamdm.classifiers.trees._
 import scala.math.{ log, abs }
+import org.apache.spark.streamdm.util.Util.{ log2 }
 class SplitCriterionSuite extends FunSuite {
 
   test("InfoGainSplitCriterion, test negtive function") {
@@ -12,14 +13,14 @@ class SplitCriterionSuite extends FunSuite {
 
   test("InfoGainSplitCriterion, test entropy of array") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
-    assert(ig.entropy(Array[Double](2.0, 4, 8)) == (log(2.0 + 4 + 8) - (2.0 * log(2.0) + 4 * log(4.0) + 8 * log(8.0)) / (2.0 + 4 + 8)))
-    assert(abs(ig.entropy(Array(0.5, 0.5)) - 0.6931471805599453) < 0.00001)
-    assert(abs(ig.entropy(Array(3.0, 3)) - 0.6931471805599453) < 0.00001)
+    assert(ig.entropy(Array[Double](2.0, 4, 8)) == (log2(2.0 + 4 + 8) - (2.0 * log2(2.0) + 4 * log2(4.0) + 8 * log2(8.0)) / (2.0 + 4 + 8)))
+    assert(ig.entropy(Array(0.5, 0.5)) == 1.0)
+    assert(ig.entropy(Array(0.4, 0.6)) == 0.9709505944546686)
   }
 
   test("InfoGainSplitCriterion, test entropy of matrix ") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
-    assert(abs(ig.entropy(Array(Array(1.0, 1, 1), Array(1.0, 1, 1))) - 0.6931471805599453) < 0.00001)
+    assert(ig.entropy(Array(Array(1.0, 1, 1), Array(1.0, 1, 1))) == 1.5849625007211563)
   }
 
   test("InfoGainSplitCriterion, test nunFrac") {
@@ -27,10 +28,11 @@ class SplitCriterionSuite extends FunSuite {
     assert(ig.numFrac(Array(new Array(0)), 0.01) == 0)
     assert(ig.numFrac(Array(Array(1, -1, 1), Array(-1, 1, 0)), 0.01) == 1)
     assert(ig.numFrac(Array(Array(1, 1, 1), Array(-1, 1, 1)), 0.01) == 2)
+    assert(ig.numFrac(Array(Array(1, 2, 3, 4, 5), Array(5, 4, 3, 2, 1)), 0.01) == 2)
   }
   test("InfoGainSplitCriterion, test rangeMerit") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
-    assert(ig.rangeMerit(Array(1.0, 1)) == log(2))
+    assert(ig.rangeMerit(Array(1.0, 1)) == log2(2))
   }
   test("InfoGainSplitCriterion, test merit") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
