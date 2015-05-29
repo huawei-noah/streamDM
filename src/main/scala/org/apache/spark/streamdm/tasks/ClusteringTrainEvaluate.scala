@@ -26,10 +26,10 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streamdm.evaluation.Evaluator
 
 /**
- * Task for debugging a clusterer
- *
+ * Task for evaluating a clustering on a stream by first applying the clustering
+ * and then evaluating the cluster statistics.
  */
-class ClustreamOutput extends Task {
+class ClusteringTrainEvaluate extends Task {
 
   val clustererOption: ClassOption = new ClassOption("clusterer", 'c',
     "Clusterer to use", classOf[Clusterer], "Clustream")

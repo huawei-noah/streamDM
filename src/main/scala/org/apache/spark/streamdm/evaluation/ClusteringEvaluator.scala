@@ -23,8 +23,9 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.rdd.RDD
 
 /**
- * Classification evaluator that performs basic incremental evaluation.
- *
+ * Clustering evaluator which computes, for each RDD of Example-Double tuples,
+ * the clustering cohesion measure (SSE). This is the sum of square distances
+ * between Examples and the centroid of their assigned cluster.
  */
 class ClusteringCohesionEvaluator extends Evaluator {
 
@@ -41,6 +42,11 @@ class ClusteringCohesionEvaluator extends Evaluator {
   def getResult():Double = 0.0
 }
 
+/**
+ * Clustering evaluator which computes, for each RDD of Example-Double tuples,
+ * the clustering separation measure (SSB). This is the sum of square distances
+ * between cluster centroids and the overall data centroid.
+ */
 class ClusteringSeparationEvaluator extends Evaluator {
 
   def addResult(input: DStream[(Example, Double)]): Unit =
@@ -61,6 +67,9 @@ class ClusteringSeparationEvaluator extends Evaluator {
   def getResult():Double = 0.0
 }
 
+/**
+ * Contains util functions for clustering evaluation.
+ */
 object ClusteringEvaluationUtil {
 
   def computeAllCentroids(input: RDD[(Example,Double)]): 
