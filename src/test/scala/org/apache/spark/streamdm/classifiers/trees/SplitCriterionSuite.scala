@@ -25,10 +25,10 @@ class SplitCriterionSuite extends FunSuite {
 
   test("InfoGainSplitCriterion, test nunFrac") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
-    assert(ig.numFrac(Array(new Array(0)), 0.01) == 0)
-    assert(ig.numFrac(Array(Array(1, -1, 1), Array(-1, 1, 0)), 0.01) == 1)
-    assert(ig.numFrac(Array(Array(1, 1, 1), Array(-1, 1, 1)), 0.01) == 2)
-    assert(ig.numFrac(Array(Array(1, 2, 3, 4, 5), Array(5, 4, 3, 2, 1)), 0.01) == 2)
+    assert(ig.numGTFrac(Array(new Array(0)), 0.01) == 0)
+    assert(ig.numGTFrac(Array(Array(1, -1, 1), Array(-1, 1, 0)), 0.01) == 1)
+    assert(ig.numGTFrac(Array(Array(1, 1, 1), Array(-1, 1, 1)), 0.01) == 2)
+    assert(ig.numGTFrac(Array(Array(1, 2, 3, 4, 5), Array(5, 4, 3, 2, 1)), 0.01) == 2)
   }
   test("InfoGainSplitCriterion, test rangeMerit") {
     val ig: InfoGainSplitCriterion = new InfoGainSplitCriterion()
