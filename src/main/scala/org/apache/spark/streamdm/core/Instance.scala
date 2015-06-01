@@ -19,7 +19,7 @@ package org.apache.spark.streamdm.core
 
 /**
  * An Instance represents the input or output of any learning algorithm. It is
- * normally composed of a feature vector (with various implementations) 
+ * normally composed of a feature vector (with various implementations). 
  */
 
 trait Instance extends Serializable {
@@ -70,7 +70,7 @@ trait Instance extends Serializable {
    */
   def set(index: Int, input: Double): T
 
-  /** Apply an operation to every feature of the Instance (essentially a map)
+  /** Apply an operation to every feature of the Instance
    *
    * @param func the function for the transformation
    * @return a new Instance with the transformed features
