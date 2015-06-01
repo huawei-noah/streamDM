@@ -19,8 +19,7 @@ package org.apache.spark.streamdm.core
 
 /**
  * A Model trait defines the needed operations on any learning Model. It
- * provides methods for updating the model and for predicting the label of a
- * given Instance
+ * provides a method for updating the model.
  */
 trait Model extends Serializable {
 

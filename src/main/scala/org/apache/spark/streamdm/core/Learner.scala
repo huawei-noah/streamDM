@@ -17,35 +17,33 @@
 
 package org.apache.spark.streamdm.core
 
-import com.github.javacliparser.Configurable
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 
+import com.github.javacliparser.Configurable
+
+
 /**
- * A Learner trait defines the needed operations on any learner implemented. It
- * provides methods for training the model and for predicting the labels for a
- * stream of Instance RDDs.
+ * A Learner trait defines the needed operations for any learner algorithm
+ * implemented. It provides methods for training the model for a stream of
+ * Example RDDs.
+ * Any Learner will contain a data structure derived from Model.
  */
 trait Learner extends Configurable  with Serializable {
 
   type T <: Model
   
-  /* Init the model based on the algorithm implemented in the learner,
-   * from the stream of instances given for training.
-   *
+  /* Init the model based on the algorithm implemented in the learner.
    */
   def init: Unit
 
   /* Train the model based on the algorithm implemented in the learner, 
-   * from the stream of instances given for training.
-   *
-   * @param input a stream of instances
-   * @return the updated Model
+   * from the stream of Examples given for training.
+   * @param input a stream of Examples
    */
   def train(input: DStream[Example]): Unit
 
   /* Gets the current Model used for the Learner.
-   * 
    * @return the Model object used for training
    */
   def getModel: T
