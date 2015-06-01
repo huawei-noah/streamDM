@@ -17,27 +17,17 @@
 
 package org.apache.spark.streamdm.streams
 
-import org.apache.spark.streamdm.core.{ExampleSpecification, Example}
-import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import com.github.javacliparser.Configurable
 
 /**
- * Abstract class Reader that outputs a Dstream of instances to be used 
- * inside tasks
+ * Abstract class Writer that outputs a Dstream of examples
  *
  */
-abstract class StreamReader extends Configurable {
+abstract class StreamWriter extends Configurable {
   /**
-   * Obtains a stream of Examples
-   * @param ssc a Spark Streaming Context
-   * @return a stream of Examples
+   * Output a stream of Strings
+   * @param stream a stream to output
    */
-  def getExamples(ssc:StreamingContext): DStream[Example]
-
-  /**
-   * Obtains the specification of the examples in the stream
-   * @return an specification of the examples
-   */
-  def getExampleSpecification(): ExampleSpecification
+  def output(stream: DStream[String] ):Unit
 }

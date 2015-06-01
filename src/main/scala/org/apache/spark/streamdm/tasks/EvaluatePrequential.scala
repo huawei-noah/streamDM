@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.tasks
 
-import com.github.javacliparser.ClassOption
+import com.github.javacliparser.{StringOption, ClassOption}
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.streams._
@@ -39,15 +39,22 @@ class EvaluatePrequential extends Task {
   val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
 
-  def run(ssc:StreamingContext): Unit = {
+  val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
+    "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
 
-    val learner:Classifier = this.learnerOption.getValue()
-    learner.init
-    val evaluator:Evaluator = this.evaluatorOption.getValue()
+
+  def run(ssc:StreamingContext): Unit = {
 
     val reader:StreamReader = this.streamReaderOption.getValue()
 
-    val instances = reader.getInstances(ssc)
+    val learner:SGDLearner = this.learnerOption.getValue()
+    learner.init(reader.getExampleSpecification())
+
+    val evaluator:Evaluator = this.evaluatorOption.getValue()
+
+    val writer:StreamWriter = this.resultsWriterOption.getValue()
+
+    val instances = reader.getExamples(ssc)
 
     //Predict
     val predPairs = learner.predict(instances)
@@ -56,7 +63,7 @@ class EvaluatePrequential extends Task {
     learner.train(instances)
 
     //Evaluate
-    evaluator.addResult(predPairs)
+    writer.output(evaluator.addResult(predPairs))
 
   }
 }

@@ -34,7 +34,7 @@ trait Learner extends Configurable  with Serializable {
    * from the stream of instances given for training.
    *
    */
-  def init: Unit
+  def init(exampleSpecification: ExampleSpecification): Unit
 
   /* Train the model based on the algorithm implemented in the learner, 
    * from the stream of instances given for training.
