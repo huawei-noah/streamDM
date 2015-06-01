@@ -17,11 +17,11 @@
 
 package org.apache.spark.streamdm.classifiers
 
-import com.github.javacliparser.{ClassOption, FloatOption, IntOption}
 import org.apache.spark.streamdm._
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.model._
 import org.apache.spark.streaming.dstream._
+import com.github.javacliparser.{ClassOption, FloatOption, IntOption}
 
 /**
  * The SGDLearner trains a LinearModel using the stochastic gradient descent
@@ -65,7 +65,6 @@ class SGDLearner extends Classifier {
   /* Train the model using stochastic gradient descent.
    *
    * @param input a stream of instances
-   * @return the updated Model
    */
   override def train(input: DStream[Example]): Unit = {
     input.foreachRDD(rdd=> {
@@ -94,17 +93,18 @@ class SGDLearner extends Classifier {
     })
   }
 
-  /* Predict the label of the Instance, given the current Model
+  /* Predict the label of the Example stream, given the current Model
    *
-   * @param instance the Instance which needs a class predicted
-   * @return a tuple containing the original instance and the predicted value
+   * @param instance the input Example stream 
+   * @return a stream of tuples containing the original instance and the
+   * predicted value
    */
   override def predict(input: DStream[Example]): DStream[(Example, Double)] =
     input.map(x => (x, model.predict(x)))
 
-  /* Gets the current Model used for the Learner.
+  /* Gets the current LinearModel used for the SGDLearner.
    * 
-   * @return the Model object used for training
+   * @return the LinearModel object used for training
    */
   override def getModel: LinearModel = model
 }
