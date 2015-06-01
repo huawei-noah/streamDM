@@ -17,17 +17,15 @@
 
 package org.apache.spark.streamdm
 
-import com.github.javacliparser.ClassOption
 import org.apache.spark._
 import org.apache.spark.streamdm.tasks.Task
 import org.apache.spark.streaming._
 
+import com.github.javacliparser.ClassOption
+
 /**
- * An app for running streamDM jobs or tasks on Spark Streaming. Run with
- * {{{
- * scripts/spark.sh "EvaluatePrequential"
- * }}}
- * This script uses `spark-submit` to submit this app.
+ * The main entry point for testing StreamDM by running tasks on Spark
+ * Streaming.
  */
 object streamDMJob {
 
@@ -39,8 +37,9 @@ object streamDMJob {
 
     val ssc = new StreamingContext(conf, Seconds(10))
 
-    // Run Task
-    val string = if (args.length > 0) args.mkString(" ") else "EvaluatePrequential"
+    //run task
+    val string = if (args.length > 0) args.mkString(" ") 
+                  else "EvaluatePrequential"
     val task:Task = ClassOption.cliStringToObject(string, classOf[Task], null)
     task.run(ssc)
 
