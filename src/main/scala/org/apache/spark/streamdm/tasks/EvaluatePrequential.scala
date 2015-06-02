@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.tasks
 
-import com.github.javacliparser.ClassOption
+import com.github.javacliparser.{StringOption, ClassOption}
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.streams._
@@ -25,35 +25,36 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streamdm.evaluation.Evaluator
 
 /**
- * Task for evaluating a classifier on a stream by testing then training with each example in sequence.
- *
+ * Task for evaluating a classifier on a stream by testing then training with
+ * each example in sequence.
  */
 class EvaluatePrequential extends Task {
 
-  val learnerOption: ClassOption = new ClassOption("learner", 'l',
-    "Learner to use", classOf[Classifier], "trees.HoeffdingTree")
-  
-//    val learnerOption: ClassOption = new ClassOption("learner", 'l',
-//    "Learner to use", classOf[Classifier], "trees.IncrementalClassfier")
+  val learnerOption:ClassOption = new ClassOption("learner", 'l',
+    "Learner to use", classOf[Classifier], "SGDLearner")
 
-//  val learnerOptionbak: ClassOption = new ClassOption("learner", 'l',
-//    "Learner to use", classOf[Classifier], "SGDLearner")
-
-  val evaluatorOption: ClassOption = new ClassOption("evaluator", 'e',
+  val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
     "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")
 
-  val streamReaderOption: ClassOption = new ClassOption("streamReader", 's',
+  val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
 
-  def run(ssc: StreamingContext): Unit = {
+  val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
+    "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
 
-    val learner: Classifier = this.learnerOption.getValue()
-    learner.init
-    val evaluator: Evaluator = this.evaluatorOption.getValue()
 
-    val reader: StreamReader = this.streamReaderOption.getValue()
+  def run(ssc:StreamingContext): Unit = {
 
-    val instances = reader.getInstances(ssc)
+    val reader:StreamReader = this.streamReaderOption.getValue()
+
+    val learner:SGDLearner = this.learnerOption.getValue()
+    learner.init(reader.getExampleSpecification())
+
+    val evaluator:Evaluator = this.evaluatorOption.getValue()
+
+    val writer:StreamWriter = this.resultsWriterOption.getValue()
+
+    val instances = reader.getExamples(ssc)
 
     //Predict
     val predPairs = learner.predict(instances)
@@ -62,7 +63,7 @@ class EvaluatePrequential extends Task {
     learner.train(instances)
 
     //Evaluate
-    evaluator.addResult(predPairs)
+    writer.output(evaluator.addResult(predPairs))
 
   }
 }
