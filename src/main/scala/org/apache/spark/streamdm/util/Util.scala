@@ -47,23 +47,30 @@ object Util {
     merge
   }
 
-  def matrixtoString(post: Array[Array[Double]]): String = {
-    val sb = new StringBuffer("\n")
+  def matrixtoString(post: Array[Array[Double]], split: String = ",", head: String = "{", tail: String = "}"): String = {
+    val sb = new StringBuffer(head)
     for (i <- 0 until post.length) {
+      sb.append(head)
       for (j <- 0 until post(i).length) {
-        sb.append(post(i)(j) + "\t")
+        sb.append(post(i)(j))
+        if (j < post(i).length - 1)
+          sb.append(split)
       }
-      sb.append("\n")
+      sb.append(tail)
+      if (i < post.length - 1)
+        sb.append(split)
     }
-    sb.substring(0, sb.length() - 1)
+    sb.append(tail).toString()
   }
 
-  def arraytoString(pre: Array[Double]): String = {
-    val sb = new StringBuffer("\n")
+  def arraytoString(pre: Array[Double], split: String = ",", head: String = "{", tail: String = "}"): String = {
+    val sb = new StringBuffer(head)
     for (i <- 0 until pre.length) {
-      sb.append(pre(i) + "\t")
+      sb.append(pre(i))
+      if (i < pre.length - 1)
+        sb.append(split)
     }
-    sb.substring(0, sb.length() - 1)
+    sb.append(tail).toString()
   }
 
   def main(args: Array[String]) = {
