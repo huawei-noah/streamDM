@@ -87,7 +87,10 @@ class HoeffdingTree extends Classifier {
 
   var model: HoeffdingTreeModel = null
 
-  override def init(): Unit = {
+  var exampleLearnerSpecification: ExampleSpecification = null
+
+  override def init(exampleSpecification: ExampleSpecification): Unit = {
+    exampleLearnerSpecification = exampleSpecification
     model = new HoeffdingTreeModel(runOnSparkOption.getValue() == 1,
       numClassesOption.getValue(), numFeaturesOption.getValue(),
       featureArray, numericObserverTypeOption.getValue, splitCriterionOption.getValue(),

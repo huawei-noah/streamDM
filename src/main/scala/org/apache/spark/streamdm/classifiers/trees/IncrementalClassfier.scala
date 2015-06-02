@@ -29,11 +29,14 @@ class IncrementalClassfier extends Classifier {
 
   var model: IncrementalModel = null
 
+  var exampleLearnerSpecification: ExampleSpecification = null
+
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    */
-  override def init(): Unit = {
+  override def init(exampleSpecification: ExampleSpecification): Unit = {
+    exampleLearnerSpecification = exampleSpecification
     model = new IncrementalModel()
   }
 
