@@ -50,11 +50,14 @@ class MultinomialNaiveBayes extends Classifier {
 
   var model: MultinomialNaiveBayesModel = null
 
+  var exampleLearnerSpecification: ExampleSpecification = null
+
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    */
-  override def init(): Unit = {
+  override def init(exampleSpecification: ExampleSpecification): Unit = {
+    exampleLearnerSpecification = exampleSpecification
     model = new MultinomialNaiveBayesModel(
       numClassesOption.getValue, numFeaturesOption.getValue, laplaceSmoothingFactorOption.getValue)
   }
