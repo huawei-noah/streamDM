@@ -46,7 +46,7 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
       new MicroCluster(inst.map(x=>x),inst.map(x=>x*x), time,
         time.toDouble*time.toDouble, 1)
     case _ =>
-      new MicroCluster(sum.add(inst), sqSum.add(inst.map(x=>x*x)), timeSum+time,
+      new MicroCluster(sum.add(inst), sqSum.add(inst.map(x=>x*x)),timeSum+time,
                        sqTimeSum+time.toDouble*time.toDouble, num+1)
   }
    
@@ -67,7 +67,7 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
     if(num>1)
       sum.map(x=>x/num.toDouble)
     else
-      sum
+      sum.map(x=>x)
 
   /* Compute the RMSE of a microcluster
    *
@@ -109,6 +109,9 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
    */ 
   def toExample: Example =
     new Example(this.centroid, new NullInstance(), this.num)
+
+  override def toString: String =
+    "%s %d".format(centroid.toString, num)
 
 }
 
