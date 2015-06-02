@@ -29,17 +29,15 @@ import org.apache.spark.rdd.RDD
  */
 class ClusteringCohesionEvaluator extends Evaluator {
 
-  def addResult(input: DStream[(Example, Double)]): Unit =
-    input.foreachRDD(rdd => {
+  override def addResult(input: DStream[(Example, Double)]): DStream[String] =
+    input.transform(rdd => {
       val inv=rdd.map{case (e,c)=>(c,e)}
       val centr = ClusteringEvaluationUtil.computeAllCentroids(rdd).
                     map{case (k,c,s) => (k,c)}
-      val dst=inv.join(centr).map{case (k,(e,c))=>pow(e.in.distanceTo(c.in),2)}.
-                reduce(_+_)
-      println("SSE: %.5f".format(dst))
-    })
+      inv.join(centr).map{case (k,(e,c))=>pow(e.in.distanceTo(c.in),2)}  
+    }).reduce(_+_).map(x=>"SSE=%.5f".format(x))
 
-  def getResult():Double = 0.0
+  override def getResult():Double = 0.0
 }
 
 /**
@@ -49,8 +47,8 @@ class ClusteringCohesionEvaluator extends Evaluator {
  */
 class ClusteringSeparationEvaluator extends Evaluator {
 
-  def addResult(input: DStream[(Example, Double)]): Unit =
-    input.foreachRDD(rdd => {
+  override def addResult(input: DStream[(Example, Double)]): DStream[String] =
+    input.transform(rdd => {
       val inv=rdd.map{case (e,c) => (c,e)}
       val centr = ClusteringEvaluationUtil.computeAllCentroids(rdd)
       val sumAll=inv.map{case (c,e)=>(e,1)}.reduce((x,y)=>
@@ -59,12 +57,11 @@ class ClusteringSeparationEvaluator extends Evaluator {
         if(sumAll._2>1) new Example(sumAll._1.in.map(x=>x/sumAll._2))
         else sumAll._1
       }
-      val dst = centr.map{case (k,c,s)=>s*pow(c.in.distanceTo(centrAll.in),2)}.
-                  reduce(_+_) 
-      println("SSB: %.5f".format(dst))
-    })
+      centr.map{case (k,c,s)=>s*pow(c.in.distanceTo(centrAll.in),2)}
+    }).reduce(_+_).map(x=>"SSB=%.5f".format(x))
 
-  def getResult():Double = 0.0
+
+  override def getResult():Double = 0.0
 }
 
 /**

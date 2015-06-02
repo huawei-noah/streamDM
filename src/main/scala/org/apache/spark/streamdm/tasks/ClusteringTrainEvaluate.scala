@@ -40,17 +40,21 @@ class ClusteringTrainEvaluate extends Task {
   val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
 
-  def run(ssc:StreamingContext): Unit = {
+  val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
+    "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
 
-    val clusterer: Clusterer = this.clustererOption.getValue()
-    clusterer.init
+  def run(ssc:StreamingContext): Unit = {
 
     val reader:StreamReader = this.streamReaderOption.getValue()
 
+    val clusterer: Clusterer = this.clustererOption.getValue()
+    clusterer.init(reader.getExampleSpecification())
+
     val evaluator:Evaluator = this.evaluatorOption.getValue()
 
+    val writer:StreamWriter = this.resultsWriterOption.getValue()
 
-    val instances = reader.getInstances(ssc)
+    val instances = reader.getExamples(ssc)
 
     //Train
     clusterer.train(instances)
@@ -59,6 +63,6 @@ class ClusteringTrainEvaluate extends Task {
     val clpairs = clusterer.assign(instances)
     
     //Print statistics
-    evaluator.addResult(clpairs)
+    writer.output(evaluator.addResult(clpairs))
   }
 }
