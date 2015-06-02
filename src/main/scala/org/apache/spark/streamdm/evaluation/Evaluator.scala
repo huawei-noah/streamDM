@@ -30,7 +30,7 @@ import org.apache.spark.streaming.dstream.DStream
  */
 abstract class Evaluator extends Configurable with Serializable{
 
-  def addResult(input: DStream[(Example, Double)]): Unit
+  def addResult(input: DStream[(Example, Double)]):  DStream[String]
 
   def getResult():Double
 }

@@ -56,7 +56,7 @@ case class NullInstance extends Instance with Serializable {
    * @param input an Instance which is added up
    * @return a NullInstance
    */
-  override def add(input: Instance): NullInstance = this
+  override def add(input: Instance): NullInstance = this 
 
   /** Perform an element by element multiplication between two instances
    *

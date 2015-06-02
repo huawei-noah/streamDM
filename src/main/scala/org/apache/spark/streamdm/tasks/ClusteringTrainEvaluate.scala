@@ -17,24 +17,25 @@
 
 package org.apache.spark.streamdm.tasks
 
-import com.github.javacliparser.{StringOption, ClassOption}
+import com.github.javacliparser.ClassOption
+
 import org.apache.spark.streamdm.core._
-import org.apache.spark.streamdm.classifiers._
+import org.apache.spark.streamdm.clusterers._
 import org.apache.spark.streamdm.streams._
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streamdm.evaluation.Evaluator
 
 /**
- * Task for evaluating a classifier on a stream by testing then training with
- * each example in sequence.
+ * Task for evaluating a clustering on a stream by first applying the clustering
+ * and then evaluating the cluster statistics.
  */
-class EvaluatePrequential extends Task {
+class ClusteringTrainEvaluate extends Task {
 
-  val learnerOption:ClassOption = new ClassOption("learner", 'l',
-    "Learner to use", classOf[Classifier], "SGDLearner")
+  val clustererOption: ClassOption = new ClassOption("clusterer", 'c',
+    "Clusterer to use", classOf[Clusterer], "Clustream")
 
   val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
-    "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")
+    "Evaluator to use", classOf[Evaluator], "ClusteringCohesionEvaluator")
 
   val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
@@ -42,13 +43,12 @@ class EvaluatePrequential extends Task {
   val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
     "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
 
-
   def run(ssc:StreamingContext): Unit = {
 
     val reader:StreamReader = this.streamReaderOption.getValue()
 
-    val learner:SGDLearner = this.learnerOption.getValue()
-    learner.init(reader.getExampleSpecification())
+    val clusterer: Clusterer = this.clustererOption.getValue()
+    clusterer.init(reader.getExampleSpecification())
 
     val evaluator:Evaluator = this.evaluatorOption.getValue()
 
@@ -56,14 +56,13 @@ class EvaluatePrequential extends Task {
 
     val instances = reader.getExamples(ssc)
 
-    //Predict
-    val predPairs = learner.predict(instances)
-
     //Train
-    learner.train(instances)
+    clusterer.train(instances)
 
-    //Evaluate
-    writer.output(evaluator.addResult(predPairs))
-
+    //Assign
+    val clpairs = clusterer.assign(instances)
+    
+    //Print statistics
+    writer.output(evaluator.addResult(clpairs))
   }
 }

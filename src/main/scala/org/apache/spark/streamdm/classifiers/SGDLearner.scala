@@ -52,12 +52,14 @@ class SGDLearner extends Classifier {
   var model: LinearModel = null
   val regularizer: Regularizer = regularizerOption.getValue()
   val loss: Loss = lossFunctionOption.getValue()
+  var exampleLearnerSpecification: ExampleSpecification = null
 
   /* Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    */
-  override def init(): Unit = {
+  override def init(exampleSpecification: ExampleSpecification): Unit = {
+    exampleLearnerSpecification = exampleSpecification
     model = new LinearModel(loss, new DenseInstance(Array.fill[Double]
       (numFeaturesOption.getValue + 1)(0.0)), numFeaturesOption.getValue)
   }

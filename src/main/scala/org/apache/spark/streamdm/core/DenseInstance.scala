@@ -71,22 +71,29 @@ case class DenseInstance(inVector: Array[Double])
    */
   override def add(input: Instance): DenseInstance = input match {
     case DenseInstance(f) => {
+      var newF: Array[Double] = Array.fill(features.length)(0.0)
       var i: Int = 0
       while (i<features.length) {
-        features(i) += f(i)
+        newF(i) = features(i)+ f(i)
         i += 1
       }
-      new DenseInstance(features)
+      new DenseInstance(newF)
     }
       //val addedInstance = (0 until features.length).map(i => features(i)+f(i))
       //new DenseSingleLabelInstance(addedInstance.toArray, label)
     case SparseInstance(ind,v) => {
+      var newF: Array[Double] = Array.fill(features.length)(0.0)
       var i: Int = 0
-      while (i<ind.length) {
-        features(ind(i)) += v(i)
+      while (i<features.length) {
+        newF(i) = features(i)
         i += 1
       }
-      new DenseInstance(features)
+      i = 0
+      while (i<ind.length) {
+        newF(ind(i)) += v(i)
+        i += 1
+      }
+      new DenseInstance(newF)
     }
     case _ => new DenseInstance(features)
   }
@@ -98,20 +105,22 @@ case class DenseInstance(inVector: Array[Double])
    */
   override def hadamard(input: Instance): DenseInstance = input match {
     case DenseInstance(f) => {
+      var newF: Array[Double] = Array.fill(features.length)(0.0)
       var i: Int = 0
       while (i<features.length) {
-        features(i) *= f(i)
+        newF(i) = features(i)*f(i)
         i += 1
       }
-      new DenseInstance(features)
+      new DenseInstance(newF)
     }
     case SparseInstance(ind,v) => {
+      var newF: Array[Double] = Array.fill(features.length)(0.0) 
       var i: Int = 0
       while (i<ind.length) {
-        features(ind(i)) *= v(i)
+        newF(ind(i)) = features(ind(i))*v(i)
         i += 1
       }
-      new DenseInstance(features)
+      new DenseInstance(newF)
     }
     case _ => new DenseInstance(features)
   }
