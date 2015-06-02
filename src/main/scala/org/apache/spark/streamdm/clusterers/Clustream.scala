@@ -50,10 +50,13 @@ class Clustream extends Clusterer {
   val repOption: IntOption = new IntOption("kMeansIters", 'i',
     "Number of k-means iterations", 1000, 1, Integer.MAX_VALUE)
 
+  var exampleLearnerSpecification: ExampleSpecification = null
+
   /* Init the Clustream algorithm.
    *
    */
-  def init: Unit = {
+  def init(exampleSpecification: ExampleSpecification): Unit = {
+    exampleLearnerSpecification = exampleSpecification
     microclusters = new MicroClusters(Array[MicroCluster]())
     initialBuffer = Array[Example]()
   }
