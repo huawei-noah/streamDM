@@ -49,7 +49,7 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
    * @param the exmaple based on which the Model is updated
    * @return the updated BucketManger object
    */
-  override def update(change: Instance): BucketManager = {
+  override def update(change: Example): BucketManager = {
     // Check if there is enough space in the first bucket
     if(buckets(0).isFull){
       var curbucket : Int = 0
@@ -98,7 +98,7 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
       }
     }
     
-    buckets(0).points.enqueue(new Example(change))
+    buckets(0).points.enqueue(change)
     this
   }
 
