@@ -58,6 +58,8 @@ trait ConditionalTest extends Serializable {
    */
   def maxBranches(): Int
 
+  def description(): Array[String]
+
 }
 
 /**
@@ -89,6 +91,16 @@ case class NumericBinaryTest(val fIndex: Int, val value: Double, val isequalTest
    * @return the number of maximum branches, -1 if unknown..
    */
   override def maxBranches(): Int = 2
+
+  override def description(): Array[String] = {
+    val des = new Array[String](2)
+    val ops = if (isequalTest) Array("==", "!=") else Array("<", ">=")
+    des(0) = "[feature " + fIndex + " numeric 0] " + ops(0) + " " + value
+    des(1) = "[feature " + fIndex + " numeric 1] " + ops(1) + " " + value
+    des
+  }
+  
+  override def toString = "NumericBinaryTest(" +isequalTest+") feature[" + fIndex + "] = " + value
 }
 /**
  * Nominal binary conditional test for examples to use to split nodes in Hoeffding trees.
@@ -104,7 +116,7 @@ case class NominalBinaryTest(val fIndex: Int, val value: Double)
    */
   override def branch(example: Example): Int = {
     // todo process missing value
-    if (example.featureAt(fIndex) < value) 0 else 1
+    if (example.featureAt(fIndex) == value) 0 else 1
   }
 
   /**
@@ -116,13 +128,21 @@ case class NominalBinaryTest(val fIndex: Int, val value: Double)
 
   override def toString(): String = {
     "NominalBinaryTest feature[" + fIndex + "] = " + value
+
+  }
+
+  override def description(): Array[String] = {
+    val des = new Array[String](2)
+    des(0) = "[feature " + fIndex + " nominal 0] == " + value
+    des(1) = "[feature " + fIndex + " nominal 1] != " + value
+    des
   }
 }
 
 /**
  * Nominal multi-way conditional test for examples to use to split nodes in Hoeffding trees.
  */
-case class NominalMultiwayTest(val fIndex: Int) extends ConditionalTest with Serializable {
+case class NominalMultiwayTest(val fIndex: Int, val numFeatureValues: Int) extends ConditionalTest with Serializable {
 
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
@@ -140,9 +160,16 @@ case class NominalMultiwayTest(val fIndex: Int) extends ConditionalTest with Ser
    *
    * @return the number of maximum branches, -1 if unknown..
    */
-  override def maxBranches(): Int = -1
+  override def maxBranches(): Int = numFeatureValues
 
-  override def toString(): String = "NominalMultiwayTest"
+  override def toString(): String = "NominalMultiwayTest" + "feature[" + fIndex + "] " +numFeatureValues
+
+  override def description(): Array[String] = {
+    val des = new Array[String](numFeatureValues)
+    for (i <- 0 until numFeatureValues)
+      des(i) = "[feature " + fIndex + " nominal " + i + "] == " + i
+    des
+  }
 }
 
 /**
@@ -162,10 +189,10 @@ case class NumericBinaryRulePredicate(val fIndex: Int, val value: Double, val op
     // todo process missing value
     val v = example.featureAt(fIndex)
     operator match {
-      // operator: 0 ==, 1 <=, 2 >
+      // operator: 0 ==, 1 <=, 2 < deffrent from MOA which is > 
       case 0 => if (v == value) 0 else 1
       case 1 => if (v <= value) 0 else 1
-      case 2 => if (v > value) 0 else 1
+      case 2 => if (v < value) 0 else 1
       case _ => if (v == value) 0 else 1
     }
   }
@@ -176,4 +203,12 @@ case class NumericBinaryRulePredicate(val fIndex: Int, val value: Double, val op
    * @return the number of maximum branches, -1 if unknown..
    */
   override def maxBranches(): Int = 2
+
+  override def description(): Array[String] = {
+    val des = new Array[String](2)
+    val ops = if (operator == 0) Array("==", "!=") else if (operator == 1) Array("<=", ">") else Array("<", ">=")
+    des(0) = "[feature " + fIndex + " numeric 0] " + ops(0) + " " + value
+    des(1) = "[feature " + fIndex + " numeric 1] " + ops(1) + " " + value
+    des
+  }
 }

@@ -1,52 +1,94 @@
+/*
+ * Copyright (C) 2015 Holmes Team at HUAWEI Noah's Ark Lab.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.spark.streamdm.classifiers.trees
 
 import scala.collection.mutable.ArrayBuffer
+import scala.math.{ max }
+
 import org.apache.spark.streamdm.core.Example
-import org.apache.spark.streamdm.util.Util._
 import org.apache.spark.streamdm.classifiers.bayes._
 import org.apache.spark.streamdm.util.Util
+
 /**
  * class Node for hoeffding Tree
  */
 abstract class Node(val classDistribution: Array[Double]) extends Serializable {
 
-  var level_ : Int = 0
-
+  var dep: Int = 0
+  // stores class distribution of a block of RDD
   val blockClassDistribution: Array[Double] = new Array[Double](classDistribution.length)
 
-  def this(that: Node) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution))
-  }
+  /*
+   * filter the data to the related leaf node
+   */
+  def filterToLeaf(example: Example, parent: SplitNode, index: Int): FoundNode
 
-  def filterToLeaf(point: Example, parent: SplitNode, index: Int): FoundNode
+  /*
+   * return the class distribution
+   */
+  def classVotes(ht: HoeffdingTreeModel, example: Example): Array[Double] = classDistribution.clone()
 
-  def classVotes(ht: HoeffdingTreeModel, point: Example): Array[Double] = classDistribution.clone()
+  /*
+   * whether a node is a leaf
+   */
+  def isLeaf(): Boolean = true
+  /*
+   * depth of current node in the tree
+   */
+  def depth() = dep
 
-  def isLeaf(): Boolean
-
-  def level() = level_
-
-  def setLevel(level: Int): Unit = {
-    level_ = level
+  def setDepth(depth: Int): Unit = {
+    dep = depth
     if (this.isInstanceOf[SplitNode]) {
       val splidNode = this.asInstanceOf[SplitNode]
-      splidNode.children.foreach { _.setLevel(level + 1) }
+      splidNode.children.foreach { _.setDepth(depth + 1) }
     }
   }
 
-  def blockMerge(that: Node): Node = {
-    for (i <- 0 until classDistribution.length) this.classDistribution(i) += that.blockClassDistribution(i)
-    this
-  }
+  /*
+   * merge the two node
+   * 
+   * @param node the node which will be merged
+   * @param trySplit whether to split the current node
+   * @return current node
+   */
+  def merge(that: Node, trySplit: Boolean): Node
 
-  def sum(): Int = 0
+  /*
+   * number of children
+   */
+  def numChildren(): Int = 0
+
+  /*
+   * node description
+   */
+  def description(): String = { "  " * dep + "Leaf" + " weight = " + Util.arraytoString(classDistribution) + "\n" }
+
 }
 
+/**
+ * class FoundNode is the container of a node and has an index and a link to parent
+ */
 class FoundNode(val node: Node, val parent: SplitNode, val index: Int) extends Serializable {
 
 }
 /**
- * branch node for Hoeffding Tree
+ * class SplitNode is a branch node for Hoeffding Tree
  */
 class SplitNode(classDistribution: Array[Double], val conditionalTest: ConditionalTest)
   extends Node(classDistribution) with Serializable {
@@ -57,60 +99,73 @@ class SplitNode(classDistribution: Array[Double], val conditionalTest: Condition
     this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.conditionalTest)
   }
 
-  override def filterToLeaf(point: Example, parent: SplitNode, index: Int): FoundNode = {
-    val cIndex = childIndex(point)
+  /*
+   * filter the data to the related leaf node
+   */
+  override def filterToLeaf(example: Example, parent: SplitNode, index: Int): FoundNode = {
+    val cIndex = childIndex(example)
     if (cIndex >= 0) {
       if (cIndex < children.length && children(cIndex) != null) {
-        children(cIndex).filterToLeaf(point, this, cIndex)
+        children(cIndex).filterToLeaf(example, this, cIndex)
       } else new FoundNode(null, this, cIndex)
     } else new FoundNode(this, parent, index)
   }
 
-  def childIndex(point: Example): Int = {
-    conditionalTest.branch(point)
+  def childIndex(example: Example): Int = {
+    conditionalTest.branch(example)
   }
 
   def setChild(index: Int, node: Node): Unit = {
     if (children.length > index) {
       children(index) = node
-      node.setLevel(level_ + 1)
+      node.setDepth(dep + 1)
     } else if (children.length == index) {
       children.append(node)
-      node.setLevel(level_ + 1)
+      node.setDepth(dep + 1)
     } else {
       assert(children.length < index)
     }
   }
-
+  /*
+   * whether a node is a leaf
+   */
   override def isLeaf() = false
+  /*
+   * number of children
+   */
+  override def numChildren(): Int = children.filter { _ != null }.length
 
-  def numChildren(): Int = children.length
-
-  override def blockMerge(that: Node): Node = {
-    if (that.isInstanceOf[SplitNode]) this
+  /*
+   * merge the two node
+   * 
+   * @param node the node which will be merged
+   * @param trySplit whether to split the current node
+   * @return current node
+   */
+  override def merge(that: Node, trySplit: Boolean): Node = {
+    if (!that.isInstanceOf[SplitNode]) this
     else {
       val splitNode = that.asInstanceOf[SplitNode]
-      for (i <- 0 until classDistribution.length)
-        this.classDistribution(i) += splitNode.blockClassDistribution(i)
       for (i <- 0 until children.length)
-        this.children(i) = this.children(i).blockMerge(splitNode.children(i))
+        this.children(i) = (this.children(i)).merge(splitNode.children(i), trySplit)
       this
     }
   }
 
-  override def sum(): Int = {
-    var sum = 0
-    children.foreach { x => sum += x.sum }
-    sum
+  /*
+   * node description
+   */
+  override def description(): String = {
+    val sb = new StringBuffer("  " * dep + "\n")
+    val testDes = conditionalTest.description()
+    for (i <- 0 until children.length) {
+      sb.append("  " * dep + " if " + testDes(i) + "\n")
+      sb.append("  " * dep + children(i).description())
+    }
+    sb.toString()
   }
 
-  override def toString(): String = {
-    var head = "level[" + level_ + "]SplitNode\n"
-    for (i <- 0 until (children.length)) {
-      head += "Child[" + i + "]" + children(i).toString() + "\n"
-    }
-    head.substring(0, head.length() - 1)
-  }
+  override def toString(): String = "level[" + dep + "] SplitNode"
 
 }
 /**
@@ -118,69 +173,104 @@ class SplitNode(classDistribution: Array[Double], val conditionalTest: Condition
  */
 abstract class LearningNode(classDistribution: Array[Double]) extends Node(classDistribution) with Serializable {
 
-  def learn(ht: HoeffdingTreeModel, point: Example): Unit
+  /*
+   * lean and update the node
+   */
+  def learn(ht: HoeffdingTreeModel, example: Example): Unit
 
+  /*
+   * whether a learning node is active
+   */
   def isActive(): Boolean
 
-  override def isLeaf(): Boolean = true
+  /*
+   * filter the data to the related leaf node
+   */
+  override def filterToLeaf(example: Example, parent: SplitNode, index: Int): FoundNode = new FoundNode(this, parent, index)
 
-  override def filterToLeaf(point: Example, parent: SplitNode, index: Int): FoundNode = new FoundNode(this, parent, index)
 }
+
 /**
  * basic majority class active learning node for hoeffding tree
  */
 class ActiveLearningNode(classDistribution: Array[Double])
   extends LearningNode(classDistribution) with Serializable {
 
-  //  var lastWeight_ : Double = weight()
-  var addOnWeight_ : Double = 0
+  var addonWeight: Double = 0
 
   def this(that: ActiveLearningNode) {
     this(Util.mergeArray(that.classDistribution, that.blockClassDistribution))
-    addOnWeight_ = that.blockClassDistribution.sum
   }
 
-  override def learn(ht: HoeffdingTreeModel, point: Example): Unit = {
-    blockClassDistribution(point.labelAt(0).toInt) += point.weight
+  /*
+   * lean and update the node
+   */
+  override def learn(ht: HoeffdingTreeModel, example: Example): Unit = {
+    blockClassDistribution(example.labelAt(0).toInt) += example.weight
     ht.featureObservers.zipWithIndex.foreach {
-      x => x._1.observeClass(point.labelAt(0).toInt, point.featureAt(x._2), point.weight)
+      x => x._1.observeClass(example.labelAt(0).toInt, example.featureAt(x._2), example.weight)
     }
   }
 
+  /*
+   * whether a node is active.
+   */
   override def isActive(): Boolean = true
 
-  def isPure(): Boolean = { this.classDistribution.filter(_ > 0).length <= 1 }
+  def isPure(): Boolean = {
+    val sb1 = new StringBuffer()
+    val sb2 = new StringBuffer()
+    for (i <- 0 until classDistribution.length) {
+      sb1.append(classDistribution(i) + "\t")
+      sb2.append(blockClassDistribution(i) + "\t")
+    }
+    this.classDistribution.filter(_ > 0).length <= 1 &&
+      this.blockClassDistribution.filter(_ > 0).length <= 1
+  }
 
-  def weight(): Double = classDistribution.sum
+  def weight(): Double = { classDistribution.sum + blockClassDistribution.sum }
 
   def blockWeight(): Double = blockClassDistribution.sum
 
   def addOnWeight(): Double = {
     if (blockWeight() != 0) blockWeight()
-    else addOnWeight_
+    else addonWeight
   }
 
-  override def blockMerge(that: Node): Node = {
-    for (i <- 0 until classDistribution.length) this.classDistribution(i) += that.blockClassDistribution(i)
-    this.addOnWeight_ = that.blockClassDistribution.sum
+  /*
+   * merge the two node
+   * 
+   * @param node the node which will be merged
+   * @param trySplit whether to split the current node
+   * @return current node
+   */
+  override def merge(that: Node, trySplit: Boolean): Node = {
+    if (that.isInstanceOf[ActiveLearningNode]) {
+      val node = that.asInstanceOf[ActiveLearningNode]
+      if (!trySplit) {
+        this.addonWeight += that.blockClassDistribution.sum
+        for (i <- 0 until blockClassDistribution.length)
+          this.classDistribution(i) += that.blockClassDistribution(i)
+      } else {
+        this.addonWeight += node.addonWeight
+        for (i <- 0 until classDistribution.length)
+          this.classDistribution(i) += that.classDistribution(i)
+      }
+    }
     this
   }
 
-  //  def lastWeight(): Double = lastWeight_
-  //  def setLastWeight(weight: Double): Unit = { lastWeight_ = weight }
   def getBestSplitSuggestions(splitCriterion: SplitCriterion, ht: HoeffdingTreeModel): Array[FeatureSplit] = {
     val bestSplits = new ArrayBuffer[FeatureSplit]()
     ht.featureObservers.zipWithIndex.foreach(x =>
-      bestSplits.append(x._1.bestSplit(splitCriterion, classDistribution, x._2, false)))
+      bestSplits.append(x._1.bestSplit(splitCriterion, classDistribution, x._2, ht.binaryOnly)))
     if (ht.prePrune) {
       bestSplits.append(new FeatureSplit(null, splitCriterion.merit(classDistribution, Array.fill(1)(classDistribution)), new Array[Array[Double]](0)))
     }
     bestSplits.toArray
   }
 
-  override def sum(): Int = weight.toInt
-
-  override def toString(): String = "level[" + level_ + "]ActiveLearningNode:" + weight
+  override def toString(): String = "level[" + dep + "]ActiveLearningNode:" + weight
 }
 /**
  * inactive learning node
@@ -192,14 +282,29 @@ class InactiveLearningNode(classDistribution: Array[Double])
     this(Util.mergeArray(that.classDistribution, that.blockClassDistribution))
   }
 
-  override def learn(ht: HoeffdingTreeModel, point: Example): Unit = {}
+  /*
+   * lean and update the node
+   */
+  override def learn(ht: HoeffdingTreeModel, example: Example): Unit = {}
 
+  /*
+   * whether a learning node is active
+   */
   override def isActive(): Boolean = false
 
-  override def toString(): String = "level[" + level_ + "]InactiveLearningNode"
+  /*
+   * merge the two node
+   * 
+   * @param node the node which will be merged
+   * @param trySplit whether to split the current node
+   * @return current node
+   */
+  override def merge(that: Node, trySplit: Boolean): Node = this
+
+  override def toString(): String = "level[" + dep + "] InactiveLearningNode"
 }
 /**
- * naive bayes learning node
+ * class LearningNodeNB is naive bayes learning node
  */
 class LearningNodeNB(classDistribution: Array[Double])
   extends ActiveLearningNode(classDistribution) with Serializable {
@@ -208,15 +313,18 @@ class LearningNodeNB(classDistribution: Array[Double])
     this(Util.mergeArray(that.classDistribution, that.blockClassDistribution))
   }
 
-  override def classVotes(ht: HoeffdingTreeModel, point: Example): Array[Double] = {
+  /*
+   * return the class distribution
+   */
+  override def classVotes(ht: HoeffdingTreeModel, example: Example): Array[Double] = {
     if (weight() > ht.nbThreshold)
-      NaiveBayes.predict(point, classDistribution, ht.featureObservers)
-    else super.classVotes(ht, point)
+      NaiveBayes.predict(example, classDistribution, ht.featureObservers)
+    else super.classVotes(ht, example)
   }
 }
 
 /**
- * naive bayes adaptive learning node
+ * class LearningNodeNBAdaptive is naive bayes adaptive learning node
  */
 
 class LearningNodeNBAdaptive(classDistribution: Array[Double])
@@ -234,27 +342,47 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double])
     nbCorrectWeight = that.nbCorrectWeight + that.nbBlockCorrectWeight
   }
 
-  override def blockMerge(that: Node): Node = {
-    for (i <- 0 until classDistribution.length) this.classDistribution(i) += that.blockClassDistribution(i)
+  /*
+   * lean and update the node
+   */
+  override def learn(ht: HoeffdingTreeModel, example: Example): Unit = {
+    super.learn(ht, example)
+    if (Util.argmax(classDistribution) == example.labelAt(0)) mcBlockCorrectWeight += example.weight
+    if (Util.argmax(NaiveBayes.predict(example, classDistribution, ht.featureObservers)) == example.labelAt(0))
+      nbBlockCorrectWeight += example.weight
+  }
+
+  /*
+   * merge the two node
+   * 
+   * @param node the node which will be merged
+   * @param trySplit whether to split the current node
+   * @return current node
+   */
+  override def merge(that: Node, trySplit: Boolean): Node = {
     if (that.isInstanceOf[LearningNodeNBAdaptive]) {
       val nbaNode = that.asInstanceOf[LearningNodeNBAdaptive]
-      this.addOnWeight_ = nbaNode.blockClassDistribution.sum
-      mcCorrectWeight += nbaNode.mcBlockCorrectWeight
-      nbCorrectWeight += nbaNode.nbBlockCorrectWeight
+      if (!trySplit) {
+        this.addonWeight += nbaNode.blockClassDistribution.sum
+        mcCorrectWeight += nbaNode.mcBlockCorrectWeight
+        nbCorrectWeight += nbaNode.nbBlockCorrectWeight
+        for (i <- 0 until blockClassDistribution.length)
+          this.classDistribution(i) += that.blockClassDistribution(i)
+      } else {
+        this.addonWeight += nbaNode.addonWeight
+        mcCorrectWeight += nbaNode.mcCorrectWeight
+        nbCorrectWeight += nbaNode.nbCorrectWeight
+        for (i <- 0 until classDistribution.length)
+          this.classDistribution(i) += that.classDistribution(i)
+      }
     }
     this
   }
-
-  override def learn(ht: HoeffdingTreeModel, point: Example): Unit = {
-    super.learn(ht, point)
-    if (argmax(classDistribution) == point.labelAt(0)) mcBlockCorrectWeight += point.weight
-    if (argmax(NaiveBayes.predict(point, classDistribution, ht.featureObservers))
-      == point.labelAt(0))
-      nbBlockCorrectWeight += point.weight
-  }
-
-  override def classVotes(ht: HoeffdingTreeModel, point: Example): Array[Double] = {
-    if (mcCorrectWeight > nbCorrectWeight) super.classVotes(ht, point)
-    else NaiveBayes.predict(point, classDistribution, ht.featureObservers)
+  /*
+   * return the class distribution
+   */
+  override def classVotes(ht: HoeffdingTreeModel, example: Example): Array[Double] = {
+    if (mcCorrectWeight > nbCorrectWeight) super.classVotes(ht, example)
+    else NaiveBayes.predict(example, classDistribution, ht.featureObservers)
   }
 }

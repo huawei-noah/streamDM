@@ -1,12 +1,31 @@
+/*
+ * Copyright (C) 2015 Holmes Team at HUAWEI Noah's Ark Lab.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.spark.streamdm.classifiers.trees
 
 import scala.collection.mutable.ArrayBuffer
-import scala.math.{ log, sqrt }
+import scala.math.{ log => math_log, sqrt }
+
+import org.apache.spark.Logging
 
 import com.github.javacliparser._
 
 import org.apache.spark.streaming.dstream._
-import org.apache.spark.streamdm.util.Util.{ argmax }
+import org.apache.spark.streamdm.util.Util.{ argmax, arraytoString }
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 
@@ -20,12 +39,13 @@ class HoeffdingTree extends Classifier {
     "Number of Classes", 2, 2, Integer.MAX_VALUE)
 
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
-    "Number of Features", 2, 1, Integer.MAX_VALUE)
+    "Number of Features", 3, 1, Integer.MAX_VALUE)
 
   //  val featureTypesOption = new ClassOption("featureTypes", 'k',
   //    "feature type array.", classOf[FeatureTypeArray], "trees.FeatureTypeArray")
 
-  val featureArray = new FeatureTypeArray(Array[FeatureType](new NominalFeatureType(10), new NominalFeatureType(10)))
+  val featureArray = new FeatureTypeArray(Array[FeatureType](new NumericFeatureType(), new NumericFeatureType(), new NumericFeatureType()))
+  //val featureArray = new FeatureTypeArray(Array[FeatureType](new NominalFeatureType(10), new NominalFeatureType(10), new NominalFeatureType(10)))
 
   val numericObserverTypeOption: IntOption = new IntOption("numericObserverType", 'n',
     "numeric observer type, 0: gaussian", 0, 0, 2)
@@ -47,7 +67,7 @@ class HoeffdingTree extends Classifier {
 
   val numGraceOption: IntOption = new IntOption("numGrace", 'm',
     "The number of instances a leaf should observe between split attempts.",
-    200, 1, Int.MaxValue)
+    50, 1, Int.MaxValue)
 
   val tieThresholdOption: FloatOption = new FloatOption("tieThreshold", 't',
     "Threshold below which a split will be forced to break ties.", 0.05, 0, 1)
@@ -57,14 +77,13 @@ class HoeffdingTree extends Classifier {
     0.0000001, 0.0, 1.0)
 
   val learningNodeOption: IntOption = new IntOption("learningNodeType", 'o',
-    "learning node type of leaf", 2, 0, 2)
+    "learning node type of leaf", 0, 0, 2)
 
   val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'a',
     "naive bayes threshold", 0, 0, Int.MaxValue)
 
   val PrePruneOption: IntOption = new IntOption("PrePrune", 'p',
     "whether allow pre-pruning.", 0, 0, 1)
-
 
   var model: HoeffdingTreeModel = null
 
@@ -76,6 +95,7 @@ class HoeffdingTree extends Classifier {
       tieThresholdOption.getValue, splitConfidenceOption.getValue(),
       learningNodeOption.getValue(), nbThresholdOption.getValue(),
       PrePruneOption.getValue() == 1)
+    model.init()
   }
 
   override def getModel: HoeffdingTreeModel = model
@@ -85,8 +105,8 @@ class HoeffdingTree extends Classifier {
       rdd =>
         val tmodel = rdd.aggregate(
           new HoeffdingTreeModel(model))(
-            (mod, example) => { mod.update(example) }, (mod1, mod2) => mod1.blockMerge(mod2, false))
-        model = tmodel
+            (mod, example) => { mod.update(example) }, (mod1, mod2) => mod1.merge(mod2, false))
+        model = model.merge(tmodel, true)
     }
   }
 
@@ -181,11 +201,11 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
                          val numClasses: Int, val numFeatures: Int,
                          val featureTypeArray: FeatureTypeArray, val numericObserverType: Int = 0,
                          val splitCriterion: SplitCriterion = new InfoGainSplitCriterion(),
-                         var growthAllowed: Boolean = true, val binaryOnly: Boolean = false,
+                         var growthAllowed: Boolean = true, val binaryOnly: Boolean = true,
                          val graceNum: Int = 200, val tieThreshold: Double = 0.05,
                          val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
                          val nbThreshold: Int = 0, val prePrune: Boolean = false)
-  extends Model with Serializable {
+  extends Model with Serializable with Logging {
 
   type T = HoeffdingTreeModel
 
@@ -199,9 +219,11 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
 
   var lastExample: Example = null
 
-  val featureObservers: Array[FeatureClassObserver] = new Array[FeatureClassObserver](numFeatures)
+  var featureObservers: Array[FeatureClassObserver] = new Array[FeatureClassObserver](numFeatures)
 
   var root: Node = null
+
+  var printRootNull: Boolean = true
 
   def this(model: HoeffdingTreeModel) {
     this(model.runOnSpark, model.numClasses, model.numFeatures, model.featureTypeArray,
@@ -214,14 +236,17 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     this.decisionNodeCount = model.decisionNodeCount
     baseNumExamples = model.baseNumExamples + model.blockNumExamples
     this.root = model.root
+
     for (i <- 0 until featureObservers.length)
       featureObservers(i) = FeatureClassObserver.createFeatureClassObserver(model.featureObservers(i))
+    this.lastExample = model.lastExample
   }
 
   def init(): Unit = {
-
-    featureTypeArray.featureTypes.zipWithIndex.foreach(x => featureObservers(x._2) =
-      FeatureClassObserver.createFeatureClassObserver(x._1, numClasses, x._2, x._1.getRange()))
+    if (featureObservers(0) == null) {
+      featureTypeArray.featureTypes.zipWithIndex.foreach(x => featureObservers(x._2) =
+        FeatureClassObserver.createFeatureClassObserver(x._1, numClasses, x._2, x._1.getRange()))
+    }
 
     root = createLearningNode(learningNodeType, numClasses)
     activeNodeCount += 1
@@ -229,9 +254,9 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
 
   override def update(point: Example): HoeffdingTreeModel = {
     blockNumExamples += 1
+    lastExample = point
     if (root == null) {
       init
-      println("init root")
     }
     val foundNode = root.filterToLeaf(point, null, -1)
     var leafNode = foundNode.node
@@ -263,26 +288,21 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     if (growthAllowed && learnNode.isInstanceOf[ActiveLearningNode]) {
       val activeNode = learnNode.asInstanceOf[ActiveLearningNode]
       if (activeNode.addOnWeight() >= graceNum) {
-        if (!activeNode.isPure()) {
+        val isPure = activeNode.isPure()
+        if (!isPure) {
           var bestSuggestions: Array[FeatureSplit] = activeNode.getBestSplitSuggestions(splitCriterion, this)
           bestSuggestions = bestSuggestions.sorted
           if (shouldSplit(activeNode, bestSuggestions)) {
-            println("yes,split,current data num:" + baseNumExamples + blockNumExamples)
             val best: FeatureSplit = bestSuggestions.last
             if (best.conditionalTest == null) {
-              println("deactivate")
               deactiveLearningNode(activeNode, parent, pIndex)
             } else {
-              println("split")
               val splitNode: SplitNode = new SplitNode(activeNode.classDistribution, best.conditionalTest)
-
-              //addSplitNode(splitNode, parent, pIndex)
               for (index <- 0 until best.numSplit) {
                 splitNode.setChild(index,
                   createLearningNode(learningNodeType, best.distributionFromSplit(index)))
               }
               addSplitNode(splitNode, parent, pIndex)
-              println("parent:" + parent + "at: " + pIndex)
             }
           }
           // todo manage memory
@@ -296,35 +316,31 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     else {
       val hoeffdingBound = computeHeoffdingBound(activeNode)
       val length = bestSuggestions.length
-
       if (hoeffdingBound < tieThreshold ||
         bestSuggestions.last.merit - bestSuggestions(length - 2).merit > hoeffdingBound) {
-        print(bestSuggestions.last.merit - bestSuggestions(length - 2).merit + ",")
-        println(hoeffdingBound)
-        println((hoeffdingBound < tieThreshold) + "," + (
-          bestSuggestions.last.merit - bestSuggestions(length - 2).merit > hoeffdingBound))
         true
       } else
         false
     }
   }
   /*
-   * merge with another model's FeatureObservers and try to split
+   * merge with another model's FeatureObservers and root, and try to split
    */
-  def blockMerge(that: HoeffdingTreeModel, trySplit: Boolean): HoeffdingTreeModel = {
+  def merge(that: HoeffdingTreeModel, trySplit: Boolean): HoeffdingTreeModel = {
     for (i <- 0 until featureObservers.length)
-      featureObservers(i) = featureObservers(i).blockMerge(that.featureObservers(i))
+      featureObservers(i) = featureObservers(i).merge(that.featureObservers(i), trySplit)
+
+    this.blockNumExamples += that.blockNumExamples
+    this.lastExample = that.lastExample
+    // merge node
+    root.merge(that.root, trySplit)
     if (trySplit) {
-      if (root == null) {
-        init
-        println("init root in merge, shouldn't happen")
-      }
-      // merge node
       val foundNode = root.filterToLeaf(lastExample, null, -1)
       var leafNode = foundNode.node
       if (leafNode.isInstanceOf[LearningNode]) {
         val learnNode = leafNode.asInstanceOf[LearningNode]
         attemptToSplit(learnNode, foundNode.parent, foundNode.index)
+        logInfo(description())
       }
     }
     this
@@ -338,7 +354,12 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
         leafNode = foundNode.parent
       }
       argmax(leafNode.classVotes(this, point))
-    } else 0.0
+    } else {
+      if (printRootNull) {
+        printRootNull = false
+      }
+      0.0
+    }
   }
 
   def createLearningNode(nodeType: Int, classDistribution: Array[Double]): LearningNode = nodeType match {
@@ -354,6 +375,13 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     case 2 => new LearningNodeNBAdaptive(new Array[Double](numClasses))
     case _ => new ActiveLearningNode(new Array[Double](numClasses))
   }
+
+  def createLearningNode(nodeType: Int, that: LearningNode): LearningNode = nodeType match {
+    case 0 => new ActiveLearningNode(that.asInstanceOf[ActiveLearningNode])
+    case 1 => new LearningNodeNB(that.asInstanceOf[LearningNodeNB])
+    case 2 => new LearningNodeNBAdaptive(that.asInstanceOf[LearningNodeNBAdaptive])
+  }
+
   def activeLearningNode(inactiveNode: InactiveLearningNode, parent: SplitNode, pIndex: Int): Unit = {
     val activeNode = createLearningNode(learningNodeType, inactiveNode.classDistribution)
     if (parent == null) {
@@ -364,6 +392,7 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     activeNodeCount += 1
     inactiveNodeCount -= 1
   }
+
   def deactiveLearningNode(activeNode: ActiveLearningNode, parent: SplitNode, pIndex: Int): Unit = {
     val deactiveNode = new InactiveLearningNode(activeNode.classDistribution)
     if (parent == null) {
@@ -375,6 +404,7 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     inactiveNodeCount += 1
 
   }
+
   def addSplitNode(splitNode: SplitNode, parent: SplitNode, pIndex: Int): Unit = {
     if (parent == null) {
       root = splitNode
@@ -384,9 +414,15 @@ class HoeffdingTreeModel(val runOnSpark: Boolean,
     activeNodeCount += splitNode.numChildren() - 1
     decisionNodeCount -= 1
   }
+
   def computeHeoffdingBound(activeNode: ActiveLearningNode): Double = {
     val rangeMerit = splitCriterion.rangeMerit(activeNode.classDistribution)
-    sqrt(rangeMerit * rangeMerit * log(1.0 / this.splitConfedence)
+    val heoffdingBound = sqrt(rangeMerit * rangeMerit * math_log(1.0 / this.splitConfedence)
       / (activeNode.weight() * 2))
+    heoffdingBound
+  }
+
+  def description(): String = {
+    "Hoeffding Tree Model description:\n" + root.description()
   }
 }

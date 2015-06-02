@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2015 Holmes Team at HUAWEI Noah's Ark Lab.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.spark.streamdm.classifiers.trees
 
 import org.apache.spark.streamdm.util.Util
@@ -29,6 +46,7 @@ trait FeatureClassObserver extends Serializable {
    * @return probability for a feature value given a class
    */
   def probability(cIndex: Double, fValue: Double): Double
+
   /**
    * Gets the best split suggestion given a criterion and a class distribution
    *
@@ -40,79 +58,148 @@ trait FeatureClassObserver extends Serializable {
    */
   def bestSplit(criterion: SplitCriterion, pre: Array[Double], fValue: Double, isBinarySplit: Boolean): FeatureSplit
 
-  def blockMerge(that: FeatureClassObserver): FeatureClassObserver
+  /**
+   * Merge the FeatureClassObserver to current FeatureClassObserver
+   *
+   * @param that the FeatureClassObserver will be merged
+   * @param trySplit whether called when a Hoeffding tree try to split
+   * @return current FeatureClassObserver
+   */
+  def merge(that: FeatureClassObserver, trySplit: Boolean): FeatureClassObserver
 
   // not supported yet
   def observeTarget(fValue: Double, weight: Double): Unit = {}
 
 }
-
+/**
+ * class NullFeatureClassObserver will do nothing.
+ * Used in naive bayes and decision trees to monitor data statistics on leaves.
+ */
 class NullFeatureClassObserver extends FeatureClassObserver with Serializable {
 
+  /**
+   * Updates statistics of this observer given a feature value, a class index
+   * and the weight of the example observed
+   *
+   * @param cIndex the index of class
+   * @param fValue the value of the feature
+   * @param weight the weight of the example
+   */
   override def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit = {}
 
+  /**
+   * Gets the probability for an attribute value given a class
+   *
+   * @param cIndex the index of class
+   * @param fValue the value of the feature
+   * @return probability for a feature value given a class
+   */
   override def probability(cIndex: Double, fValue: Double): Double = 0.0
 
+  /**
+   * Gets the best split suggestion given a criterion and a class distribution
+   *
+   * @param criterion the split criterion to use
+   * @param pre the class distribution before the split
+   * @param fValue the value of the feature
+   * @param isBinarySplit true to use binary splits
+   * @return suggestion of best feature split
+   */
   override def bestSplit(criterion: SplitCriterion, pre: Array[Double], fValue: Double, isBinarySplit: Boolean): FeatureSplit = { null }
 
-  override def blockMerge(that: FeatureClassObserver): FeatureClassObserver = this
+  /**
+   * Merge the FeatureClassObserver to current FeatureClassObserver
+   *
+   * @param that the FeatureClassObserver will be merged
+   * @param trySplit whether called when a Hoeffding tree try to split
+   * @return current FeatureClassObserver
+   */
+  override def merge(that: FeatureClassObserver, trySplit: Boolean): FeatureClassObserver = this
 }
 /**
- * Trait for observing the class distribution of a nominal feature.
+ * class NominalFeatureClassObserver for observing the class distribution of a nominal feature.
  * The observer monitors the class distribution of a given feature.
  * Used in naive bayes and decision trees to monitor data statistics on leaves.
  */
 class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numFeatureValues: Int, val laplaceSmoothingFactor: Int = 1) extends FeatureClassObserver with Serializable {
 
-  val baseClassFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
+  var classFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
 
-  val blockClassFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
+  var blockClassFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
 
   var totalWeight: Double = 0.0
   var blockWeight: Double = 0.0
 
   def this(that: NominalFeatureClassObserver) {
     this(that.numClasses, that.fIndex, that.numFeatureValues, that.laplaceSmoothingFactor)
-    for (i <- 0 until numClasses; j <- 0 until numFeatureValues)
-      baseClassFeatureStatistics(i)(j) = that.baseClassFeatureStatistics(i)(j) + that.blockClassFeatureStatistics(i)(j)
+    for (i <- 0 until numClasses; j <- 0 until numFeatureValues) {
+      classFeatureStatistics(i)(j) = that.classFeatureStatistics(i)(j) + that.blockClassFeatureStatistics(i)(j)
+    }
     totalWeight = that.totalWeight + that.blockWeight
   }
-
+  /**
+   * Updates statistics of this observer given a feature value, a class index
+   * and the weight of the example observed
+   *
+   * @param cIndex the index of class
+   * @param fValue the value of the feature
+   * @param weight the weight of the example
+   */
   override def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit = {
     blockClassFeatureStatistics(cIndex.toInt)(fValue.toInt) += weight
     blockWeight += weight
   }
 
+  /**
+   * Gets the probability for an attribute value given a class
+   *
+   * @param cIndex the index of class
+   * @param fValue the value of the feature
+   * @return probability for a feature value given a class
+   */
   override def probability(cIndex: Double, fValue: Double): Double = {
-    val sum = baseClassFeatureStatistics(cIndex.toInt).sum
+    val sum = classFeatureStatistics(cIndex.toInt).sum
     if (sum == 0) 0.0 else {
-      (baseClassFeatureStatistics(cIndex.toInt)(fValue.toInt) + laplaceSmoothingFactor) /
+      (classFeatureStatistics(cIndex.toInt)(fValue.toInt) + laplaceSmoothingFactor) /
         (sum + numFeatureValues * laplaceSmoothingFactor)
     }
   }
 
+  /**
+   * Gets the best split suggestion given a criterion and a class distribution
+   *
+   * @param criterion the split criterion to use
+   * @param pre the class distribution before the split
+   * @param fValue the value of the feature
+   * @param isBinarySplit true to use binary splits
+   * @return suggestion of best feature split
+   */
   override def bestSplit(criterion: SplitCriterion, pre: Array[Double],
                          fValue: Double, isBinarySplit: Boolean): FeatureSplit = {
     var fSplit: FeatureSplit = null
     for (i <- 0 until pre.length) {
       val post: Array[Array[Double]] = binarySplit(i)
-      val merit = criterion.merit(pre, post)
-      if (fSplit == null || fSplit.merit < merit)
+      val merit = criterion.merit(Util.normal(pre), Util.normal(post))
+      if (fSplit == null || fSplit.merit < merit) {
         fSplit = new FeatureSplit(new NominalBinaryTest(fIndex, i), merit, post)
+      }
     }
     if (!isBinarySplit) {
-      val post = multiwaySplit(0.0)
+      val post = multiwaySplit()
       val merit = criterion.merit(pre, post)
       if (fSplit.merit < merit)
-        fSplit = new FeatureSplit(new NominalMultiwayTest(fIndex), merit, post)
+        fSplit = new FeatureSplit(new NominalMultiwayTest(fIndex, numFeatureValues), merit, post)
     }
     fSplit
   }
-  /*
-   * merge the blockClassFeatureStatistics of that with the baseClassFeatureStatistics of this
-   * return current NominalFeatureClassObserver
+  /**
+   * Merge the FeatureClassObserver to current FeatureClassObserver
+   *
+   * @param that the FeatureClassObserver will be merged
+   * @param trySplit whether called when a Hoeffding tree try to split
+   * @return current FeatureClassObserver
    */
-  override def blockMerge(that: FeatureClassObserver): FeatureClassObserver = {
+  override def merge(that: FeatureClassObserver, trySplit: Boolean): FeatureClassObserver = {
     if (!that.isInstanceOf[NominalFeatureClassObserver])
       this
     else {
@@ -121,19 +208,31 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
         numFeatureValues != observer.numFeatureValues ||
         laplaceSmoothingFactor != observer.laplaceSmoothingFactor) this
       else {
-        totalWeight += observer.blockWeight
-        for (i <- 0 until baseClassFeatureStatistics.length; j <- 0 until baseClassFeatureStatistics(i).length)
-          baseClassFeatureStatistics(i)(j) += observer.blockClassFeatureStatistics(i)(j)
+        if (!trySplit) {
+          totalWeight += observer.blockWeight
+          for (i <- 0 until classFeatureStatistics.length; j <- 0 until classFeatureStatistics(0).length) {
+            classFeatureStatistics(i)(j) += observer.blockClassFeatureStatistics(i)(j)
+          }
+        } else {
+          totalWeight += observer.totalWeight
+          for (i <- 0 until classFeatureStatistics.length; j <- 0 until classFeatureStatistics(0).length) {
+            classFeatureStatistics(i)(j) += observer.classFeatureStatistics(i)(j)
+          }
+        }
         this
       }
     }
   }
-
+  /**
+   * binary split the data with the input value
+   */
   private[trees] def binarySplit(fValue: Double): Array[Array[Double]] =
-    { Util.splitTranspose(baseClassFeatureStatistics, fValue.toInt) }
-
-  private[trees] def multiwaySplit(fValue: Double): Array[Array[Double]] =
-    { Util.transpose(baseClassFeatureStatistics) }
+    { Util.splitTranspose(classFeatureStatistics, fValue.toInt) }
+  /**
+   * split the data with all values
+   */
+  private[trees] def multiwaySplit(): Array[Array[Double]] =
+    { Util.transpose(classFeatureStatistics) }
 }
 /**
  * Class for observing the class data distribution for a numeric feature using gaussian estimators.
@@ -148,15 +247,21 @@ class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, v
 
   def this(that: GuassianNumericFeatureClassOberser) {
     this(that.numClasses, that.fIndex, that.numBins)
-    //todo
+    for (i <- 0 until numClasses) estimators(i) = new GaussianEstimator(that.estimators(i))
   }
-
+  /**
+   * Updates statistics of this observer given a feature value, a class index
+   * and the weight of the example observed
+   *
+   * @param cIndex the index of class
+   * @param fValue the value of the feature
+   * @param weight the weight of the example
+   */
   override def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit = {
     if (false) {
       // todo, process missing value
 
     } else {
-
       if (minValuePerClass(cIndex.toInt) > fValue)
         minValuePerClass(cIndex.toInt) = fValue
       if (maxValuePerClass(cIndex.toInt) < fValue)
@@ -165,24 +270,43 @@ class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, v
     }
   }
 
+  /**
+   * Gets the probability for an attribute value given a class
+   *
+   * @param cIndex the index of class
+   * @param fValue the value of the feature
+   * @return probability for a feature value given a class
+   */
   override def probability(cIndex: Double, fValue: Double): Double = {
     if (estimators(cIndex.toInt) == null) 0.0
     else estimators(cIndex.toInt).probabilityDensity(fValue)
   }
 
+  /**
+   * Gets the best split suggestion given a criterion and a class distribution
+   *
+   * @param criterion the split criterion to use
+   * @param pre the class distribution before the split
+   * @param fValue the value of the feature
+   * @param isBinarySplit true to use binary splits
+   * @return suggestion of best feature split
+   */
   override def bestSplit(criterion: SplitCriterion, pre: Array[Double],
                          fValue: Double, isBinarySplit: Boolean): FeatureSplit = {
     var fSplit: FeatureSplit = null
     val points: Array[Double] = splitPoints()
     for (splitValue: Double <- points) {
       val post: Array[Array[Double]] = binarySplit(splitValue)
-      val merit = criterion.merit(pre, post)
+      val merit = criterion.merit(Util.normal(pre), Util.normal(post))
       if (fSplit == null || fSplit.merit < merit)
-        fSplit = new FeatureSplit(new NumericBinaryTest(fIndex, splitValue, true), merit, post)
+        fSplit = new FeatureSplit(new NumericBinaryTest(fIndex, splitValue, false), merit, post)
     }
     fSplit
   }
-  //values equal to splitValue go to left 
+
+  /**
+   * binary split the data with the input value,values equal to splitValue go to left
+   */
   private[trees] def binarySplit(splitValue: Double): Array[Array[Double]] = {
     val rst: Array[Array[Double]] = Array.fill(2)(new Array(numClasses))
     estimators.zipWithIndex.foreach {
@@ -217,8 +341,28 @@ class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, v
     }
     points.toArray
   }
-  // todo
-  override def blockMerge(that: FeatureClassObserver): FeatureClassObserver = this
+
+  /**
+   * Merge the FeatureClassObserver to current FeatureClassObserver
+   *
+   * @param that the FeatureClassObserver will be merged
+   * @param trySplit whether called when a Hoeffding tree try to split
+   * @return current FeatureClassObserver
+   */
+  override def merge(that: FeatureClassObserver, trySplit: Boolean): FeatureClassObserver = {
+    if (!that.isInstanceOf[GuassianNumericFeatureClassOberser]) this
+    else {
+      val observer = that.asInstanceOf[GuassianNumericFeatureClassOberser]
+      if (numClasses == observer.numClasses && fIndex == observer.fIndex) {
+        for (i <- 0 until numClasses) {
+          estimators(i) = estimators(i).merge(observer.estimators(i), trySplit)
+          minValuePerClass(i) = min(minValuePerClass(i), observer.minValuePerClass(i))
+          maxValuePerClass(i) = max(maxValuePerClass(i), observer.maxValuePerClass(i))
+        }
+      }
+      this
+    }
+  }
 }
 
 object FeatureClassObserver {
@@ -229,9 +373,11 @@ object FeatureClassObserver {
     case _: NullFeatureType          => new NullFeatureClassObserver
   }
 
-  def createFeatureClassObserver(observer: FeatureClassObserver): FeatureClassObserver = observer match {
-    case nominal: NominalFeatureClassObserver => new NominalFeatureClassObserver(nominal)
-    case _: NullFeatureClassObserver          => new NullFeatureClassObserver
+  def createFeatureClassObserver(observer: FeatureClassObserver): FeatureClassObserver = {
+    if (observer.isInstanceOf[NominalFeatureClassObserver])
+      new NominalFeatureClassObserver(observer.asInstanceOf[NominalFeatureClassObserver])
+    else if (observer.isInstanceOf[GuassianNumericFeatureClassOberser])
+      new GuassianNumericFeatureClassOberser(observer.asInstanceOf[GuassianNumericFeatureClassOberser])
+    else new NullFeatureClassObserver
   }
-
 }

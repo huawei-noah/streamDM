@@ -220,6 +220,7 @@ class VarianceReductionSplitCriterion extends SplitCriterion with Serializable {
 }
 
 object SplitCriterion {
+
   /*
    * return a new SplitCriterion, the default will be InfoGainSplitCriterion.
    */
