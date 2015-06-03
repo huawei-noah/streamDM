@@ -46,6 +46,9 @@ class StreamKM extends Clusterer {
   val sizeCoresetOption: IntOption = new IntOption("sizeCoreset", 's',
     "Size of coreset", 10000, 1, Integer.MAX_VALUE)
   
+  val widthOption: IntOption = new IntOption("width",
+      'w', "Size of Window for training learner.", 100000, 1, Integer.MAX_VALUE);
+  
   var exampleLearnerSpecification: ExampleSpecification = null
   
   /* Init the StreamKM++ algorithm.
@@ -78,8 +81,8 @@ class StreamKM extends Clusterer {
   /* Get the currently computed clusters
    * @return an Array of Examples representing the clusters
    */
-  def getClusters: Array[Example] {
+  def getClusters: Array[Example] = {
     val streamingCoreset = bucketmanager.getCoreset
-    KMeans.cluster(streamingCoreset, kOption.getValue, epOption.getValue) 
+    KMeans.cluster(streamingCoreset, kOption.getValue, repOption.getValue) 
   }
 }
