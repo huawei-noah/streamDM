@@ -39,8 +39,8 @@ class HoeffdingTree extends Classifier {
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "Number of Features", 3, 1, Integer.MAX_VALUE)
 
-  val featureArray = new FeatureTypeArray(Array[FeatureType](new NumericFeatureType(), new NumericFeatureType(), new NumericFeatureType()))
-  //val featureArray = new FeatureTypeArray(Array[FeatureType](new NominalFeatureType(10), new NominalFeatureType(10), new NominalFeatureType(10)))
+  //  val featureArray = new FeatureTypeArray(Array[FeatureType](new NumericFeatureType(), new NumericFeatureType(), new NumericFeatureType()))
+  val featureArray = new FeatureTypeArray(Array[FeatureType](new NominalFeatureType(10), new NominalFeatureType(10), new NominalFeatureType(10)))
 
   val numericObserverTypeOption: IntOption = new IntOption("numericObserverType", 'n',
     "numeric observer type, 0: gaussian", 0, 0, 2)
@@ -210,8 +210,6 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
 
   var lastExample: Example = null
 
-  var featureObservers: Array[FeatureClassObserver] = new Array[FeatureClassObserver](numFeatures)
-
   var root: Node = null
 
   var printRootNull: Boolean = true
@@ -228,16 +226,10 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
     baseNumExamples = model.baseNumExamples + model.blockNumExamples
     this.root = model.root
 
-    for (i <- 0 until featureObservers.length)
-      featureObservers(i) = FeatureClassObserver.createFeatureClassObserver(model.featureObservers(i))
     this.lastExample = model.lastExample
   }
 
   def init(): Unit = {
-    if (featureObservers(0) == null) {
-      featureTypeArray.featureTypes.zipWithIndex.foreach(x => featureObservers(x._2) =
-        FeatureClassObserver.createFeatureClassObserver(x._1, numClasses, x._2, x._1.getRange()))
-    }
     root = createLearningNode(learningNodeType, numClasses)
     activeNodeCount += 1
   }
@@ -318,8 +310,8 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
    * merge with another model's FeatureObservers and root, and try to split
    */
   def merge(that: HoeffdingTreeModel, trySplit: Boolean): HoeffdingTreeModel = {
-    for (i <- 0 until featureObservers.length)
-      featureObservers(i) = featureObservers(i).merge(that.featureObservers(i), trySplit)
+    //    for (i <- 0 until featureObservers.length)
+    //      featureObservers(i) = featureObservers(i).merge(that.featureObservers(i), trySplit)
 
     this.blockNumExamples += that.blockNumExamples
     this.lastExample = that.lastExample
@@ -354,17 +346,17 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
   }
 
   def createLearningNode(nodeType: Int, classDistribution: Array[Double]): LearningNode = nodeType match {
-    case 0 => new ActiveLearningNode(classDistribution)
-    case 1 => new LearningNodeNB(classDistribution)
-    case 2 => new LearningNodeNBAdaptive(classDistribution)
-    case _ => new ActiveLearningNode(classDistribution)
+    case 0 => new ActiveLearningNode(classDistribution, featureTypeArray)
+    case 1 => new LearningNodeNB(classDistribution, featureTypeArray)
+    case 2 => new LearningNodeNBAdaptive(classDistribution, featureTypeArray)
+    case _ => new ActiveLearningNode(classDistribution, featureTypeArray)
   }
 
   def createLearningNode(nodeType: Int, numClasses: Int): LearningNode = nodeType match {
-    case 0 => new ActiveLearningNode(new Array[Double](numClasses))
-    case 1 => new LearningNodeNB(new Array[Double](numClasses))
-    case 2 => new LearningNodeNBAdaptive(new Array[Double](numClasses))
-    case _ => new ActiveLearningNode(new Array[Double](numClasses))
+    case 0 => new ActiveLearningNode(new Array[Double](numClasses), featureTypeArray)
+    case 1 => new LearningNodeNB(new Array[Double](numClasses), featureTypeArray)
+    case 2 => new LearningNodeNBAdaptive(new Array[Double](numClasses), featureTypeArray)
+    case _ => new ActiveLearningNode(new Array[Double](numClasses), featureTypeArray)
   }
 
   def createLearningNode(nodeType: Int, that: LearningNode): LearningNode = nodeType match {
