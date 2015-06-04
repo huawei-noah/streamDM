@@ -39,8 +39,8 @@ class HoeffdingTree extends Classifier {
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "Number of Features", 3, 1, Integer.MAX_VALUE)
 
-  //  val featureArray = new FeatureTypeArray(Array[FeatureType](new NumericFeatureType(), new NumericFeatureType(), new NumericFeatureType()))
-  val featureArray = new FeatureTypeArray(Array[FeatureType](new NominalFeatureType(10), new NominalFeatureType(10), new NominalFeatureType(10)))
+  val featureArray = new FeatureTypeArray(Array[FeatureType](new NumericFeatureType(), new NumericFeatureType(), new NumericFeatureType()))
+  //val featureArray = new FeatureTypeArray(Array[FeatureType](new NominalFeatureType(10), new NominalFeatureType(10), new NominalFeatureType(10)))
 
   val numericObserverTypeOption: IntOption = new IntOption("numericObserverType", 'n',
     "numeric observer type, 0: gaussian", 0, 0, 2)
@@ -308,8 +308,6 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
    * merge with another model's FeatureObservers and root, and try to split
    */
   def merge(that: HoeffdingTreeModel, trySplit: Boolean): HoeffdingTreeModel = {
-    //    for (i <- 0 until featureObservers.length)
-    //      featureObservers(i) = featureObservers(i).merge(that.featureObservers(i), trySplit)
 
     this.blockNumExamples += that.blockNumExamples
     this.lastExample = that.lastExample
