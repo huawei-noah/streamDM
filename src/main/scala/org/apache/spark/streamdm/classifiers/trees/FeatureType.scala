@@ -30,5 +30,5 @@ case class NominalFeatureType(val range: Int) extends FeatureType with Serializa
 case class NumericFeatureType() extends FeatureType with Serializable
 
 class FeatureTypeArray(val featureTypes: Array[FeatureType]) extends Serializable {
-
+  def numFeatures() = if (featureTypes == null) 0 else featureTypes.length
 }
