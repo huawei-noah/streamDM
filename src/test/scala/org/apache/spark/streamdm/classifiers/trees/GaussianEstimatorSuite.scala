@@ -9,7 +9,7 @@ class GaussianEstimatorSuite extends FunSuite {
     gs.observe(2.0, 0.5)
     gs.observe(1, 2)
     var gs2: GaussianEstimator = new GaussianEstimator()
-    gs2 = gs2.merge(gs, false)
+    gs2 = gs2.merge(gs, true)
     assert(gs2.totalWeight() == 2.5)
     assert(gs2.getMean() == 1.2)
     assert(gs2.stdDev() == 0.5163977794943222)
@@ -22,7 +22,7 @@ class GaussianEstimatorSuite extends FunSuite {
     gs.observe(1, 0.5)
     gs.observe(3, 0.5)
     var gs2: GaussianEstimator = new GaussianEstimator()
-    gs2 = gs2.merge(gs, false)
+    gs2 = gs2.merge(gs, true)
     assert(gs2.variance() == 2.0)
   }
 
@@ -33,7 +33,7 @@ class GaussianEstimatorSuite extends FunSuite {
     assert(gs.probabilityDensity(2) == 0)
     gs.observe(2.0, 1)
     var gs2: GaussianEstimator = new GaussianEstimator()
-    gs2 = gs2.merge(gs, false)
+    gs2 = gs2.merge(gs, true)
     assert(gs2.probabilityDensity(0) == 0)
     assert(gs2.probabilityDensity(1) == 0)
     assert(gs2.probabilityDensity(2) == 1)
