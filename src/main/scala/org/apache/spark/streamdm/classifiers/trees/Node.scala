@@ -260,11 +260,11 @@ class ActiveLearningNode(classDistribution: Array[Double], val featureTypeArray:
       if (!trySplit) {
         this.addonWeight += that.blockClassDistribution.sum
         for (i <- 0 until blockClassDistribution.length)
-          this.classDistribution(i) += that.blockClassDistribution(i)
+          this.blockClassDistribution(i) += that.blockClassDistribution(i)
       } else {
-        this.addonWeight += node.addonWeight
+        this.addonWeight = node.addonWeight
         for (i <- 0 until classDistribution.length)
-          this.classDistribution(i) += that.classDistribution(i)
+          this.classDistribution(i) += that.blockClassDistribution(i)
       }
       //merge feature class observers
       for (i <- 0 until featureObservers.length)
@@ -383,13 +383,13 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double], featureTypeArray:
         mcCorrectWeight += nbaNode.mcBlockCorrectWeight
         nbCorrectWeight += nbaNode.nbBlockCorrectWeight
         for (i <- 0 until blockClassDistribution.length)
-          this.classDistribution(i) += that.blockClassDistribution(i)
+          this.blockClassDistribution(i) += that.blockClassDistribution(i)
       } else {
-        this.addonWeight += nbaNode.addonWeight
+        this.addonWeight = nbaNode.addonWeight
         mcCorrectWeight += nbaNode.mcCorrectWeight
         nbCorrectWeight += nbaNode.nbCorrectWeight
         for (i <- 0 until classDistribution.length)
-          this.classDistribution(i) += that.classDistribution(i)
+          this.classDistribution(i) += that.blockClassDistribution(i)
       }
       //merge feature class observers
       for (i <- 0 until featureObservers.length)
