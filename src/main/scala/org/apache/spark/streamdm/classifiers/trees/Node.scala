@@ -193,21 +193,30 @@ abstract class LearningNode(classDistribution: Array[Double]) extends Node(class
 /**
  * basic majority class active learning node for hoeffding tree
  */
-class ActiveLearningNode(classDistribution: Array[Double])
+class ActiveLearningNode(classDistribution: Array[Double], val featureTypeArray: FeatureTypeArray)
   extends LearningNode(classDistribution) with Serializable {
 
   var addonWeight: Double = 0
 
-  def this(that: ActiveLearningNode) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution))
-  }
+  val featureObservers: Array[FeatureClassObserver] = new Array[FeatureClassObserver](featureTypeArray.numFeatures)
 
+  def this(that: ActiveLearningNode) {
+    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.featureTypeArray)
+    init()
+  }
+  def init(): Unit = {
+    if (featureObservers(0) == null) {
+      featureTypeArray.featureTypes.zipWithIndex.foreach(x => featureObservers(x._2) =
+        FeatureClassObserver.createFeatureClassObserver(x._1, classDistribution.length, x._2, x._1.getRange()))
+    }
+  }
   /*
    * lean and update the node
    */
   override def learn(ht: HoeffdingTreeModel, example: Example): Unit = {
+    init()
     blockClassDistribution(example.labelAt(0).toInt) += example.weight
-    ht.featureObservers.zipWithIndex.foreach {
+    featureObservers.zipWithIndex.foreach {
       x => x._1.observeClass(example.labelAt(0).toInt, example.featureAt(x._2), example.weight)
     }
   }
@@ -247,6 +256,7 @@ class ActiveLearningNode(classDistribution: Array[Double])
   override def merge(that: Node, trySplit: Boolean): Node = {
     if (that.isInstanceOf[ActiveLearningNode]) {
       val node = that.asInstanceOf[ActiveLearningNode]
+      //merge addonWeight and class distribution
       if (!trySplit) {
         this.addonWeight += that.blockClassDistribution.sum
         for (i <- 0 until blockClassDistribution.length)
@@ -256,13 +266,16 @@ class ActiveLearningNode(classDistribution: Array[Double])
         for (i <- 0 until classDistribution.length)
           this.classDistribution(i) += that.classDistribution(i)
       }
+      //merge feature class observers
+      for (i <- 0 until featureObservers.length)
+        featureObservers(i) = featureObservers(i).merge(node.featureObservers(i), trySplit)
     }
     this
   }
 
   def getBestSplitSuggestions(splitCriterion: SplitCriterion, ht: HoeffdingTreeModel): Array[FeatureSplit] = {
     val bestSplits = new ArrayBuffer[FeatureSplit]()
-    ht.featureObservers.zipWithIndex.foreach(x =>
+    featureObservers.zipWithIndex.foreach(x =>
       bestSplits.append(x._1.bestSplit(splitCriterion, classDistribution, x._2, ht.binaryOnly)))
     if (ht.prePrune) {
       bestSplits.append(new FeatureSplit(null, splitCriterion.merit(classDistribution, Array.fill(1)(classDistribution)), new Array[Array[Double]](0)))
@@ -306,11 +319,12 @@ class InactiveLearningNode(classDistribution: Array[Double])
 /**
  * class LearningNodeNB is naive bayes learning node
  */
-class LearningNodeNB(classDistribution: Array[Double])
-  extends ActiveLearningNode(classDistribution) with Serializable {
+class LearningNodeNB(classDistribution: Array[Double], featureTypeArray: FeatureTypeArray)
+  extends ActiveLearningNode(classDistribution, featureTypeArray) with Serializable {
 
   def this(that: LearningNodeNB) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution))
+    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.featureTypeArray)
+    init()
   }
 
   /*
@@ -318,7 +332,7 @@ class LearningNodeNB(classDistribution: Array[Double])
    */
   override def classVotes(ht: HoeffdingTreeModel, example: Example): Array[Double] = {
     if (weight() > ht.nbThreshold)
-      NaiveBayes.predict(example, classDistribution, ht.featureObservers)
+      NaiveBayes.predict(example, classDistribution, featureObservers)
     else super.classVotes(ht, example)
   }
 }
@@ -327,8 +341,8 @@ class LearningNodeNB(classDistribution: Array[Double])
  * class LearningNodeNBAdaptive is naive bayes adaptive learning node
  */
 
-class LearningNodeNBAdaptive(classDistribution: Array[Double])
-  extends ActiveLearningNode(classDistribution) with Serializable {
+class LearningNodeNBAdaptive(classDistribution: Array[Double], featureTypeArray: FeatureTypeArray)
+  extends ActiveLearningNode(classDistribution, featureTypeArray) with Serializable {
 
   var mcCorrectWeight: Double = 0
   var nbCorrectWeight: Double = 0
@@ -337,9 +351,10 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double])
   var nbBlockCorrectWeight: Double = 0
 
   def this(that: LearningNodeNBAdaptive) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution))
+    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.featureTypeArray)
     mcCorrectWeight = that.mcCorrectWeight + that.mcBlockCorrectWeight
     nbCorrectWeight = that.nbCorrectWeight + that.nbBlockCorrectWeight
+    init()
   }
 
   /*
@@ -348,7 +363,7 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double])
   override def learn(ht: HoeffdingTreeModel, example: Example): Unit = {
     super.learn(ht, example)
     if (Util.argmax(classDistribution) == example.labelAt(0)) mcBlockCorrectWeight += example.weight
-    if (Util.argmax(NaiveBayes.predict(example, classDistribution, ht.featureObservers)) == example.labelAt(0))
+    if (Util.argmax(NaiveBayes.predict(example, classDistribution, featureObservers)) == example.labelAt(0))
       nbBlockCorrectWeight += example.weight
   }
 
@@ -362,6 +377,7 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double])
   override def merge(that: Node, trySplit: Boolean): Node = {
     if (that.isInstanceOf[LearningNodeNBAdaptive]) {
       val nbaNode = that.asInstanceOf[LearningNodeNBAdaptive]
+      //merge weights and class distribution
       if (!trySplit) {
         this.addonWeight += nbaNode.blockClassDistribution.sum
         mcCorrectWeight += nbaNode.mcBlockCorrectWeight
@@ -375,6 +391,10 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double])
         for (i <- 0 until classDistribution.length)
           this.classDistribution(i) += that.classDistribution(i)
       }
+      //merge feature class observers
+      for (i <- 0 until featureObservers.length)
+        featureObservers(i) = featureObservers(i).merge(nbaNode.featureObservers(i), trySplit)
+
     }
     this
   }
@@ -383,6 +403,6 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double])
    */
   override def classVotes(ht: HoeffdingTreeModel, example: Example): Array[Double] = {
     if (mcCorrectWeight > nbCorrectWeight) super.classVotes(ht, example)
-    else NaiveBayes.predict(example, classDistribution, ht.featureObservers)
+    else NaiveBayes.predict(example, classDistribution, featureObservers)
   }
 }
