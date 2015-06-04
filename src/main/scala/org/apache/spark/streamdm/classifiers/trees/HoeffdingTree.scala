@@ -212,8 +212,6 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
 
   var root: Node = null
 
-  var printRootNull: Boolean = true
-
   def this(model: HoeffdingTreeModel) {
     this(model.numClasses, model.numFeatures, model.featureTypeArray,
       model.numericObserverType, model.splitCriterion, model.growthAllowed,
@@ -338,9 +336,6 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
       }
       argmax(leafNode.classVotes(this, point))
     } else {
-      if (printRootNull) {
-        printRootNull = false
-      }
       0.0
     }
   }
