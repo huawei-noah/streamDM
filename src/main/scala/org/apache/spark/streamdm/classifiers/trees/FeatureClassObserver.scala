@@ -17,10 +17,11 @@
 
 package org.apache.spark.streamdm.classifiers.trees
 
-import org.apache.spark.streamdm.util.Util
-import scala.math.{ min, max }
 import scala.collection.mutable.TreeSet
+import scala.math.{ min, max }
 
+import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.util.Util
 /**
  * Trait for observing the class distribution of one feature.
  * The observer monitors the class distribution of a given feature.
@@ -210,13 +211,13 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
       else {
         if (!trySplit) {
           totalWeight += observer.blockWeight
-          for (i <- 0 until classFeatureStatistics.length; j <- 0 until classFeatureStatistics(0).length) {
-            classFeatureStatistics(i)(j) += observer.blockClassFeatureStatistics(i)(j)
+          for (i <- 0 until blockClassFeatureStatistics.length; j <- 0 until blockClassFeatureStatistics(0).length) {
+            blockClassFeatureStatistics(i)(j) += observer.blockClassFeatureStatistics(i)(j)
           }
         } else {
           totalWeight += observer.totalWeight
           for (i <- 0 until classFeatureStatistics.length; j <- 0 until classFeatureStatistics(0).length) {
-            classFeatureStatistics(i)(j) += observer.classFeatureStatistics(i)(j)
+            classFeatureStatistics(i)(j) += observer.blockClassFeatureStatistics(i)(j)
           }
         }
         this
@@ -366,11 +367,11 @@ class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, v
 }
 
 object FeatureClassObserver {
-  def createFeatureClassObserver(featureType: FeatureType, numClasses: Int,
-                                 fIndex: Int, numFeatureValues: Int = 0): FeatureClassObserver = featureType match {
-    case nominal: NominalFeatureType => new NominalFeatureClassObserver(numClasses, fIndex, numFeatureValues)
-    case numeric: NumericFeatureType => new GuassianNumericFeatureClassOberser(numClasses, fIndex)
-    case _: NullFeatureType          => new NullFeatureClassObserver
+  def createFeatureClassObserver(numClasses: Int, fIndex: Int, featureSpec: FeatureSpecification): FeatureClassObserver = {
+    if (featureSpec.isNominal())
+      new NominalFeatureClassObserver(numClasses, fIndex, featureSpec.range())
+    else
+      new GuassianNumericFeatureClassOberser(numClasses, fIndex)
   }
 
   def createFeatureClassObserver(observer: FeatureClassObserver): FeatureClassObserver = {
