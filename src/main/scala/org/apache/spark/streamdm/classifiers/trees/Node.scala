@@ -20,7 +20,7 @@ package org.apache.spark.streamdm.classifiers.trees
 import scala.collection.mutable.ArrayBuffer
 import scala.math.{ max }
 
-import org.apache.spark.streamdm.core.Example
+import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.bayes._
 import org.apache.spark.streamdm.util.Util
 
@@ -193,21 +193,23 @@ abstract class LearningNode(classDistribution: Array[Double]) extends Node(class
 /**
  * basic majority class active learning node for hoeffding tree
  */
-class ActiveLearningNode(classDistribution: Array[Double], val featureTypeArray: FeatureTypeArray)
+class ActiveLearningNode(classDistribution: Array[Double], val instanceSpecification: InstanceSpecification)
   extends LearningNode(classDistribution) with Serializable {
 
   var addonWeight: Double = 0
 
-  val featureObservers: Array[FeatureClassObserver] = new Array[FeatureClassObserver](featureTypeArray.numFeatures)
+  val featureObservers: Array[FeatureClassObserver] = new Array[FeatureClassObserver](instanceSpecification.size())
 
   def this(that: ActiveLearningNode) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.featureTypeArray)
+    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.instanceSpecification)
     init()
   }
   def init(): Unit = {
     if (featureObservers(0) == null) {
-      featureTypeArray.featureTypes.zipWithIndex.foreach(x => featureObservers(x._2) =
-        FeatureClassObserver.createFeatureClassObserver(x._1, classDistribution.length, x._2, x._1.getRange()))
+      for (i <- 0 until instanceSpecification.size()) {
+        val featureSpec: FeatureSpecification = instanceSpecification(i)
+        featureObservers(i) = FeatureClassObserver.createFeatureClassObserver(classDistribution.length,i,featureSpec)
+      }
     }
   }
   /*
@@ -319,11 +321,11 @@ class InactiveLearningNode(classDistribution: Array[Double])
 /**
  * class LearningNodeNB is naive bayes learning node
  */
-class LearningNodeNB(classDistribution: Array[Double], featureTypeArray: FeatureTypeArray)
-  extends ActiveLearningNode(classDistribution, featureTypeArray) with Serializable {
+class LearningNodeNB(classDistribution: Array[Double], instanceSpecification: InstanceSpecification)
+  extends ActiveLearningNode(classDistribution, instanceSpecification) with Serializable {
 
   def this(that: LearningNodeNB) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.featureTypeArray)
+    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.instanceSpecification)
     init()
   }
 
@@ -341,8 +343,8 @@ class LearningNodeNB(classDistribution: Array[Double], featureTypeArray: Feature
  * class LearningNodeNBAdaptive is naive bayes adaptive learning node
  */
 
-class LearningNodeNBAdaptive(classDistribution: Array[Double], featureTypeArray: FeatureTypeArray)
-  extends ActiveLearningNode(classDistribution, featureTypeArray) with Serializable {
+class LearningNodeNBAdaptive(classDistribution: Array[Double], instanceSpecification: InstanceSpecification)
+  extends ActiveLearningNode(classDistribution, instanceSpecification) with Serializable {
 
   var mcCorrectWeight: Double = 0
   var nbCorrectWeight: Double = 0
@@ -351,7 +353,7 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double], featureTypeArray:
   var nbBlockCorrectWeight: Double = 0
 
   def this(that: LearningNodeNBAdaptive) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.featureTypeArray)
+    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.instanceSpecification)
     mcCorrectWeight = that.mcCorrectWeight + that.mcBlockCorrectWeight
     nbCorrectWeight = that.nbCorrectWeight + that.nbBlockCorrectWeight
     init()
