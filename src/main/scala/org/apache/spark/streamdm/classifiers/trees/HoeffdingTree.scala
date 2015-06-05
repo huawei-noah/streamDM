@@ -76,13 +76,14 @@ class HoeffdingTree extends Classifier {
 
   var model: HoeffdingTreeModel = null
 
-  var exampleLearnerSpecification: ExampleSpecification = null
+  var espec: ExampleSpecification = null
 
   override def init(exampleSpecification: ExampleSpecification): Unit = {
-    exampleLearnerSpecification = exampleSpecification
-    model = new HoeffdingTreeModel(
-      numClassesOption.getValue(), numFeaturesOption.getValue(),
-      featureArray, numericObserverTypeOption.getValue, splitCriterionOption.getValue(),
+    espec = exampleSpecification
+    val numFeatures = espec.numberInputFeatures()
+    val outputSpec = espec.outputFeatureSpecification(0)
+    val numClasses = outputSpec.range()
+    model = new HoeffdingTreeModel(espec, numericObserverTypeOption.getValue, splitCriterionOption.getValue(),
       growthAllowedOption.getValue() == 1, binaryOnlyOption.getValue() == 1, numGraceOption.getValue(),
       tieThresholdOption.getValue, splitConfidenceOption.getValue(),
       learningNodeOption.getValue(), nbThresholdOption.getValue(),
@@ -189,8 +190,7 @@ class HoeffdingTree extends Classifier {
  *
  */
 
-class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
-                         val featureTypeArray: FeatureTypeArray, val numericObserverType: Int = 0,
+class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverType: Int = 0,
                          val splitCriterion: SplitCriterion = new InfoGainSplitCriterion(),
                          var growthAllowed: Boolean = true, val binaryOnly: Boolean = true,
                          val graceNum: Int = 200, val tieThreshold: Double = 0.05,
@@ -199,6 +199,10 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
   extends Model with Serializable with Logging {
 
   type T = HoeffdingTreeModel
+
+  val numFeatures = espec.numberInputFeatures()
+  val outputSpec = espec.outputFeatureSpecification(0)
+  val numClasses = outputSpec.range()
 
   var activeNodeCount: Int = 0
   var inactiveNodeCount: Int = 0
@@ -213,8 +217,7 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
   var root: Node = null
 
   def this(model: HoeffdingTreeModel) {
-    this(model.numClasses, model.numFeatures, model.featureTypeArray,
-      model.numericObserverType, model.splitCriterion, model.growthAllowed,
+    this(model.espec, model.numericObserverType, model.splitCriterion, model.growthAllowed,
       model.binaryOnly, model.graceNum, model.tieThreshold, model.splitConfedence,
       model.learningNodeType, model.nbThreshold, model.prePrune)
     activeNodeCount = model.activeNodeCount
@@ -339,17 +342,17 @@ class HoeffdingTreeModel(val numClasses: Int, val numFeatures: Int,
   }
 
   def createLearningNode(nodeType: Int, classDistribution: Array[Double]): LearningNode = nodeType match {
-    case 0 => new ActiveLearningNode(classDistribution, featureTypeArray)
-    case 1 => new LearningNodeNB(classDistribution, featureTypeArray)
-    case 2 => new LearningNodeNBAdaptive(classDistribution, featureTypeArray)
-    case _ => new ActiveLearningNode(classDistribution, featureTypeArray)
+    case 0 => new ActiveLearningNode(classDistribution, espec.in)
+    case 1 => new LearningNodeNB(classDistribution, espec.in)
+    case 2 => new LearningNodeNBAdaptive(classDistribution, espec.in)
+    case _ => new ActiveLearningNode(classDistribution, espec.in)
   }
 
   def createLearningNode(nodeType: Int, numClasses: Int): LearningNode = nodeType match {
-    case 0 => new ActiveLearningNode(new Array[Double](numClasses), featureTypeArray)
-    case 1 => new LearningNodeNB(new Array[Double](numClasses), featureTypeArray)
-    case 2 => new LearningNodeNBAdaptive(new Array[Double](numClasses), featureTypeArray)
-    case _ => new ActiveLearningNode(new Array[Double](numClasses), featureTypeArray)
+    case 0 => new ActiveLearningNode(new Array[Double](numClasses), espec.in)
+    case 1 => new LearningNodeNB(new Array[Double](numClasses), espec.in)
+    case 2 => new LearningNodeNBAdaptive(new Array[Double](numClasses), espec.in)
+    case _ => new ActiveLearningNode(new Array[Double](numClasses), espec.in)
   }
 
   def createLearningNode(nodeType: Int, that: LearningNode): LearningNode = nodeType match {
