@@ -26,85 +26,159 @@ import scala.collection.mutable.Map
  */
 
 class InstanceSpecification extends Serializable {
-  val featureSpecificationMap = Map[Int, FeatureSpecification]()
+  val nominalFeatureSpecificationMap = Map[Int, FeatureSpecification]()
   val nameMap = Map[Int, String]()
+  val numericFeatureSpecification: NumericFeatureSpecification = new NumericFeatureSpecification
 
-  /** Gets the FeatureSpecification value present at position index
-    *
-    * @param index the index of the position
-    * @return a FeatureSpecification representing the specification for the feature
-    */
-  def apply(index: Int): FeatureSpecification = featureSpecificationMap(index)
+  /**
+   * Gets the FeatureSpecification value present at position index
+   *
+   * @param index the index of the position
+   * @return a FeatureSpecification representing the specification for the feature
+   */
+  def apply(index: Int): FeatureSpecification = {
+    if (nominalFeatureSpecificationMap.contains(index))
+      nominalFeatureSpecificationMap(index)
+    else numericFeatureSpecification
+  }
 
-
-  /** Adds a specification for the instance feature
-    *
-    * @param index the index at which the value is added
-    * @param input the feature specification which is added up
-    */
+  /**
+   * Adds a specification for the instance feature
+   *
+   * @param index the index at which the value is added
+   * @param input the feature specification which is added up
+   */
   def setFeatureSpecification(index: Int, input: FeatureSpecification): Unit =
-    featureSpecificationMap += (index -> input)
+    nominalFeatureSpecificationMap += (index -> input)
 
+  /**
+   * Gets if the feature is nominal or discrete
+   *
+   * @param index the index of the feature
+   * @return true if the feature is discrete
+   */
+  def isNominal(index: Int): Boolean =
+    this(index).isNominal()
 
-  /** Gets if the feature is nominal or discrete
-    *
-    * @param index the index of the feature
-    * @return true if the feature is discrete
-    */
-  def isNominal(index:Int):Boolean =
-    featureSpecificationMap.contains(index)
-
-  /** Gets if the feature is numeric
-    *
-    * @param index the index of the feature
-    * @return true if the feature is numeric
-    */
-  def isNumeric(index:Int):Boolean =
+  /**
+   * Gets if the feature is numeric
+   *
+   * @param index the index of the feature
+   * @return true if the feature is numeric
+   */
+  def isNumeric(index: Int): Boolean =
     !isNominal(index)
 
-  /** Gets the name of the feature at position index
-    *
-    * @param index the index of the class
-    * @return a string representing the name of the feature
-    */
+  /**
+   * Gets the name of the feature at position index
+   *
+   * @param index the index of the class
+   * @return a string representing the name of the feature
+   */
   def name(index: Int): String = nameMap(index)
 
-  /** Adds a name for the instance feature
-    *
-    * @param index the index at which the value is added
-    * @param input the feature name which is added up
-    */
+  /**
+   * Adds a name for the instance feature
+   *
+   * @param index the index at which the value is added
+   * @param input the feature name which is added up
+   */
   def setName(index: Int, input: String): Unit =
     nameMap += (index -> input)
 
-  /** Gets the number of features
-    *
-    * @return the number of features
-    */
+  /**
+   * Gets the number of features
+   *
+   * @return the number of features
+   */
   def size(): Int = nameMap.size
 }
 
 /**
- * A FeatureSpecification contains information about its nominal values.
+ * trait FeatureSpecification.
+ *
+ */
+trait FeatureSpecification {
+
+  /**
+   * whether the feature is nominal
+   *
+   * @return true if the feature is nominal
+   */
+  def isNominal(): Boolean
+
+  /**
+   * whether the feature is numeric
+   *
+   * @return true if the feature is discrete
+   */
+  def isNumeric(): Boolean
+  /**
+   * if a feature is numeric, return -1, else return the nominal values size
+   */
+  def range(): Int
+}
+
+/**
+ * class NumericFeatureSpecification.
+ *
+ */
+class NumericFeatureSpecification extends FeatureSpecification with Serializable {
+  /**
+   * whether the feature is nominal
+   *
+   * @return true if the feature is nominal
+   */
+  override def isNominal(): Boolean = false
+  /**
+   * whether the feature is numeric
+   *
+   * @return true if the feature is discrete
+   */
+  override def isNumeric(): Boolean = !isNominal()
+  override def range(): Int = -1
+}
+
+/**
+ * A NominalFeatureSpecification contains information about its nominal values.
  *
  */
 
-class FeatureSpecification(nominalValues:Array[String]) extends Serializable {
+class NominalFeatureSpecification(nominalValues: Array[String]) extends FeatureSpecification with Serializable {
   val values = nominalValues
-  val nameMap = Map[String,Int]()
-  values.zipWithIndex.map{ case (element, index) => (nameMap += (element -> index)) }
+  val nameMap = Map[String, Int]()
+  values.zipWithIndex.map { case (element, index) => (nameMap += (element -> index)) }
 
-  /** Get the nominal string value present at position index
-    *
-    * @param index the index of the feature value
-    * @return a string containing the nominal value of the feature
-    */
-  def apply(index: Int): String =  values(index)
+  /**
+   * Get the nominal string value present at position index
+   *
+   * @param index the index of the feature value
+   * @return a string containing the nominal value of the feature
+   */
+  def apply(index: Int): String = values(index)
 
-  /** Get the position index given the nominal string value
-    *
-    * @param string a string containing the nominal value of the feature
-    * @return the index of the feature value
-    */
+  /**
+   * Get the position index given the nominal string value
+   *
+   * @param string a string containing the nominal value of the feature
+   * @return the index of the feature value
+   */
   def apply(string: String): Int = nameMap(string)
+
+  /**
+   * whether the feature is nominal
+   *
+   * @return true if the feature is nominal
+   */
+  override def isNominal(): Boolean = true
+  /**
+   * whether the feature is numeric
+   *
+   * @return true if the feature is discrete
+   */
+  override def isNumeric(): Boolean = !isNominal()
+  /**
+   * return the nominal values size
+   */
+  override def range(): Int = values.length
 }
