@@ -39,7 +39,8 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
   val mOption: IntOption = new IntOption("mValue", 'm', "Value of m",
     100, 1, Integer.MAX_VALUE)
 
-  /* Update the clustering data structure, depending on the Example given
+  /**
+   * Update the clustering data structure, depending on the Example given.
    *
    * @param inst the Example based on which the Model is updated
    * @return the updated MicroClusters object
@@ -106,7 +107,8 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
     }
   }
 
-  /* Add an instance to the microcluster at a given instance. 
+  /**
+   * Add an instance to the microcluster at a given instance. 
    *
    * @param index the index where the microcluster is
    * @param change the Example containing the changed instance
@@ -118,7 +120,8 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
                       microclusters(index).insert(change.in, timestamp)))
   }
 
-  /* Append a microcluster 
+  /**
+   * Append a microcluster.
    *
    * @param mc the microcluster to be appended
    * @return the updated MicroClusters object
@@ -127,7 +130,8 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
     new MicroClusters(microclusters:+mc)
   }
 
-  /* Remove a microcluster from the buffer 
+  /**
+   * Remove a microcluster from the buffer.
    *
    * @param index the index where the microcluster to be removed is
    * @return the updated MicroClusters object
@@ -135,7 +139,8 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
   private def removeMicrocluster(index: Int): MicroClusters =
     new MicroClusters(microclusters.take(index)++microclusters.drop(index+1))
 
-  /* Merge the source microcluster into the target microcluster
+  /**
+   * Merge the source microcluster into the target microcluster.
    *
    * @param target the index of the target microcluster
    * @param source the index of the source microcluster
@@ -152,7 +157,8 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
       this
   }
 
-  /* Return the distance between two microclusters
+  /**
+   * Return the distance between two microclusters.
    *
    * @param source the index of the source microcluster
    * @param target the index of the target microcluster
@@ -161,7 +167,8 @@ case class MicroClusters(val microclusters: Array[MicroCluster])
   private def distance(source: Int, target: Int): Double =
     microclusters(source).centroid.distanceTo(microclusters(target).centroid)
 
-  /* Return an array of weighted centroids corresponding to the microclusters
+  /**
+   * Return an array of weighted centroids corresponding to the microclusters.
    *
    * @return the output Example array
    */ 
