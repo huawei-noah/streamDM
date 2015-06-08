@@ -42,7 +42,10 @@ class EvaluatePrequential extends Task {
   val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
     "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
 
-
+  /**
+   * Run the task.
+   * @param ssc The Spark Streaming context in which the task is run.
+   */
   def run(ssc:StreamingContext): Unit = {
 
     val reader:StreamReader = this.streamReaderOption.getValue()
