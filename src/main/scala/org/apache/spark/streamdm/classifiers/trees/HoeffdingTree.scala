@@ -19,6 +19,7 @@ package org.apache.spark.streamdm.classifiers.trees
 
 import scala.collection.mutable.ArrayBuffer
 import scala.math.{ log => math_log, sqrt }
+import scala.collection.mutable.Queue
 
 import org.apache.spark.Logging
 
@@ -33,11 +34,11 @@ class HoeffdingTree extends Classifier {
 
   type T = HoeffdingTreeModel
 
-//  val numClassesOption: IntOption = new IntOption("numClasses", 'h',
-//    "Number of Classes", 2, 2, Integer.MAX_VALUE)
-//
-//  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
-//    "Number of Features", 3, 1, Integer.MAX_VALUE)
+  //  val numClassesOption: IntOption = new IntOption("numClasses", 'h',
+  //    "Number of Classes", 2, 2, Integer.MAX_VALUE)
+  //
+  //  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
+  //    "Number of Features", 3, 1, Integer.MAX_VALUE)
 
   val numericObserverTypeOption: IntOption = new IntOption("numericObserverType", 'n',
     "numeric observer type, 0: gaussian", 0, 0, 2)
@@ -68,8 +69,11 @@ class HoeffdingTree extends Classifier {
   val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'a',
     "naive bayes threshold", 0, 0, Int.MaxValue)
 
-  val PrePruneOption: IntOption = new IntOption("PrePrune", 'p',
+  val prePruneOption: IntOption = new IntOption("PrePrune", 'p',
     "whether allow pre-pruning.", 0, 0, 1)
+
+  val splitAllOption: IntOption = new IntOption("SplitAll", 'u',
+    "whether split at all leaf", 1, 0, 1)
 
   var model: HoeffdingTreeModel = null
 
@@ -86,7 +90,7 @@ class HoeffdingTree extends Classifier {
       growthAllowedOption.getValue() == 1, binaryOnlyOption.getValue() == 1, numGraceOption.getValue(),
       tieThresholdOption.getValue, splitConfidenceOption.getValue(),
       learningNodeOption.getValue(), nbThresholdOption.getValue(),
-      PrePruneOption.getValue() == 1)
+      prePruneOption.getValue() == 1, splitAllOption.getValue() == 1)
     model.init()
   }
 
@@ -208,7 +212,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
                          var growthAllowed: Boolean = true, val binaryOnly: Boolean = true,
                          val graceNum: Int = 200, val tieThreshold: Double = 0.05,
                          val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
-                         val nbThreshold: Int = 0, val prePrune: Boolean = false)
+                         val nbThreshold: Int = 0, val prePrune: Boolean = false, val splitAll: Boolean = false)
   extends Model with Serializable with Logging {
 
   type T = HoeffdingTreeModel
@@ -295,6 +299,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
               //deactive a learning node
               deactiveLearningNode(activeNode, parent, pIndex)
             } else {
+              logInfo("before Split:" + root.description())
               //replace the ActiveLearningNode with a SplitNode and create children
               val splitNode: SplitNode = new SplitNode(activeNode.classDistribution, best.conditionalTest)
               for (index <- 0 until best.numSplit) {
@@ -303,7 +308,9 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
               }
               // repalce the node
               addSplitNode(splitNode, parent, pIndex)
+              logInfo("after Split:" + root.description())
             }
+
           }
           // todo manage memory
         }
@@ -340,13 +347,30 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
     // merge root with another root
     root.merge(that.root, trySplit)
     if (trySplit) {
-      //try to split one leaf node
-      val foundNode = root.filterToLeaf(lastExample, null, -1)
-      var leafNode = foundNode.node
-      if (leafNode.isInstanceOf[LearningNode]) {
-        val learnNode = leafNode.asInstanceOf[LearningNode]
-        attemptToSplit(learnNode, foundNode.parent, foundNode.index)
-        logInfo(description())
+      if (!splitAll) {
+        //try to split one leaf node
+        val foundNode = root.filterToLeaf(lastExample, null, -1)
+        foundNode.node match {
+          case activeNode: ActiveLearningNode => {
+            attemptToSplit(activeNode, foundNode.parent, foundNode.index)
+          }
+        }
+      } else {
+        //try to split all leaf nodes
+        val queue = new Queue[FoundNode]()
+        queue.enqueue(new FoundNode(root, null, -1))
+        while (queue.size > 0) {
+          val foundNode = queue.dequeue()
+          foundNode.node match {
+            case splitNode: SplitNode => {
+              for (i <- 0 until splitNode.children.length)
+                queue.enqueue(new FoundNode(splitNode.children(i), splitNode, i))
+            }
+            case activeNode: ActiveLearningNode => {
+              attemptToSplit(activeNode, foundNode.parent, foundNode.index)
+            }
+          }
+        }
       }
     }
     this
