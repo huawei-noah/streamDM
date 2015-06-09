@@ -193,22 +193,31 @@ abstract class LearningNode(classDistribution: Array[Double]) extends Node(class
 /**
  * basic majority class active learning node for hoeffding tree
  */
-class ActiveLearningNode(classDistribution: Array[Double], val instanceSpecification: InstanceSpecification)
+class ActiveLearningNode(classDistribution: Array[Double])
   extends LearningNode(classDistribution) with Serializable {
 
   var addonWeight: Double = 0
 
-  val featureObservers: Array[FeatureClassObserver] = new Array[FeatureClassObserver](instanceSpecification.size())
+  var instanceSpecification: InstanceSpecification = null
+
+  var featureObservers: Array[FeatureClassObserver] = null
+
+  def this(classDistribution: Array[Double], instanceSpecification: InstanceSpecification) {
+    this(classDistribution)
+    this.instanceSpecification = instanceSpecification
+    init()
+  }
 
   def this(that: ActiveLearningNode) {
     this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.instanceSpecification)
-    init()
+
   }
   def init(): Unit = {
-    if (featureObservers(0) == null) {
+    if (featureObservers == null) {
+      featureObservers = new Array(instanceSpecification.size())
       for (i <- 0 until instanceSpecification.size()) {
         val featureSpec: FeatureSpecification = instanceSpecification(i)
-        featureObservers(i) = FeatureClassObserver.createFeatureClassObserver(classDistribution.length,i,featureSpec)
+        featureObservers(i) = FeatureClassObserver.createFeatureClassObserver(classDistribution.length, i, featureSpec)
       }
     }
   }
@@ -326,7 +335,7 @@ class LearningNodeNB(classDistribution: Array[Double], instanceSpecification: In
 
   def this(that: LearningNodeNB) {
     this(Util.mergeArray(that.classDistribution, that.blockClassDistribution), that.instanceSpecification)
-    init()
+    //init()
   }
 
   /*
