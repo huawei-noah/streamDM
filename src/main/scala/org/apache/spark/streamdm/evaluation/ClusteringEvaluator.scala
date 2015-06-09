@@ -29,6 +29,12 @@ import org.apache.spark.rdd.RDD
  */
 class ClusteringCohesionEvaluator extends Evaluator {
 
+  /**
+   * Process the result of a predicted stream of Examples and Doubles.
+   *
+   * @param input the input stream containing (Example,Double) tuples
+   * @return a stream of String with the processed evaluation
+   */
   override def addResult(input: DStream[(Example, Double)]): DStream[String] =
     input.transform(rdd => {
       val inv=rdd.map{case (e,c)=>(c,e)}
@@ -37,6 +43,11 @@ class ClusteringCohesionEvaluator extends Evaluator {
       inv.join(centr).map{case (k,(e,c))=>pow(e.in.distanceTo(c.in),2)}  
     }).reduce(_+_).map(x=>"SSE=%.5f".format(x))
 
+  /**
+   * Get the evaluation result.
+   *
+   * @return a Double containing the evaluation result
+   */ 
   override def getResult():Double = 0.0
 }
 
@@ -47,6 +58,12 @@ class ClusteringCohesionEvaluator extends Evaluator {
  */
 class ClusteringSeparationEvaluator extends Evaluator {
 
+  /**
+   * Process the result of a predicted stream of Examples and Doubles.
+   *
+   * @param input the input stream containing (Example,Double) tuples
+   * @return a stream of String with the processed evaluation
+   */
   override def addResult(input: DStream[(Example, Double)]): DStream[String] =
     input.transform(rdd => {
       val inv=rdd.map{case (e,c) => (c,e)}
@@ -60,12 +77,16 @@ class ClusteringSeparationEvaluator extends Evaluator {
       centr.map{case (k,c,s)=>s*pow(c.in.distanceTo(centrAll.in),2)}
     }).reduce(_+_).map(x=>"SSB=%.5f".format(x))
 
-
+  /**
+   * Get the evaluation result.
+   *
+   * @return a Double containing the evaluation result
+   */
   override def getResult():Double = 0.0
 }
 
 /**
- * Contains util functions for clustering evaluation.
+ * Helper class which contains util functions for clustering evaluation.
  */
 object ClusteringEvaluationUtil {
 
@@ -84,5 +105,4 @@ object ClusteringEvaluationUtil {
         else
           (c,clSum,1)
       }}
-
 }
