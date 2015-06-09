@@ -24,24 +24,40 @@ sbt package
 
 # Running The Task
 
+The task that is run in this example is the EvaluatePrequential. By default, the
+task connects to a socket open on the localhost at port 9999 which sends dense
+instances as a stream. Then a linear binary classifier is trained by using
+StochasticGradientDescent and the predictions are evaluted by outputting the
+confusion matrix.
+
 You need to run two scripts in two different terminals.
 
-*  In the first terminal: create the dataset syn.dat (only the first time)
+*  In the first terminal: create the dataset syn.dat (only needed once); this
+*  script will generate a file containing dense instances of 3 features:
 {% highlight bash %}
-
 cd scripts/instance_server
 ./generate_dataset.py
 {% endhighlight %}
 
-* And then send instances into port 9999, localhost
+* After, in one terminal, start the server sending instances in syn.dat into
+* port 9999 on localhost; this stream will be read by the task:
 {% highlight bash %}
 cd scripts/instance_server
 ./server.py
 {% endhighlight %}
 
-* In the second terminal: use Spark to learn the model and output accuracy:
-
+* In another terminal, use the provided spark script to run the task (after
+* modifying the SPARK_HOME variable with the folder of your Spark installation:
 {% highlight bash %}
 cd scripts
-./spark
+./spark.sh
 {% endhighlight %}
+
+* It is advisable to separate the standard and the error output, for better
+* readability:
+{% highlight bash %}
+cd scripts
+./spark.sh 1>results.txt 2>debug.log
+{% endhighlight %}
+
+
