@@ -40,7 +40,7 @@ object streamDMJob {
     val ssc = new StreamingContext(conf, Seconds(10))
 
     // Run Task
-    val string = if (args.length > 0) args.mkString(" ") else "EvaluatePrequential"
+    val string = if (args.length > 0) args.mkString(" ") else "EvaluateHoeffdingTree"
     val task:Task = ClassOption.cliStringToObject(string, classOf[Task], null)
     task.run(ssc)
 
