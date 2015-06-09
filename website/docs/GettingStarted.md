@@ -1,19 +1,28 @@
 ---
 layout: page
-title: Getting Started
+title: StreamDM: Quick Start Guide
 image:
   feature: screen_network.png
 ---
 
-# streamDM: Compiling the code
+# Quick Start Guide
 
-Use 
+The purpose of this document is to provide a quick entry point for users
+desiring to quickly run the a StreamDM task. We describe how StreamDM can be
+compiled, and how a quick task can be run.
 
+The basic requirement for running the example in this documents is to have Spark
+1.3 installed. The example works best on a Linux/Unix machine.
+
+# Compiling The Code
+
+In the main folder of StreamDM, the following command generates the package
+needed to run StreamDM: 
 {% highlight bash %}
 sbt package
 {% endhighlight %}
 
-# streamDM: Running the app
+# Running The Task
 
 You need to run two scripts in two different terminals.
 
