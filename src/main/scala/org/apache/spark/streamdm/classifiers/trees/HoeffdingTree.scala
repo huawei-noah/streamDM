@@ -33,11 +33,11 @@ class HoeffdingTree extends Classifier {
 
   type T = HoeffdingTreeModel
 
-  val numClassesOption: IntOption = new IntOption("numClasses", 'h',
-    "Number of Classes", 2, 2, Integer.MAX_VALUE)
-
-  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
-    "Number of Features", 3, 1, Integer.MAX_VALUE)
+//  val numClassesOption: IntOption = new IntOption("numClasses", 'h',
+//    "Number of Classes", 2, 2, Integer.MAX_VALUE)
+//
+//  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
+//    "Number of Features", 3, 1, Integer.MAX_VALUE)
 
   val numericObserverTypeOption: IntOption = new IntOption("numericObserverType", 'n',
     "numeric observer type, 0: gaussian", 0, 0, 2)
@@ -58,7 +58,7 @@ class HoeffdingTree extends Classifier {
   val tieThresholdOption: FloatOption = new FloatOption("tieThreshold", 't',
     "Threshold below which a split will be forced to break ties.", 0.05, 0, 1)
 
-  val splitConfidenceOption: FloatOption = new FloatOption("splitConfidence", 'd',
+  val splitConfidenceOption: FloatOption = new FloatOption("splitConfidence", 'z',
     "The allowable error in split decision, values closer to 0 will take longer to decide.",
     0.0000001, 0.0, 1.0)
 
