@@ -19,7 +19,7 @@ package org.apache.spark.streamdm.core
 
 /**
  * An Instance represents the input or output of any learning algorithm. It is
- * normally composed of a feature vector (with various implementations). 
+ * normally composed of a feature vector (having various implementations). 
  */
 
 trait Instance extends Serializable {
