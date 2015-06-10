@@ -65,4 +65,10 @@ cd scripts
 The standard output will contain a confusion matrix aggregating the prediction
 results for every Spark RDD in the stream.
 
+## Going Further
 
+For more details, refer to the following documents:
+
+* StreamDM Programming Guide
+
+* StreamDM Implemented Algorithms
