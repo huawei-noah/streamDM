@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.streams
 
-import org.apache.spark.streamdm.core.Example
+import org.apache.spark.streamdm.core.{ExampleSpecification, Example}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import com.github.javacliparser.Configurable
@@ -28,5 +28,16 @@ import com.github.javacliparser.Configurable
  *
  */
 abstract class StreamReader extends Configurable {
-  def getInstances(ssc:StreamingContext): DStream[Example]
+  /**
+   * Obtains a stream of Examples
+   * @param ssc a Spark Streaming Context
+   * @return a stream of Examples
+   */
+  def getExamples(ssc:StreamingContext): DStream[Example]
+
+  /**
+   * Obtains the specification of the examples in the stream
+   * @return an specification of the examples
+   */
+  def getExampleSpecification(): ExampleSpecification
 }

@@ -15,16 +15,19 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model
+package org.apache.spark.streamdm.streams
+
+import org.apache.spark.streaming.dstream.DStream
+import com.github.javacliparser.Configurable
 
 /**
- * A regularizer trait defines the gradient operation for computing regularized
- * models. 
+ * Abstract class Writer that outputs a Dstream of examples
+ *
  */
-trait Regularizer extends Serializable {
-  /** Computes the value of the gradient function
-   * @param value the weight for which the gradient is computed   
-   * @return the gradient value 
+abstract class StreamWriter extends Configurable {
+  /**
+   * Output a stream of Strings
+   * @param stream a stream to output
    */
-  def gradient(weight: Double): Double
+  def output(stream: DStream[String] ):Unit
 }

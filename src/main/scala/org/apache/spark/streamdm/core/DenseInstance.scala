@@ -17,6 +17,8 @@
 
 package org.apache.spark.streamdm.core
 
+import math._
+
 /**
  * A DenseInstance is an Instance in which the features are dense, i.e., there
  * exists a value for (almost) every feature.
@@ -70,24 +72,90 @@ case class DenseInstance(inVector: Array[Double])
    */
   override def add(input: Instance): DenseInstance = input match {
     case DenseInstance(f) => {
+      var newF: Array[Double] = Array.fill(features.length)(0.0)
       var i: Int = 0
       while (i<features.length) {
-        features(i) += f(i)
+        newF(i) = features(i)+ f(i)
         i += 1
       }
-      new DenseInstance(features)
+      new DenseInstance(newF)
     }
       //val addedInstance = (0 until features.length).map(i => features(i)+f(i))
       //new DenseSingleLabelInstance(addedInstance.toArray, label)
     case SparseInstance(ind,v) => {
+      var newF: Array[Double] = Array.fill(features.length)(0.0)
       var i: Int = 0
-      while (i<ind.length) {
-        features(ind(i)) += v(i)
+      while (i<features.length) {
+        newF(i) = features(i)
         i += 1
       }
-      new DenseInstance(features)
+      i = 0
+      while (i<ind.length) {
+        newF(ind(i)) += v(i)
+        i += 1
+      }
+      new DenseInstance(newF)
     }
-    case _ => this
+    case _ => new DenseInstance(features)
+  }
+
+  /** Perform an element by element multiplication between two instances
+   *
+   * @param input an Instance which is multiplied
+   * @return an Instance representing the Hadamard product
+   */
+  override def hadamard(input: Instance): DenseInstance = input match {
+    case DenseInstance(f) => {
+      var newF: Array[Double] = Array.fill(features.length)(0.0)
+      var i: Int = 0
+      while (i<features.length) {
+        newF(i) = features(i)*f(i)
+        i += 1
+      }
+      new DenseInstance(newF)
+    }
+    case SparseInstance(ind,v) => {
+      var newF: Array[Double] = Array.fill(features.length)(0.0) 
+      var i: Int = 0
+      while (i<ind.length) {
+        newF(ind(i)) = features(ind(i))*v(i)
+        i += 1
+      }
+      new DenseInstance(newF)
+    }
+    case _ => new DenseInstance(features)
+  }
+
+  /** Compute the Euclidean distance to another Instance 
+   *
+   * @param input the Instance to which the distance is computed
+   * @return a Double representing the distance value
+   */
+  override def distanceTo(input: Instance): Double = input match {
+    case DenseInstance(f) => {
+      var sum: Double = 0.0
+      var i: Int = 0
+      while (i<features.length) {
+        sum += math.pow(features(i)-f(i),2.0)
+        i += 1
+      }
+      math.sqrt(sum)
+    }
+    case SparseInstance(ind,v) => {
+      var sum: Double = 0.0
+      var i: Int = 0
+      while (i<ind.length) {
+        if(v(i)!=0) sum+= math.pow(features(ind(i))-v(i),2.0)
+        i += 1
+      }
+      i = 0
+      while (i<features.length) {
+        if(input(i)==0) sum += math.pow(features(i),2.0)
+        i += 1
+      }
+      math.sqrt(sum)
+    }
+    case _ => Double.MaxValue
   }
 
   /** Add a feature to the instance
@@ -114,6 +182,14 @@ case class DenseInstance(inVector: Array[Double])
    */
   override def map(func: Double=>Double): DenseInstance =
     new DenseInstance(features.map{case x => func(x)})
+
+  /** Aggregate the values of an instance 
+   *
+   * @param func the function for the transformation
+   * @return the reduced value
+   */
+  override def reduce(func: (Double,Double)=>Double): Double =
+    features.reduce(func)
  
   override def toString = features.mkString(",")
 }

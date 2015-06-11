@@ -15,7 +15,7 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model.model
+package org.apache.spark.streamdm.classifiers.model
 
 /**
  * The L1Regularizer gradient return the sign as the weight for the

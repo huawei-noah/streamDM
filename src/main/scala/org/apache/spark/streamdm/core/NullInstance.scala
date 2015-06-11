@@ -39,14 +39,28 @@ case class NullInstance extends Instance with Serializable {
   * product is performed
   * @return a Double representing the dot product 
   */
-  override def dot(input: Instance): Double = 0.0 
+  override def dot(input: Instance): Double = 0.0
+
+  /** Compute the Euclidean distance to another Instance 
+   *
+   * @param input the Instance to which the distance is computed
+   * @return a Double representing the distance value
+   */
+  def distanceTo(input: Instance): Double = Double.MaxValue
 
   /** Perform an element by element addition between two instances
    *
    * @param input an Instance which is added up
    * @return an Instance representing the added Instances
    */
-  override def add(input: Instance): NullInstance = this
+  override def add(input: Instance): NullInstance = this 
+
+  /** Perform an element by element multiplication between two instances
+   *
+   * @param input an Instance which is multiplied
+   * @return an Instance representing the Hadamard product
+   */
+  override def hadamard(input: Instance): NullInstance = this
 
   /** Add a feature to the instance
    *
@@ -62,6 +76,13 @@ case class NullInstance extends Instance with Serializable {
    * @return a new Instance with the transformed features
    */
   override def map(func: Double=>Double): NullInstance = this
- 
+
+  /** Aggregate the values of an instance 
+   *
+   * @param func the function for the transformation
+   * @return the reduced value
+   */
+  override def reduce(func: (Double,Double)=>Double): Double = 0.0
+
   override def toString = "" 
 }

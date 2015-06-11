@@ -15,16 +15,26 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model
+package org.apache.spark.streamdm.streams
+
+import com.github.javacliparser._
+import org.apache.spark.streamdm.core._
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.streamdm.core.Instance
 
 /**
- * A regularizer trait defines the gradient operation for computing regularized
- * models. 
+ * Stream writer that output text to the standard output
  */
-trait Regularizer extends Serializable {
-  /** Computes the value of the gradient function
-   * @param value the weight for which the gradient is computed   
-   * @return the gradient value 
+class PrintStreamWriter extends StreamWriter{
+
+  /**
+   * Output a stream of Strings to stdout
+   * @param stream a stream to output
    */
-  def gradient(weight: Double): Double
+  def output(stream: DStream[String]) = {
+    stream.foreachRDD(rdd => {
+      rdd.foreach(x => {println(x)})
+    })
+  }
 }

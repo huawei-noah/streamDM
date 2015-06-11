@@ -38,7 +38,7 @@ class SocketTextStreamReader extends StreamReader{
   val instanceOption: StringOption = new StringOption("instanceType", 't',
     "Type of the instance to use", "dense")
 
-  def getInstances(ssc:StreamingContext): DStream[Example] = {
+  def getExamples(ssc:StreamingContext): DStream[Example] = {
     //stream is a localhost socket stream
     val text = ssc.socketTextStream(hostOption.getValue, portOption.getValue)
     //transform stream into stream of instances
@@ -46,4 +46,12 @@ class SocketTextStreamReader extends StreamReader{
     //instance of the label(s) and the second is the instance of the features
     text.map(x => Example.parse(x, instanceOption.getValue, "dense"))
   }
+
+  /**
+   * Obtains the specification of the examples in the stream
+   * @return an specification of the examples
+   */
+  def getExampleSpecification(): ExampleSpecification = 
+    new ExampleSpecification(new InstanceSpecification(),
+                             new InstanceSpecification())
 }

@@ -15,11 +15,11 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model.model
+package org.apache.spark.streamdm.classifiers.model
 
 /**
  * A Loss trait defines the operation needed to compute the loss function, the
- * prediction function, and the gradient for use in a linear Model. 
+ * prediction function, and the gradient for use in a LinearModel. 
  */
 trait Loss extends Serializable {
   /** Computes the value of the loss function

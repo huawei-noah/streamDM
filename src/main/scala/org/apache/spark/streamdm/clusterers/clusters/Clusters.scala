@@ -15,16 +15,24 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model
+package org.apache.spark.streamdm.clusterers.clusters
+
+import org.apache.spark.streamdm.core._
+
 
 /**
- * A regularizer trait defines the gradient operation for computing regularized
- * models. 
+ * A Clusters trait defines the needed operations for maintaining a clustering
+ * data structure. It mainly provides a method to update the data structure
+ * based on an Instance.
  */
-trait Regularizer extends Serializable {
-  /** Computes the value of the gradient function
-   * @param value the weight for which the gradient is computed   
-   * @return the gradient value 
+trait Clusters extends Model {
+
+  type T <: Clusters
+
+  /* Update the clustering data structure, depending on the Example given
+   *
+   * @param inst the Example based on which the Model is updated
+   * @return the updated Clusters object
    */
-  def gradient(weight: Double): Double
+  override def update(change: Example): T
 }

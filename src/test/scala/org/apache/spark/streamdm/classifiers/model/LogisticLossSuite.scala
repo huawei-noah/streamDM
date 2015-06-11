@@ -15,7 +15,7 @@
  *
  */
 
-package org.apache.spark.streamdm.classifiers.model.model
+package org.apache.spark.streamdm.classifiers.model
 
 import org.scalatest.FunSuite
 
