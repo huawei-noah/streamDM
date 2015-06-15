@@ -51,5 +51,7 @@ class SocketTextStreamReader extends StreamReader{
    * Obtains the specification of the examples in the stream
    * @return an specification of the examples
    */
-  def getExampleSpecification(): ExampleSpecification = new ExampleSpecification(new InstanceSpecification(), new InstanceSpecification())
+  def getExampleSpecification(): ExampleSpecification = 
+    new ExampleSpecification(new InstanceSpecification(),
+                             new InstanceSpecification())
 }
