@@ -34,10 +34,10 @@ The input/output data structure which is sent via `DStream`s is the `Example`.
 This data structure  wraps input and output instances, along with a number
 representing its weight. The class signature is specified as:
 
-{% highlight scala %}
+```scala
 class Example(inInstance: Instance, outInstance: Instance = new NullInstance, 
               weightValue: Double=1.0) 
-{% endhighlight %}
+```
 
 Its format is the following (note that weight and the output instance are
 optional):
@@ -70,7 +70,7 @@ associated `FeatureSpecification` object.
 
 ### Case Study: EvaluatePrequential
 
-{% highlight scala %}
+```scala
   val learnerOption:ClassOption = new ClassOption("learner", 'l',
     "Learner to use", classOf[Classifier], "SGDLearner")
   val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
@@ -97,4 +97,4 @@ associated `FeatureSpecification` object.
     learner.train(instances)
     //Evaluate
     writer.output(evaluator.addResult(predPairs))
-{% endhighlight %}
+```
