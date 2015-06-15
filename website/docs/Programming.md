@@ -24,13 +24,13 @@ __Instance Type__ | __Data Structure__ | __Format__
 `TextInstance` | map of key-value tuples; allows non-numeric keys | `key1:val1,key2:val2,...`
 `NullInstance` | N/A | N/A
 
-`Instance`s provide useful operations for use in the `Learner`s, such as the
-`dot` and `distanceTo` operation, but also `map` and `reduce` operations. Note
+`Instance` provides useful operations for use in a `Learner`, such as the
+`dot` and `distanceTo` operations, but also `map` and `reduce` operations. Note
 that an `Instance` is always immutable; every operation returns a new `Instance`
 with the modifications. For full details, please refer to the `Instance`
 specification in the API documentation.
 
-The input/output data structure which is sent via `DStream`s is the `Example`.
+The input/output data structure which is sent via `DStream` is the `Example`.
 This data structure  wraps input and output instances, along with a number
 representing its weight. The class signature is specified as:
 
@@ -68,7 +68,34 @@ associated `FeatureSpecification` object.
 
 ## Task Building Blocks
 
+A `Task` is a sequential algorithm which is tasked to connecting to
+`StreamingContext` and process sequential operations using as building blocks
+classes derived from the following base classes:
+
+__Base Class__ | __Purpose__ 
+--- | ---
+`StreamReader` | read and parse `Example` and create a stream
+`Learner` | provides the `train` method from an input stream
+`Model` | data structure and set of methods used for `Learner`
+`Evaluator` | evaluation of predictions
+`StreamWriter` | output of streams 
+
+The base classes above can also be extended for more specific use cases. For
+instance, `Learner` is currently extended to `Classifier`, which provides a
+`predict` method, and a `Clusterer`, which provides an `assign` method.
+
+A `Task` will also contain a set of options, which use the
+[JavaCLIParser](https://github.com/abifet/javacliparser/) library. These options
+allow to specify what types of learners, evaluators, writers, and readers are to
+be used, at *runtime*, without the need to re-compile the task.
+
+An illustration on how a `Task` can be programmed by using a combination of the
+above building block is the `EvaluatePrequential` example task, present in the
+source code of StreamDM.
+
 ### Case Study: EvaluatePrequential
+
+We begin by showing the full listing of `EvaluatePrequential`:
 
 ```scala
   val learnerOption:ClassOption = new ClassOption("learner", 'l',
@@ -97,4 +124,5 @@ associated `FeatureSpecification` object.
     learner.train(instances)
     //Evaluate
     writer.output(evaluator.addResult(predPairs))
+  }
 ```
