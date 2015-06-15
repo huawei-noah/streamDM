@@ -5,7 +5,8 @@ image:
   feature: screen_network.png
 ---
 
-Everything in StreamDM is designed around tasks, which encode the . In a
+Everything in StreamDM is designed around tasks, which describe the flow of a
+streaming data mining or machine learning algorithm. In a
 nutshell, streaming data is read and parsed into the StreamDM internal
 representation, passed through learners, evaluated and then output to various
 places, such as console, files, or as streams for other tasks. 
@@ -31,7 +32,7 @@ specification in the API documentation.
 
 The input/output data structure which is sent via `DStream`s is the `Example`.
 This data structure  wraps input and output instances, along with a number
-representing its weight. At the very basic level, the class is specified as:
+representing its weight. The class signature is specified as:
 
 {% highlight scala %}
 class Example(inInstance: Instance, outInstance: Instance = new NullInstance, 
@@ -49,11 +50,21 @@ from text lines in the stream.
 
 By default, every value in each instance is a Double. In cases where the values
 have different types of values (for example, discrete integers) a helper data
-structure `ExampleSpecification` is used.
+structure `ExampleSpecification` is used. 
 
-```
-TODO insert Albert text here
-```
+An `ExampleSpecification` is used in special cases: classifiers such as decision
+trees and Naive Bayes, which need to know the type of each feature in the
+instance. In the current implementation, we support two types of features,
+numeric and discrete. Numeric values are the default, and discrete features are
+strings (such as colors *Red*, *Green*, *Blue*, etc.) which are internally
+represented as doubles, for space efficiency and compatibility with the
+`Instance` classes.
+
+This information is stored in an `ExampleSpecification` object, which, similarly
+to `Example`, contains two `InstanceSpecification` objects for the input and
+output instances. Each `InstanceSpecification` stores the name of the features,
+and, for the discrete features, their original string descriptions in an
+associated `FeatureSpecification` object.
 
 ## Task Building Blocks
 
