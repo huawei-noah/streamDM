@@ -135,8 +135,8 @@ class EvaluatePrequential extends Task {
 ```
 
 First, `EvaluatePrequential` is created by extending `Task` and implementing its
-`run` method. `run` takes the `StreamingContext` as an argument, and its
-objective is to process the implemented algorithm.
+`run` method. `run` takes a `StreamingContext` as an argument, and its
+objective is to process the streams in this context.
 
 The first step is the processing of the options:
 
@@ -182,12 +182,72 @@ final output:
   writer.output(evaluator.addResult(predPairs))
 ```
 
-##Further Hints
+## Extending StreamDM
 
-To create new tasks new classes have to inherit `Task` and implement the `run`
-method. Depending on the options used, there may be a need 
+StreamDM is designed to be easily extensible. Its purpose is to allow both users
+to run it, but also developers of real-world machine learning workflows to
+easily program task which are more complicated or even contain multiple layers
+of learning and evaluation, and researchers to easily include new learner
+algorithms in Spark Streaming.
 
-Tasks like `EvaluatePrequential` allow to test any learner which inherits
-`Classifier` -- there is no need to create a task for each classifier implemented
-and tested. In general, tasks should be designed so that they allow as many
-options as possible at runtime without the need to compile.
+### Adding Tasks
+
+To define a new task, we have to extend `Task` and implement its `run` method.
+We illustrate on an example of a task which writes a string to the console: 
+
+```scala
+class HelloWorldTask extends Task {
+
+  val textOption:StringOption = new StringOption("text", 't',
+    "Text to print", "Hello, World!")
+
+  def run(ssc:StreamingContext): Unit = {
+    print (textOption.getValue)
+}
+```
+
+To specify the text to print, we can use a `StringOption`, and then pass it from
+the command line: 
+
+```bash
+./spark "HelloWorldTask -t Bye"
+```
+As a general note, tasks like `EvaluatePrequential` allow to test any learner
+which inherits `Classifier` -- there is no need to create a task for each
+classifier implemented and tested. In general, tasks should be designed so that
+they allow as many options as possible at runtime without the need to compile.
+
+## Adding Learners
+
+To add a new learner, we only need to implement the `Learner` trait and
+implement its associated methods: `init` for initializing the `Model` inside the
+learner, and `train` for updating the model with the data from the stream. If
+the requirements for the learner are more specific, specialized traits need to
+be implemented instead. For example, the `Classifier` trait also contains a
+`predict` methods which applies the model to a stream:
+ 
+```scala
+trait Classifier extends Learner {
+
+  /* Init the model based on the algorithm implemented in the learner,
+   * from the stream of instances given for training.
+   *
+   */
+  def init: Unit
+
+  /* Train the model based on the algorithm implemented in the learner, 
+   * from the stream of instances given for training.
+   *
+   * @param input a stream of instances
+   * @return the updated Model
+   */
+  def train(input: DStream[Example]): Unit
+
+  /* Predict the label of the Instance, given the current Model
+   *
+   * @param instance the Instance which needs a class predicted
+   * @return a tuple containing the original instance and the predicted value
+   */
+  def predict(input: DStream[Example]): DStream[(Example,Double)]
+}
+```
