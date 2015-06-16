@@ -19,7 +19,7 @@ implementations of the underlying data structures, and `Instance` can be:
 
 __Instance Type__ | __Data Structure__ | __Format__
 --- | --- | ---
-`DenseInstance` | array of Double | `val1,val2,...,valn`
+`DenseInstance` | array of `Double` | `val1,val2,...,valn`
 `SparseInstance` | two arrays: one for indexes, one for values | `idx1:val1,idx2:val2,...`
 `TextInstance` | map of key-value tuples; allows non-numeric keys | `key1:val1,key2:val2,...`
 `NullInstance` | N/A | N/A
@@ -95,9 +95,15 @@ source code of StreamDM.
 
 ### Case Study: EvaluatePrequential
 
-We begin by showing the full listing of `EvaluatePrequential`:
-
+Consider the (artificial) stream binary classification scenario, where
+the stream consists of a stream of single label instances. The objective is to
+first predict the instance using the current linear model, and then train (and
+update) the model using the true label. The evaluation will be based on the
+difference between the predicted label and the true label. The code listing of
+the resulting `EvaluatePrequential` is:
 ```scala
+class EvaluatePrequential extends Task {
+  //Task options
   val learnerOption:ClassOption = new ClassOption("learner", 'l',
     "Learner to use", classOf[Classifier], "SGDLearner")
   val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
@@ -106,23 +112,82 @@ We begin by showing the full listing of `EvaluatePrequential`:
     "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
   val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
     "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
-
-
+  
+  //Run the task
   def run(ssc:StreamingContext): Unit = {
-
+    //Parse options and init
     val reader:StreamReader = this.streamReaderOption.getValue()
     val learner:SGDLearner = this.learnerOption.getValue()
     learner.init(reader.getExampleSpecification())
     val evaluator:Evaluator = this.evaluatorOption.getValue()
     val writer:StreamWriter = this.resultsWriterOption.getValue()
 
+    //Parse stream and get Examples
     val instances = reader.getExamples(ssc)
-
     //Predict
     val predPairs = learner.predict(instances)
     //Train
     learner.train(instances)
-    //Evaluate
+    //Evaluate and output
     writer.output(evaluator.addResult(predPairs))
   }
+}
 ```
+
+First, `EvaluatePrequential` is created by extending `Task` and implementing its
+`run` method. `run` takes the `StreamingContext` as an argument, and its
+objective is to process the implemented algorithm.
+
+The first step is the processing of the options:
+
+```scala
+    val reader:StreamReader = this.streamReaderOption.getValue()
+    val learner:SGDLearner = this.learnerOption.getValue()
+    learner.init(reader.getExampleSpecification())
+    val evaluator:Evaluator = this.evaluatorOption.getValue()
+    val writer:StreamWriter = this.resultsWriterOption.getValue()
+```
+
+Options specify the classes used for each of the components of a task; in this
+case, the type of stream reader, the learner, the evaluator, and the stream
+output. In addition, each class used, e.g., `SGDLearner`, can also have options,
+such as the parameters needed for the algorithms. Then, for example, an
+`EvaluatePrequential` parsing sparse instances and using SGD with a learning
+rate of 0.001 and using hinge loss will use the command line options:
+
+```
+  EvaluatePrequential -s (SocketTextStreamReader -t sparse) -l 
+    (SGDLearner -l 0.001 )
+```
+
+Then, the instances get parsed by the reader:
+```scala
+  val instances = reader.getExamples(ssc)
+```
+
+After the parsing, the evaluate first then train cycle is performed. In this
+case, our learner is restricted to a `Classifier` so that the method `predict`
+is available:
+```scala
+  //Predict
+  val predPairs = learner.predict(instances)
+  //Train
+  learner.train(instances)
+
+```
+
+Finally, the results are output. Here, the evaluator output is combined with the
+final output:
+```scala
+  writer.output(evaluator.addResult(predPairs))
+```
+
+##Further Hints
+
+To create new tasks new classes have to inherit `Task` and implement the `run`
+method. Depending on the options used, there may be a need 
+
+Tasks like `EvaluatePrequential` allow to test any learner which inherits
+`Classifier` -- there is no need to create a task for each classifier implemented
+and tested. In general, tasks should be designed so that they allow as many
+options as possible at runtime without the need to compile.
