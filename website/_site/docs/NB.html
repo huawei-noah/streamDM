@@ -5,34 +5,34 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>streamDM: Data Mining for Spark Streaming &#8211; streamDM</title>
+<title>Naive Bayes &#8211; streamDM</title>
 
 
 
 
 
 <!-- Twitter Cards -->
-<meta name="twitter:title" content="streamDM: Data Mining for Spark Streaming">
+<meta name="twitter:title" content="Naive Bayes">
 
 
 
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://streamdm.noahlab.com.hk/images/screen_finance.png">
+<meta name="twitter:image" content="http://streamdm.noahlab.com.hk/images/screen_network.png">
 
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="streamDM: Data Mining for Spark Streaming">
+<meta property="og:title" content="Naive Bayes">
 
-<meta property="og:url" content="http://streamdm.noahlab.com.hk/">
+<meta property="og:url" content="http://streamdm.noahlab.com.hk/docs/NB.html">
 <meta property="og:site_name" content="streamDM">
 
 
 
 
 
-<link rel="canonical" href="http://streamdm.noahlab.com.hk/">
+<link rel="canonical" href="http://streamdm.noahlab.com.hk/docs/NB.html">
 <link href="http://streamdm.noahlab.com.hk/feed.xml" type="application/atom+xml" rel="alternate" title="streamDM Feed">
 
 <!-- http://t.co/dKP3o1e -->
@@ -121,31 +121,34 @@
 
 <div id="main" role="main">
   <article class="entry">
-    <img src="http://streamdm.noahlab.com.hk/images/screen_finance.png" class="entry-feature-image" alt="streamDM: Data Mining for Spark Streaming" >
+    <img src="http://streamdm.noahlab.com.hk/images/screen_network.png" class="entry-feature-image" alt="Naive Bayes" >
     <div class="entry-wrapper">
       <header class="entry-header">
-        <h1 class="entry-title">streamDM: Data Mining for Spark Streaming</h1>
+        <h1 class="entry-title">Naive Bayes</h1>
       </header>
       <div class="entry-content">
-        <p>streamDM is an open source software for mining big data streams using Spark Streaming, developed at Huawei Noah&#39;s Ark Lab. streamDM is licensed under Apache Software License v2.0.</p>
+        <h2 id="naive-bayes-multinomial">Naive Bayes Multinomial</h2>
 
-<p align="center"><img height="100" width="100" src="images/huawei-logo.png" alt="Huawei"></p>
+<p>Multinomial naive Bayes considers a document as a bag-of-words. For
+each class \(c\), \( \Pr(w|c)\), the probability of observing word \(w\) given
+this class, is estimated from the training data, simply by computing
+the relative frequency of each word in the collection of training
+documents of that class. The classifier also requires the prior
+probability \(\Pr(c)\), which is straightforward to estimate. </p>
 
-<h1 id="spark-streaming">Spark Streaming</h1>
+<p>Assuming \(n_{wd}\) is the number of times word \(w\) occurs in document
+\(d\), the probability of class \(c\) given a test document is calculated
+as follows:
+$$\Pr(c|d) =\frac{\Pr(c) \prod_{w\in d} \Pr(w|c)^{n_{wd}}}{\Pr(d)},$$
+where \(\Pr(d)\) is a normalization factor. To avoid the zero-frequency
+problem, it is common to use the Laplace correction for all
+conditional probabilities involved, which means all counts are
+initialized to the 
+value one instead of zero.</p>
 
-<p>Spark Streaming is an extension of the core Spark API that enables scalable, high-throughput, fault-tolerant stream processing of data streams.
-StreamDM is designed to be easily extended and used, and is the first library to contain advanced stream mining algorithms for Spark Streaming. </p>
-
-<h1 id="efficient-and-simple-to-use">Efficient and Simple to Use</h1>
-
-<p>The tools and algorithms in streamDM are specifically designed for the data stream setting. Due to the large amount of data that is created – and needs to be processed – in real-time streams, such methods need to be extremely time-efficient while using very small amounts of time and memory. StreamDM includes advanced stream mining algorithms willing to be the gathering point of practical implementation and deployments for large-scale data streams.</p>
-
-<ul>
-<li>Ease of use. Experiments can be executed from the command-line, as in WEKA or MOA.</li>
-<li>No dependence on third-part libraries, specially on the linear algebra package Breeze. MLlib uses  Breeze, which depends on netlib-java, and jblas that depend on native Fortran routines. Due to license issues, netlib-java’s native libraries are not included in MLlib’s dependency set under default settings. </li>
-<li>Ease of extensibility</li>
-<li>Advanced machine learning methods will be available such as the streaming classification methods of decision trees and streaming random forests, and the streaming clustering methods of CluStream and StreamKM++. </li>
-</ul>
+<p><em>Andrew Mccallum and Kamal Nigam.
+A comparison of event models for naive bayes text classification. In AAAI-98
+Workshop on ’Learning for Text Categorization’, 1998</em></p>
 
       </div><!-- /.entry-content -->
     </div><!-- /.entry-wrapper -->
