@@ -16,9 +16,9 @@ The basic requirement for running the example in this documents is to have Spark
 In the main folder of StreamDM, the following command generates the package
 needed to run StreamDM:
 
-{% highlight bash %}
+```bash
 sbt package
-{% endhighlight %}
+```
 
 ## Running The Task
 
@@ -64,11 +64,3 @@ The example can be run by executing the following steps:
 
 The standard output will contain a confusion matrix aggregating the prediction
 results for every Spark RDD in the stream.
-
-## Going Further
-
-For more details, refer to the following documents:
-
-* StreamDM Programming Guide
-
-* StreamDM Implemented Algorithms

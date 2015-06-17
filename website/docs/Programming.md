@@ -68,9 +68,10 @@ associated `FeatureSpecification` object.
 
 ## Task Building Blocks
 
-A `Task` is a sequential algorithm which is tasked to connecting to
-`StreamingContext` and process sequential operations using as building blocks
-classes derived from the following base classes:
+A `Task` is a sequential algorithm which is tasked with connecting to a
+`StreamingContext` and with processing sequential operations. This is performed
+by using some building blocks, which are generally classes derived from the
+following base classes:
 
 __Base Class__ | __Purpose__ 
 --- | ---
@@ -213,7 +214,7 @@ the command line:
 ./spark "HelloWorldTask -t Bye"
 ```
 As a general note, tasks like `EvaluatePrequential` allow to test any learner
-which inherits `Classifier` -- there is no need to create a task for each
+which inherits `Classifier` - there is no need to create a task for each
 classifier implemented and tested. In general, tasks should be designed so that
 they allow as many options as possible at runtime without the need to compile.
 
