@@ -5,7 +5,7 @@ image:
   feature: screen_finance.png
 ---
 
-streamDM is an open source software for mining Big Data streams using Spark Streaming developed at HUAWEI Noah's Ark Lab. streamDM is licensed under an Apache Software License v2.0.
+streamDM is an open source software for mining big data streams using Spark Streaming, developed at Huawei Noah's Ark Lab. streamDM is licensed under Apache Software License v2.0.
 
 <p align="center"><img height="100" width="100" src="images/huawei-logo.png" alt="Huawei"></p>
 
@@ -22,6 +22,6 @@ The tools and algorithms in streamDM are specifically designed for the data stre
 * Ease of use. Experiments can be executed from the command-line, as in WEKA or MOA.
 * No dependence on third-part libraries, specially on the linear algebra package Breeze. MLlib uses  Breeze, which depends on netlib-java, and jblas that depend on native Fortran routines. Due to license issues, netlib-java’s native libraries are not included in MLlib’s dependency set under default settings. 
 * Ease of extensibility
-* Advanced machine learning methods will be available as streaming decision trees, streaming Random Forests, streaming clustering methods as CluStream and StreamKM++. 
+* Advanced machine learning methods will be available such as the streaming classification methods of decision trees and streaming random forests, and the streaming clustering methods of CluStream and StreamKM++. 
 
 
