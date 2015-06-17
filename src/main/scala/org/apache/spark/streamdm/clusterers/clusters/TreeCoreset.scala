@@ -22,14 +22,14 @@ import org.apache.spark.streamdm.core._
 import scala.util.Random
 import scala.io.Source
 
-/*
+/**
  * A TreeCoreset contains the underlying tree structure for the coreset extraction
  * framework, it construct a tree structure for efficient coreset extraction from
  * a exmaple stream.
  */
 class TreeCoreset {
   
-  /*
+  /**
    * Wrap the information in CoresetTreeNode, which will not be modified after
    * a CoresetTreeNode construction. It is composed of:
    * - the number of examples in a tree node
@@ -41,7 +41,7 @@ class TreeCoreset {
     val centre : Example) {
     }
 
-  /*
+  /**
    * CoresetTreeNode data structure which is the component of a tree structure.
    * Each CoresetTreeNode is associated with a cluster of examples as well as some
    * other properties for the corresponding cluster. It is composed of:
@@ -54,6 +54,7 @@ class TreeCoreset {
     def cost : Double
   }
 
+  
   case class CoresetTreeLeaf(val elem : CoresetTreeElem, val cost : Double) extends CoresetTree {
     /*
      * Compute the distance between the given point and the leaf centre
@@ -67,7 +68,7 @@ class TreeCoreset {
       instance.distanceTo(centre)*weight
     }
 
-    /*
+    /**
      * Compute the leaf node cost attribute, which is the sum of the squared distances over
      * all points associated with the leaf node to its centre
      * @return a new leaf node with the computed cost value
@@ -77,7 +78,7 @@ class TreeCoreset {
       new CoresetTreeLeaf(elem, points.map(point=>costOfPoint(point)).sum)
     }
 
-    /*
+    /**
      * Select a new centre from the leaf node for spliting. 
      */
     def chooseCentre() : Example = {
@@ -99,7 +100,7 @@ class TreeCoreset {
     val right : CoresetTree, val cost : Double) extends CoresetTree {
   }
 
-  /*
+  /**
    * Split the coreset tree leaf to generate a coreset tree node with two leaves
    * @param leaf is the coreset tree leaf for spliting
    * @return a coreset tree node with two leaves
@@ -133,7 +134,7 @@ class TreeCoreset {
     new CoresetTreeNode(leaf.elem, leftleaf, rightleaf, leftleaf.cost+rightleaf.cost)
   }
 
-  /*
+  /**
    * Split a coreset tree to construct a new coreset tree with recursive schemes
    * @param input the coreset tree root
    * @return the new coreset tree
@@ -163,7 +164,7 @@ class TreeCoreset {
     case CoresetTreeLeaf(e, c) => coreset :+ e.centre.setWeight(e.n)
   }
 
-  /*
+  /**
    * Build a coreset tree with the points and the coreset size
    * @param points for coreset tree construction
    * @param m is the coreset size
@@ -181,7 +182,7 @@ class TreeCoreset {
     root
   }
 
-  /*
+  /**
    * A help function for computing the squared distance between two examples
    * @param p1
    * @param p2
@@ -192,62 +193,4 @@ class TreeCoreset {
     val inst2 = if(p2.weight != 0.0) p2.in.map(x=>x/p2.weight) else p2.in
     inst1.distanceTo(inst2)
   }
-}
-
-object TestTreeCoreset {
-  
-  private def printPoints(input: Array[Example]): Unit =
-    input.foreach{ case x => println(x) }
-  
-  def main(args: Array[String]) {
-    val points = Array(
-    new Example(DenseInstance(Array(10.8348626966492, 18.7800980127523))),
-    new Example(DenseInstance(Array(10.259545802461, 23.4515683763173))),
-    new Example(DenseInstance(Array(11.7396623802245, 17.7026240456956))),
-    new Example(DenseInstance(Array(12.4277617893575, 19.4887691804508))),
-    new Example(DenseInstance(Array(10.1057940183815, 18.7332929859685))),
-    new Example(DenseInstance(Array(11.0118378554584, 20.9773232834654))),
-    new Example(DenseInstance(Array(7.03171204763376, 19.1985058633283))),
-    new Example(DenseInstance(Array(6.56491029696013, 21.5098251711267))),
-    new Example(DenseInstance(Array(10.7751248849735, 22.1517666115673))),
-    new Example(DenseInstance(Array(8.90149362263775, 19.6314465074203))),
-    new Example(DenseInstance(Array(11.931275122466, 18.0462702532436))),
-    new Example(DenseInstance(Array(11.7265904596619, 16.9636039793709))),
-    new Example(DenseInstance(Array(11.7493214262468, 17.8517235677469))),
-    new Example(DenseInstance(Array(12.4353462881232, 19.6310467981989))),
-    new Example(DenseInstance(Array(13.0838514816799, 20.3398794353494))),
-    new Example(DenseInstance(Array(7.7875624720831, 20.1569764307574))),
-    new Example(DenseInstance(Array(11.9096128931784, 21.1855674228972))),
-    new Example(DenseInstance(Array(8.87507602702847, 21.4823134390704))),
-    new Example(DenseInstance(Array(7.91362116378194, 21.325928219919))),
-    new Example(DenseInstance(Array(26.4748241341303, 9.25128245838802))),
-    new Example(DenseInstance(Array(26.2100410238973, 5.06220487544192))),
-    new Example(DenseInstance(Array(28.1587146197594, 3.70625885635717))),
-    new Example(DenseInstance(Array(26.8942422516129, 5.02646862012427))),
-    new Example(DenseInstance(Array(23.7770902983858, 7.19445492687232))),
-    new Example(DenseInstance(Array(23.6587920739353, 3.35476798095758))),
-    new Example(DenseInstance(Array(23.7722765903534, 3.74873642284525))),
-    new Example(DenseInstance(Array(23.9177161897547, 8.1377950229489))),
-    new Example(DenseInstance(Array(22.4668345067162, 8.9705504626857))),
-    new Example(DenseInstance(Array(24.5349708443852, 5.00561881333415))),
-    new Example(DenseInstance(Array(24.3793349065557, 4.59761596097384))),
-    new Example(DenseInstance(Array(27.0339042858296, 4.4151109960116))),
-    new Example(DenseInstance(Array(21.8031183153743, 5.69297814349064))),
-    new Example(DenseInstance(Array(22.636600400773, 2.46561420928429))),
-    new Example(DenseInstance(Array(25.1439536911272, 3.58469981317611))),
-    new Example(DenseInstance(Array(21.4930923464916, 3.28999356823389))),
-    new Example(DenseInstance(Array(23.5359486724204, 4.07290025106778))),
-    new Example(DenseInstance(Array(22.5447925324242, 2.99485404382734))),
-    new Example(DenseInstance(Array(25.4645673159779, 7.54703465191098))))
-    
-    println("Training examples")
-    printPoints(points)
-    
-    val treecoreset = new TreeCoreset
-    val tree = treecoreset.buildCoresetTree(points, 8)
-    val coreset = treecoreset.retrieveCoreset(tree, new Array[Example](0))
-    println("Coreset examples")
-    printPoints(coreset)
-  }
-  
 }

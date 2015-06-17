@@ -25,7 +25,8 @@ import scala.util.control.Breaks._
 
 /**
  * Data structure for managing all buckets for streamKM++ algorithm, this data
- * structure will extract maxsize coreset exmaples from n instances.
+ * structure will extract maxsize coreset exmaples from n instances. When a new 
+ * example comming, the bucketmanager will update buckets in it.
  * -n instances in DStream
  * -maxsize bucket size for coreset extraction
  */
@@ -33,7 +34,9 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
 
   type T = BucketManager
   
-  /* Inner class Bucket for new instance management
+  /** 
+   * Inner class Bucket for new instance management, this class has two buffers for
+   * recursively computation the coreset
    */
   class Bucket(val bucketsize : Int = maxsize) {
     val points = Queue[Example]()
@@ -44,7 +47,7 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
   val L = (math.ceil(math.log(n.toDouble/maxsize.toDouble)/math.log(2))+2).toInt
   val buckets = new Array[Bucket](L)
 
-  /* Update the clustering data structure, depending on the example given
+  /** Update the clustering data structure, depending on the example given
    *
    * @param the exmaple based on which the Model is updated
    * @return the updated BucketManger object
@@ -102,12 +105,14 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
     this
   }
 
-  /*
+  /**
    * Return an array of weighted examples corresponding to the coreset extracted from
    * treecoreset data structure Kmeans clustering
    * Case 1 : when the last bucket is full, return the contents of the last bucket
    * Case 2 : when the last bucket is not full, recursively compute a coreset from all
    *          nonempty buckets
+   * 
+   * @return coreset for the examples entered into the buckets.
    */
   def getCoreset: Array[Example] = {
     if(buckets(L-1).isFull) {
