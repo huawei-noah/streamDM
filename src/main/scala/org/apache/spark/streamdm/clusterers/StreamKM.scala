@@ -20,9 +20,17 @@ package org.apache.spark.streamdm.clusterers
 import org.apache.spark.streamdm.clusterers.clusters._
 import org.apache.spark.streamdm.clusterers.utils._
 import org.apache.spark.streamdm.core._
-import org.apache.spark.streaming.dstream._
 
+import org.apache.spark.streamdm.tasks._
+
+import org.apache.spark._
+
+import org.apache.spark.streaming.dstream._
 import com.github.javacliparser._
+
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.StreamingContext._
+import com.github.javacliparser.ClassOption
 
 /**
  * A Clusterer trait defines the needed operations for any implemented
@@ -83,8 +91,13 @@ class StreamKM extends Clusterer {
    * @return an Array of Examples representing the clusters
    */
   def getClusters: Array[Example] = {
-    val streamingCoreset = bucketmanager.getCoreset
-    KMeans.cluster(streamingCoreset, kOption.getValue, repOption.getValue) 
+    if(numInstances <= sizeCoresetOption.getValue) {
+      bucketmanager.buckets(0).points.toArray
+    } 
+    else {
+     val streamingCoreset = bucketmanager.getCoreset
+     KMeans.cluster(streamingCoreset, kOption.getValue, repOption.getValue)  
+    }
   }
   
   /**

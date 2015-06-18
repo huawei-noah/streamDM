@@ -55,8 +55,11 @@ class TreeCoreset {
   }
 
   
+  /**
+   * CoresetTree Leaf Node data structure without children
+   */
   case class CoresetTreeLeaf(val elem : CoresetTreeElem, val cost : Double) extends CoresetTree {
-    /*
+    /**
      * Compute the distance between the given point and the leaf centre
      * @param point the given point
      * @return the distance between the point and the leaf centre
@@ -80,6 +83,7 @@ class TreeCoreset {
 
     /**
      * Select a new centre from the leaf node for spliting. 
+     * @return centre except for the old centre of the leaf node
      */
     def chooseCentre() : Example = {
       val funcost = this.weightedLeaf().cost
@@ -95,7 +99,9 @@ class TreeCoreset {
     }
   }
 
-
+  /**
+   * CoresetTree inner node data structure with two children
+   */
   case class CoresetTreeNode(val elem : CoresetTreeElem, val left : CoresetTree, 
     val right : CoresetTree, val cost : Double) extends CoresetTree {
   }
