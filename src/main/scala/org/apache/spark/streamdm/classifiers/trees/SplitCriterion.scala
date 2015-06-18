@@ -24,7 +24,6 @@ import org.apache.spark.streamdm.util.Util
 /**
  * trait SplitCriterionType and the case classes
  */
-
 trait SplitCriterionType
 
 case class InfoGainSplitCriterionType() extends SplitCriterionType
@@ -99,7 +98,10 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
   override def rangeMerit(pre: Array[Double]): Double = Util.log2(max(pre.length, 2))
 
   /**
-   * computes the entropy of an array
+   * Returns the entropy of an array
+   *
+   * @param pre the array to be calculated
+   * @return the entropy
    */
   def entropy(pre: Array[Double]): Double = {
     if (pre == null || pre.sum <= 0 || hasNegative(pre)) 0.0
@@ -108,6 +110,9 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
 
   /**
    * computes the entropy of an matrix
+   *
+   * @param post the matrix to be calculated
+   * @return the entropy
    */
   def entropy(post: Array[Array[Double]]): Double = {
     if (post == null || post.length == 0 || post(0).length == 0) 0
@@ -118,7 +123,11 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
   }
 
   /**
-   * number of subsets which greater than minFrac
+   * Returns number of subsets which greater than minFrac
+   *
+   * @param post the matrix
+   * @param minFrac the min threshold
+   * @return number of subsets which greater than minFrac
    */
   def numGTFrac(post: Array[Array[Double]], minFrac: Double): Int = {
     if (post == null || post.length == 0) {
@@ -130,7 +139,10 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
   }
 
   /**
-   * check whether a array has a negative value
+   * Returns whether a array has negative value
+   *
+   * @param pre an array to be valued
+   * @return whether a array has negative value
    */
   private[trees] def hasNegative(pre: Array[Double]): Boolean = pre.filter(x => x < 0).length > 0
 
@@ -168,6 +180,13 @@ class GiniSplitCriterion extends SplitCriterion with Serializable {
    */
   override def rangeMerit(pre: Array[Double]): Double = 1.0
 
+  /**
+   * Computes the gini of an array
+   *
+   * @param dist an array to be computed
+   * @param sum the sum of the array
+   * @return the gini of an array
+   */
   private[trees] def computeGini(dist: Array[Double], sum: Double): Double =
     1.0 - dist.map { x => x * x / sum / sum }.sum
 
@@ -209,7 +228,10 @@ class VarianceReductionSplitCriterion extends SplitCriterion with Serializable {
   override def rangeMerit(pre: Array[Double]): Double = 1.0
 
   /**
-   * computes standard deviation
+   * computes the standard deviation
+   *
+   * @param pre an array
+   * @return the standard deviation
    */
   private[trees] def computeSD(pre: Array[Double]): Double = {
     val n = pre(0).toInt
@@ -221,7 +243,7 @@ class VarianceReductionSplitCriterion extends SplitCriterion with Serializable {
 
 object SplitCriterion {
 
-  /*
+  /**
    * return a new SplitCriterion, the default will be InfoGainSplitCriterion.
    */
   def createSplitCriterion(

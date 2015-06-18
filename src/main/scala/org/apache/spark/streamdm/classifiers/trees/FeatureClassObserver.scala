@@ -36,6 +36,7 @@ trait FeatureClassObserver extends Serializable {
    * @param cIndex the index of class
    * @param fValue the value of the feature
    * @param weight the weight of the example
+   * @return Unit
    */
   def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit
 
@@ -68,7 +69,10 @@ trait FeatureClassObserver extends Serializable {
    */
   def merge(that: FeatureClassObserver, trySplit: Boolean): FeatureClassObserver
 
-  // not supported yet
+  /**
+   * observeTarget not supported yet
+   *
+   */
   def observeTarget(fValue: Double, weight: Double): Unit = {}
 
 }

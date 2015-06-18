@@ -28,8 +28,18 @@ class FeatureSplit(val conditionalTest: ConditionalTest, val merit: Double, val 
     else if (this.merit > that.merit) 1
     else 0
   }
-  def numSplit: Int = result.length
+  /**
+   * returns the number of the split
+   * @return the number of the split
+   */
+  def numSplit(): Int = result.length
 
+  /**
+   * returns the distribution of the index
+   *
+   * @param splitIndex the index
+   * @return the distribution
+   */
   def distributionFromSplit(splitIndex: Int): Array[Double] = result(splitIndex)
 
   override def toString(): String = "FeatureSplit, merit=" + merit + ", " + conditionalTest

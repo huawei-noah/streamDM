@@ -35,8 +35,12 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
   def this(that: GaussianEstimator) {
     this(that.weightSum, that.mean, that.varianceSum)
   }
-  /*
+  /**
    * observe the data and update the gaussian estimator
+   *
+   * @param value value of a feature
+   * @param weight weight of the Example
+   * @return Unit
    */
   def observe(value: Double, weight: Double): Unit = {
     if (!value.isInfinite() && !value.isNaN() && weight > 0) {
@@ -51,11 +55,16 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
       }
     }
   }
-  /*
-   * merge the two GaussianEstimator
+  /**
+   * merge current GaussianEstimator with another one, return current one
+   *
+   * @param that the GaussianEstimator will be merged
+   * @param trySplit whether the Hoeffding Tree tries to split
+   * @return current GaussianEstimator
    */
   def merge(that: GaussianEstimator, trySplit: Boolean): GaussianEstimator = {
     if (!trySplit) {
+      //add to block variables
       if (this.blockWeightSum == 0) {
         blockWeightSum = that.blockWeightSum
         blockMean = that.blockMean
@@ -70,6 +79,7 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
         blockVarianceSum = newBlockVarianceSum
       }
     } else {
+      //add to the total variables
       if (this.weightSum == 0) {
         weightSum = that.blockWeightSum
         mean = that.blockMean
@@ -87,22 +97,47 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
     this
   }
 
+  /**
+   * Returns the total weight
+   *
+   * @return the total weight
+   */
   def totalWeight(): Double = {
     weightSum
   }
-
+  /**
+   * Returns the mean value
+   *
+   * @return the mean value
+   */
   def getMean(): Double = {
     mean
   }
-
+  /**
+   * Returns the standard deviation
+   *
+   * @return the standard deviation
+   */
   def stdDev(): Double = {
     sqrt(variance())
   }
 
+  /**
+   * Returns the variance
+   *
+   * @return the variance
+   */
   def variance(): Double = {
     if (weightSum <= 1.0) 0
     else varianceSum / (weightSum - 1)
   }
+
+  /**
+   * Returns the probability density of the input value
+   *
+   * @param value the
+   * @return the probability density of the input value
+   */
 
   def probabilityDensity(value: Double): Double = {
     if (weightSum == 0) 0.0
@@ -117,11 +152,16 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
     }
   }
 
-  /*
-   * return an array with lessthan, equal and greaterthan of split value
+  /**
+   * returns an array of weights sum, with less than, equal and greater than of split value
+   *
+   * @param splitValue the value splitted
+   * @return an array of weights sum, with less than, equal and greater than of split value
    */
   def tripleWeights(splitValue: Double): Array[Double] = {
+    //equal weights sum
     val eqWeight = probabilityDensity(splitValue) * weightSum
+    //less than weights sum
     val lsWeight = {
       if (stdDev() > 0) {
         Statistics.normalProbability((splitValue - getMean()) / stdDev())
@@ -130,6 +170,7 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
         else 0.0
       }
     }
+    //greater than weights sum
     val gtWeight = max(0, weightSum - eqWeight - lsWeight)
     Array[Double](lsWeight, eqWeight, gtWeight)
   }

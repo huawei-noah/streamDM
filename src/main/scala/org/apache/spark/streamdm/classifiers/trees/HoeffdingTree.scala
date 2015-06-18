@@ -54,7 +54,7 @@ class HoeffdingTree extends Classifier {
 
   val numGraceOption: IntOption = new IntOption("numGrace", 'm',
     "The number of instances a leaf should observe between split attempts.",
-    50, 1, Int.MaxValue)
+    300, 1, Int.MaxValue)
 
   val tieThresholdOption: FloatOption = new FloatOption("tieThreshold", 't',
     "Threshold below which a split will be forced to break ties.", 0.05, 0, 1)
@@ -494,4 +494,5 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   def description(): String = {
     "Hoeffding Tree Model description:\n" + root.description()
   }
+  
 }

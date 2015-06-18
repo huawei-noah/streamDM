@@ -20,14 +20,13 @@ package org.apache.spark.streamdm.classifiers.trees
 import org.apache.spark.streamdm.core.{ Example }
 
 /**
- * trait ConditionalTestType and the case classes
+ *  Enum to select the ConditionalTestType
  */
-trait ConditionalTestType
 
-case class NumericBinaryTestType() extends ConditionalTestType
-case class NominalBinaryTestType() extends ConditionalTestType
-case class NominalMultiwayTestType() extends ConditionalTestType
-case class NumericBinaryRulePredicateType() extends ConditionalTestType
+//object ConditionalTestType extends Enumeration {
+//  type ConditionalTestType = Value
+//  val NumericBinaryTestType, NominalBinaryTestType, NominalMultiwayTestType, NumericBinaryRulePredicateType = Value
+//}
 
 /**
  * ConditionalTest is a condition test trait for examples
@@ -38,7 +37,7 @@ trait ConditionalTest extends Serializable {
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
    *
-   * @param example the Exmaple to be used
+   * @param example an Example to be used
    * @return the number of the branch for an example, -1 if unknown.
    */
   def branch(example: Example): Int
@@ -72,7 +71,7 @@ case class NumericBinaryTest(val fIndex: Int, val value: Double, val isequalTest
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
    *
-   * @param example the Exmaple to be used
+   * @param example an Example to be used
    * @return the number of the branch for an example, -1 if unknown.
    */
   override def branch(example: Example): Int = {
@@ -99,8 +98,8 @@ case class NumericBinaryTest(val fIndex: Int, val value: Double, val isequalTest
     des(1) = "[feature " + fIndex + " numeric 1] " + ops(1) + " " + value
     des
   }
-  
-  override def toString = "NumericBinaryTest(" +isequalTest+") feature[" + fIndex + "] = " + value
+
+  override def toString = "NumericBinaryTest(" + isequalTest + ") feature[" + fIndex + "] = " + value
 }
 /**
  * Nominal binary conditional test for examples to use to split nodes in Hoeffding trees.
@@ -111,7 +110,7 @@ case class NominalBinaryTest(val fIndex: Int, val value: Double)
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
    *
-   * @param example the Exmaple to be used
+   * @param example an Example to be used
    * @return the number of the branch for an example, -1 if unknown.
    */
   override def branch(example: Example): Int = {
@@ -147,7 +146,7 @@ case class NominalMultiwayTest(val fIndex: Int, val numFeatureValues: Int) exten
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
    *
-   * @param example the Exmaple to be used
+   * @param example an Example to be used
    * @return the number of the branch for an example, -1 if unknown.
    */
   override def branch(example: Example): Int = {
@@ -162,7 +161,7 @@ case class NominalMultiwayTest(val fIndex: Int, val numFeatureValues: Int) exten
    */
   override def maxBranches(): Int = numFeatureValues
 
-  override def toString(): String = "NominalMultiwayTest" + "feature[" + fIndex + "] " +numFeatureValues
+  override def toString(): String = "NominalMultiwayTest" + "feature[" + fIndex + "] " + numFeatureValues
 
   override def description(): Array[String] = {
     val des = new Array[String](numFeatureValues)
@@ -182,7 +181,7 @@ case class NumericBinaryRulePredicate(val fIndex: Int, val value: Double, val op
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
    *
-   * @param example the Exmaple to be used
+   * @param example an Example to be used
    * @return the number of the branch for an example, -1 if unknown.
    */
   override def branch(example: Example): Int = {
