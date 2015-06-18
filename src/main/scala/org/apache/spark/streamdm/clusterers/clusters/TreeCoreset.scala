@@ -157,6 +157,12 @@ class TreeCoreset {
     }
   }
   
+  /**
+   * Retrieve a new coreset from a given CoresetTree recursively, in the procss the return coreset will 
+   * be combined with the given coreset.
+   * @param root the CoresetTree root node
+   * @param coreset 
+   */
   def retrieveCoreset(root :  CoresetTree, coreset : Array[Example]) : Array[Example] = root match {
     case CoresetTreeNode(e, l, r, c) => {
       retrieveCoreset(r, retrieveCoreset(l, coreset))
