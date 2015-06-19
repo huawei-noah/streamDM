@@ -36,6 +36,9 @@ import com.github.javacliparser.ClassOption
  * A Clusterer trait defines the needed operations for any implemented
  * clustering algorithm. It provides methods for clustering and for returning
  * the computed cluster.
+ * -kOption number of clusters, default value is 10
+ * -repOption number of iterations, default value is 1000
+ * -widthOption size of window for training, default value is 100000
  */
 class StreamKM extends Clusterer {
   

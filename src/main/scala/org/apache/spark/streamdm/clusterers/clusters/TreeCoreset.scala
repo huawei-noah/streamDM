@@ -33,7 +33,7 @@ class TreeCoreset {
    * Wrap the information in CoresetTreeNode, which will not be modified after
    * a CoresetTreeNode construction. It is composed of:
    * - the number of examples in a tree node
-   * - the exmples associated with a tree node
+   * - the examples associated with a tree node
    * - the cluster centre of the associated examples
    * - the parent of the tree node
    */
