@@ -7,23 +7,49 @@ image:
 
 ## CluStream Clustering
 
-*CluStream* is the first clustering method that presents and uses the notion of micro-clusters as the output result of the online process. Micro-clusters are the statistics kept from the data in a fast way in the online phase. However, an offline phase is needed to improve the quality of the clustering.
-
-In CluStream, each micro-cluster maintains online a Clustering Feature. Clustering Features \\\(CF = (N,LS,SS, LT, ST)\\) are extensions of BIRCH CF with two additional temporal features: 
-
-* N: number of data points
-* LS: linear sum of the N data points
-* SS: square sum of the N data points
-* LT: n-dimensional linear sum of the time stamps
-* ST: n-dimensional square sum of the time stamps
- 
-The CluStream method has two phases, an on-line and off-line. The on-line phase keeps a maximum number of microclusters in memory, and every time a new instance arrives, it updates the statistics related to this microcluster. First, it looks if the new point can be absorbed by one of the current microclusters. If not, it tries to start a new micro-cluster of its own. If there is no space for a new micro-cluster, it reduces space using one of these two strategies: deleting the oldest micro-cluster, or merging two of the oldest micro-clusters.
-
-The off-line phase, simply periodically applies k-means using microclusters as points or instances.
-
 *Charu C. Aggarwal, Jiawei Han, Jianyong Wang, Philip S. Yu.
 A Framework for Clustering Evolving Data Streams. 
 VLDB 2003: 81-92*
 
+###General Description
 
+The *CluStream* method is a method of clustering data streams, based on the
+concept of *microclusters*. Microclusters are data structures which summarize a
+set of instances from the stream, and is composed of a set of statistics which
+are easily updated and allow fast analysis.
 
+CluStream has two phases. In the *online* phase, a set of microclusters are kept
+in main memory; each instance coming from the input stream can then be either
+appended to an existing microcluster or created as a new microcluster. Space for
+the new microcluster is created either by deleting a microcluster (by analyzing
+its expiration timestamp) or by merging the two closest microclusters. The
+*offline* phase will apply a weighted k-means algorithm on the microclusters, to
+obtain the final clusters from the stream.
+
+###Implementation
+
+In StreamDM, two classes deal with the implementation of the CluStream
+algorithm: `MicroClusters' and `Clustream`.
+
+`MicroClusters` is the main data structure keeping the online microclusters
+updated. It is controlled by the following options:
+
+* Horizon parameter (**-h**), which controls the size of horizon window in
+  seconds (1000 by default), which controls which microclusters become expired;
+* Cluster radius multiplier parameter (**-r**), which controls how large the
+  radius of a microcluster is to allow new instances to be appended (2 by
+  default); and
+* m-value parameter (**-m**) which controls the number of standard deviations
+  from the mean timestamp in a microcluster, for expiry analysis (100 by default).
+
+`Clustream` implements the main algorithm, and is controlled by the following
+parameters:
+
+* Initial buffer parameter (**-b**), which controls the initial buffer from which
+  microclusters are created (1000 by default);
+* Number of microclusters parameter (**-m**), which controls how many
+  microclusters are kept (100 by default);
+* Number of clusters parameter (**-k**), which controls how many clusters are
+  output by the offline k-means algorithm (10 by default); and
+* k-means iterations parameter (**-i**), which controls for how many iterations the
+  k-means algorithm iterates (1000 by default).
