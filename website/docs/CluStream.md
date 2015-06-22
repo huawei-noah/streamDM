@@ -29,7 +29,7 @@ obtain the final clusters from the stream.
 ###Implementation
 
 In StreamDM, two classes deal with the implementation of the CluStream
-algorithm: `MicroClusters' and `Clustream`.
+algorithm: `MicroClusters` and `Clustream`.
 
 `MicroClusters` is the main data structure keeping the online microclusters
 updated. It is controlled by the following options:
