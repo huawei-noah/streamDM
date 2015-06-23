@@ -27,6 +27,14 @@ import org.apache.spark.streamdm.evaluation.Evaluator
 /**
  * Task for evaluating a classifier on a stream by testing then training with
  * each example in sequence.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Learner (<b>-c</b>), an object of type <tt>Classifier</tt>
+ *  <li> Evaluator (<b>-e</b>), an object of type <tt>Evaluator</tt>
+ *  <li> Reader (<b>-s</b>), a reader object of type <tt>StreamReader</tt>
+ *  <li> Writer (<b>-w</b>), a writer object of type <tt>StreamWriter</tt>
+ * </ul>
  */
 class EvaluatePrequential extends Task {
 
