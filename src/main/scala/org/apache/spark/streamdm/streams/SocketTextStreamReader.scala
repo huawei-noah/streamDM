@@ -26,6 +26,13 @@ import org.apache.spark.streamdm.core.Instance
 
 /**
  * Stream reader that gets instances from a socket stream.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Socket host (<b>-h</b>)
+ *  <li> Socket port (<b>-p</b>)
+ *  <li> Instance type (<b>-t</b>), either <i>dense</i> or <i>sparse</i>
+ * </ul>
  */
 class SocketTextStreamReader extends StreamReader{
 
