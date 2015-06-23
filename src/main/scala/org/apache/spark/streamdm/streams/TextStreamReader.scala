@@ -25,6 +25,12 @@ import org.apache.spark.streamdm.core.Instance
 
 /**
  * Stream reader that gets instances from a file stream.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> File location (<b>-f</b>)
+ *  <li> Instance type (<b>-t</b>), either <i>dense</i> or <i>sparse</i>
+ * </ul>
  */
 class TextStreamReader extends StreamReader{
 
@@ -54,5 +60,6 @@ class TextStreamReader extends StreamReader{
    *
    * @return an ExampleSpecification of the features
    */
-  def getExampleSpecification(): ExampleSpecification = new ExampleSpecification(new InstanceSpecification(), new InstanceSpecification())
+  def getExampleSpecification(): ExampleSpecification = new ExampleSpecification(
+    new InstanceSpecification(), new InstanceSpecification())
 }

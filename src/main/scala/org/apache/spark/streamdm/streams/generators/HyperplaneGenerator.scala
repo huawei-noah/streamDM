@@ -28,6 +28,13 @@ import scala.util.Random
 
 /**
  * Stream generator for generating data from a hyperplane.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Chunk size (<b>-c</b>)
+ *  <li> Slide duration in milliseconds (<b>-d</b>)
+ *  <li> Number of features (<b>-f</b>)
+ * </ul>
  */
 
 class HyperplaneGenerator extends StreamReader {
