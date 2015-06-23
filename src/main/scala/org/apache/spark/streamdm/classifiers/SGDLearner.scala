@@ -28,6 +28,15 @@ import com.github.javacliparser.{ClassOption, FloatOption, IntOption}
  * algorithm. The type of loss function, the lambda learning
  * reate parameter, and the number of features need to be specified in the
  * associated Task configuration file.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Number of features (<b>-f</b>)
+ *  <li> Rate of learning parameter (<b>-l</b>)
+ *  <li> Loss function (<b>-o</b>), an object of type <tt>Loss</tt>
+ *  <li> Regularizer (<b>-r</b>), an object of type <tt>Regularizer</tt>
+ *  <li> Regularization parameter (<b>-p</b>)
+ * </ul>
  */
 class SGDLearner extends Classifier {
 

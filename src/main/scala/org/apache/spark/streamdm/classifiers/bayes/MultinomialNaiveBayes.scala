@@ -29,6 +29,13 @@ import org.apache.spark.streaming.dstream._
  * information see,<br/> <br/> Andrew Mccallum, Kamal Nigam: A Comparison of
  * Event Models for Naive Bayes Text Classification. In: AAAI-98 Workshop on
  * 'Learning for Text Categorization', 1998.<br/> <br/>
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Number of features (<b>-f</b>)
+ *  <li> Number of classes (<b>-c</b>)
+ *  <li> Laplace smoothing parameter (<b>-s</b>)
+ * </ul>
  */
 class MultinomialNaiveBayes extends Classifier {
 
