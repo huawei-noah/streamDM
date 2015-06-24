@@ -43,7 +43,7 @@ In the first release of StreamDM, we have implemented:
 * [SGD Learner](SGD.html) and [Perceptron](SGD.html#perceptron)
 * [Naive Bayes](NB.html)
 * [CluStream](CluStream.html)
-* Hoeffding Decision Trees
+* [Hoeffding Decision Trees](HDT.html)
 * Stream KM++
 
 In the next releases we plan to add: 
