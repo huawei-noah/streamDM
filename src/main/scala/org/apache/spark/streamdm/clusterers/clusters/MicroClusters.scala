@@ -23,7 +23,15 @@ import org.apache.spark.streamdm.core._
 
 /**
  * The MicroClusters object contains a number of microclusters in an Array. It
- * provdes operaions for inserting, appending and removing microclusters.
+ * provides operations for inserting, appending and removing microclusters.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Time horizon (<b>-h</b>)
+ *  <li> Cluster radius multiplier (<b>-r</b>)
+ *  <li> Value of m (<b>-m</b>), controlling number of standard deviations for
+ *  expiry
+ * </ul>
  */
 case class MicroClusters(val microclusters: Array[MicroCluster]) 
   extends Clusters {

@@ -29,6 +29,14 @@ import com.github.javacliparser._
  * A Clusterer trait defines the needed operations for any implemented
  * clustering algorithm. It provides methods for clustering and for returning
  * the computed cluster.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Number of microclusters (<b>-m</b>)
+ *  <li> Initial buffer size (<b>-b</b>)
+ *  <li> Number of clusters (<b>-k</b>)
+ *  <li> Iterations (<b>-i</b>), number of iterations of the k-means alforithm 
+ * </ul>
  */
 class Clustream extends Clusterer {
 

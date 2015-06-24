@@ -33,12 +33,17 @@ import org.apache.spark.streaming.StreamingContext._
 import com.github.javacliparser.ClassOption
 
 /**
- * A Clusterer trait defines the needed operations for any implemented
- * clustering algorithm. It provides methods for clustering and for returning
- * the computed cluster.
- * -kOption number of clusters, default value is 10
- * -repOption number of iterations, default value is 1000
- * -widthOption size of window for training, default value is 100000
+ * Implements the StreamKM++ algorithm for data streams. StreamKM++ computes a
+ * small (weighted) sample of the stream by using <i>coresets</i>, and then uses
+ * it as an input to a k-means++ algorithm. It uses a data structure called
+ * <tt>BucketManager</tt> to handle the coresets.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Number of microclusters (<b>-m</b>)
+ *  <li> Initial buffer size (<b>-b</b>)
+ *  <li> Size of coresets (<b>-s</b>)
+ *  <li> Learning window (<b>-w</b>) * </ul>
  */
 class StreamKM extends Clusterer {
   
@@ -58,7 +63,7 @@ class StreamKM extends Clusterer {
     "Size of coreset", 10000, 1, Integer.MAX_VALUE)
   
   val widthOption: IntOption = new IntOption("width",
-      'w', "Size of Window for training learner.", 100000, 1, Integer.MAX_VALUE);
+      'w', "Size of window for training learner.", 100000, 1, Integer.MAX_VALUE);
   
   var exampleLearnerSpecification: ExampleSpecification = null
   
@@ -71,7 +76,7 @@ class StreamKM extends Clusterer {
   }
   
   /** 
-   *  Maintain the bucketmanager for coreset extraction, given an input DStream of Example.
+   *  Maintain the BucketManager for coreset extraction, given an input DStream of Example.
    * @param input a stream of instances
    */
   def train(input: DStream[Example]): Unit = {
