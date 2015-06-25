@@ -18,16 +18,27 @@ A Hoeffding tree is an incremental, anytime decision tree induction algorithm th
 Its parameters are the following:
 
 -n : Numeric Observer to use : only support Gaussian approximation by now. And 0 for GuassianNumericFeatureClassObserver,and default number of bins is 10.
+
 -g : The number of examples a leaf should observe between split attempts
+
 -s : Split criterion to use. Example : InfoGainSplitCriterion
+
 -c : The allowable error in split decision, values closer to 0 will take longer to decide
+
 -t : Threshold below which a split will be forced to break ties
+
 -b : Only allow binary splits
+
 -r : Disable poor attributes
+
 -o : Growth allowed
+
 -p : Disable pre-pruning
+
 -l : Leaf prediction to use: MajorityClass (0), Naive Bayes (1) or NaiveBayes adaptive (2).Default is NaiveBayes adaptive.
+
 -q : The number of examples a leaf should observe before permitting Naive Bayes
+
 -a :Split at all leaves. Different from origin algorithm, which can split at any time, Spark streaming version can only split once for each RDD, Either split at the leaf the last Example of one RDD belonged to, or try to split at all leaves.
 
 ### Hoeffding Adaptive Tree
