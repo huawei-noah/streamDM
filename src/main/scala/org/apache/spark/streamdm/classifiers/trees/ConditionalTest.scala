@@ -20,19 +20,10 @@ package org.apache.spark.streamdm.classifiers.trees
 import org.apache.spark.streamdm.core.{ Example }
 
 /**
- *  Enum to select the ConditionalTestType
- */
-
-//object ConditionalTestType extends Enumeration {
-//  type ConditionalTestType = Value
-//  val NumericBinaryTestType, NominalBinaryTestType, NominalMultiwayTestType, NumericBinaryRulePredicateType = Value
-//}
-
-/**
  * ConditionalTest is a condition test trait for examples
  * to use to split nodes in Hoeffding trees.
  */
-trait ConditionalTest extends Serializable {
+abstract class ConditionalTest(var fIndex: Int) extends Serializable {
 
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
@@ -57,6 +48,13 @@ trait ConditionalTest extends Serializable {
    */
   def maxBranches(): Int
 
+  /**
+   * Returns the index of feature
+   *
+   * @return the index of feature
+   */
+  def featureIndex(): Int = fIndex
+
   def description(): Array[String]
 
 }
@@ -65,8 +63,8 @@ trait ConditionalTest extends Serializable {
  * Numeric binary conditional test for examples to use to split nodes in Hoeffding trees.
  */
 
-case class NumericBinaryTest(val fIndex: Int, val value: Double, val isequalTest: Boolean)
-  extends ConditionalTest with Serializable {
+class NumericBinaryTest(fIndex: Int, val value: Double, val isequalTest: Boolean)
+  extends ConditionalTest(fIndex) with Serializable {
 
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
@@ -91,6 +89,13 @@ case class NumericBinaryTest(val fIndex: Int, val value: Double, val isequalTest
    */
   override def maxBranches(): Int = 2
 
+  /**
+   * Returns the index of feature
+   *
+   * @return the index of feature
+   */
+  override def featureIndex(): Int = fIndex
+
   override def description(): Array[String] = {
     val des = new Array[String](2)
     val ops = if (isequalTest) Array("==", "!=") else Array("<", ">=")
@@ -104,8 +109,8 @@ case class NumericBinaryTest(val fIndex: Int, val value: Double, val isequalTest
 /**
  * Nominal binary conditional test for examples to use to split nodes in Hoeffding trees.
  */
-case class NominalBinaryTest(val fIndex: Int, val value: Double)
-  extends ConditionalTest with Serializable {
+class NominalBinaryTest(fIndex: Int, val value: Double)
+  extends ConditionalTest(fIndex) with Serializable {
 
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
@@ -141,7 +146,7 @@ case class NominalBinaryTest(val fIndex: Int, val value: Double)
 /**
  * Nominal multi-way conditional test for examples to use to split nodes in Hoeffding trees.
  */
-case class NominalMultiwayTest(val fIndex: Int, val numFeatureValues: Int) extends ConditionalTest with Serializable {
+class NominalMultiwayTest(fIndex: Int, val numFeatureValues: Int) extends ConditionalTest(fIndex) with Serializable {
 
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
@@ -175,8 +180,8 @@ case class NominalMultiwayTest(val fIndex: Int, val numFeatureValues: Int) exten
  * Numeric binary rule predicate conditional test for
  *  examples to use to split nodes in Hoeffding trees.
  */
-case class NumericBinaryRulePredicate(val fIndex: Int, val value: Double, val operator: Int)
-  extends ConditionalTest with Serializable {
+class NumericBinaryRulePredicate(fIndex: Int, val value: Double, val operator: Int)
+  extends ConditionalTest(fIndex) with Serializable {
 
   /**
    *  Returns the number of the branch for an example, -1 if unknown.
