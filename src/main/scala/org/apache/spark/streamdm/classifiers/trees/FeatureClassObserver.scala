@@ -239,21 +239,28 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
   private[trees] def multiwaySplit(): Array[Array[Double]] =
     { Util.transpose(classFeatureStatistics) }
 }
+
+trait NumericFeatureClassObserver extends FeatureClassObserver
+
+
 /**
  * Class for observing the class data distribution for a numeric feature using gaussian estimators.
  * This observer monitors the class distribution of a given feature.
  * Used in naive Bayes and decision trees to monitor data statistics on leaves.
  */
-class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, val numBins: Int = 10) extends FeatureClassObserver with Serializable {
+class GuassianNumericFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numBins: Int = 10) extends NumericFeatureClassObserver with Serializable {
 
   val estimators: Array[GaussianEstimator] = Array.fill(numClasses)(new GaussianEstimator())
   val minValuePerClass: Array[Double] = Array.fill(numClasses)(Double.PositiveInfinity)
   val maxValuePerClass: Array[Double] = Array.fill(numClasses)(Double.NegativeInfinity)
 
-  def this(that: GuassianNumericFeatureClassOberser) {
+  
+  def this(that: GuassianNumericFeatureClassObserver) {
     this(that.numClasses, that.fIndex, that.numBins)
     for (i <- 0 until numClasses) estimators(i) = new GaussianEstimator(that.estimators(i))
   }
+  
+ 
   /**
    * Updates statistics of this observer given a feature value, a class index
    * and the weight of the example observed
@@ -355,9 +362,9 @@ class GuassianNumericFeatureClassOberser(val numClasses: Int, val fIndex: Int, v
    * @return current FeatureClassObserver
    */
   override def merge(that: FeatureClassObserver, trySplit: Boolean): FeatureClassObserver = {
-    if (!that.isInstanceOf[GuassianNumericFeatureClassOberser]) this
+    if (!that.isInstanceOf[GuassianNumericFeatureClassObserver]) this
     else {
-      val observer = that.asInstanceOf[GuassianNumericFeatureClassOberser]
+      val observer = that.asInstanceOf[GuassianNumericFeatureClassObserver]
       if (numClasses == observer.numClasses && fIndex == observer.fIndex) {
         for (i <- 0 until numClasses) {
           estimators(i) = estimators(i).merge(observer.estimators(i), trySplit)
@@ -375,14 +382,14 @@ object FeatureClassObserver {
     if (featureSpec.isNominal())
       new NominalFeatureClassObserver(numClasses, fIndex, featureSpec.range())
     else
-      new GuassianNumericFeatureClassOberser(numClasses, fIndex)
+      new GuassianNumericFeatureClassObserver(numClasses, fIndex)
   }
 
   def createFeatureClassObserver(observer: FeatureClassObserver): FeatureClassObserver = {
     if (observer.isInstanceOf[NominalFeatureClassObserver])
       new NominalFeatureClassObserver(observer.asInstanceOf[NominalFeatureClassObserver])
-    else if (observer.isInstanceOf[GuassianNumericFeatureClassOberser])
-      new GuassianNumericFeatureClassOberser(observer.asInstanceOf[GuassianNumericFeatureClassOberser])
+    else if (observer.isInstanceOf[GuassianNumericFeatureClassObserver])
+      new GuassianNumericFeatureClassObserver(observer.asInstanceOf[GuassianNumericFeatureClassObserver])
     else new NullFeatureClassObserver
   }
 }
