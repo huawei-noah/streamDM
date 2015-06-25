@@ -239,9 +239,10 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
   private[trees] def multiwaySplit(): Array[Array[Double]] =
     { Util.transpose(classFeatureStatistics) }
 }
-
+/**
+ * trait NumericFeatureClassObserver
+ */
 trait NumericFeatureClassObserver extends FeatureClassObserver
-
 
 /**
  * Class for observing the class data distribution for a numeric feature using gaussian estimators.
@@ -254,13 +255,11 @@ class GuassianNumericFeatureClassObserver(val numClasses: Int, val fIndex: Int, 
   val minValuePerClass: Array[Double] = Array.fill(numClasses)(Double.PositiveInfinity)
   val maxValuePerClass: Array[Double] = Array.fill(numClasses)(Double.NegativeInfinity)
 
-  
   def this(that: GuassianNumericFeatureClassObserver) {
     this(that.numClasses, that.fIndex, that.numBins)
     for (i <- 0 until numClasses) estimators(i) = new GaussianEstimator(that.estimators(i))
   }
-  
- 
+
   /**
    * Updates statistics of this observer given a feature value, a class index
    * and the weight of the example observed
