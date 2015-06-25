@@ -255,8 +255,13 @@ class ActiveLearningNode(classDistribution: Array[Double])
       }
     }
   }
-  /*
+
+  /**
    * lean and update the node
+   *
+   * @param ht HoeffdingTreeModel
+   * @param example an Example will be processed
+   * @return Unit
    */
   override def learn(ht: HoeffdingTreeModel, example: Example): Unit = {
     init()
@@ -264,6 +269,15 @@ class ActiveLearningNode(classDistribution: Array[Double])
     featureObservers.zipWithIndex.foreach {
       x => x._1.observeClass(example.labelAt(0).toInt, example.featureAt(x._2), example.weight)
     }
+  }
+  /**
+   * Disable a feature with index
+   *
+   * @param fIndex the index of a feature
+   * @return Unit
+   */
+  def disableFeature(fIndex: Int): Unit = {
+
   }
 
   /**
@@ -327,7 +341,7 @@ class ActiveLearningNode(classDistribution: Array[Double])
     val bestSplits = new ArrayBuffer[FeatureSplit]()
     featureObservers.zipWithIndex.foreach(x =>
       bestSplits.append(x._1.bestSplit(splitCriterion, classDistribution, x._2, ht.binaryOnly)))
-    if (ht.prePrune) {
+    if (!ht.noPrePrune) {
       bestSplits.append(new FeatureSplit(null, splitCriterion.merit(classDistribution, Array.fill(1)(classDistribution)), new Array[Array[Double]](0)))
     }
     bestSplits.toArray
@@ -394,6 +408,16 @@ class LearningNodeNB(classDistribution: Array[Double], instanceSpecification: In
     if (weight() > ht.nbThreshold)
       NaiveBayes.predict(example, classDistribution, featureObservers)
     else super.classVotes(ht, example)
+  }
+
+  /**
+   * Disable a feature with index
+   *
+   * @param fIndex the index of a feature
+   * @return Unit
+   */
+  override def disableFeature(fIndex: Int): Unit = {
+    featureObservers(fIndex) = new NullFeatureClassObserver()
   }
 }
 
