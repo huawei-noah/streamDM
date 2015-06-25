@@ -18,6 +18,7 @@
 package org.apache.spark.streamdm.classifiers.trees
 
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashSet
 import scala.math.{ log => math_log, sqrt }
 import scala.collection.mutable.Queue
 
@@ -30,50 +31,111 @@ import org.apache.spark.streamdm.util.Util.{ argmax, arraytoString }
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 
+/**
+ *
+ * Hoeffding Tree or VFDT.
+ *
+ *
+ *
+ * A Hoeffding tree is an incremental, anytime decision tree induction algorithm
+ *
+ * that is capable of learning from massive data streams, assuming that the
+ *
+ * distribution generating examples does not change over time. Hoeffding trees
+ *
+ * exploit the fact that a small sample can often be enough to choose an optimal
+ *
+ * splitting attribute. This idea is supported mathematically by the Hoeffding
+ *
+ * bound, which quantiﬁes the number of observations (in our case, examples)
+ *
+ * needed to estimate some statistics within a prescribed precision (in our
+ *
+ * case, the goodness of a feature).A theoretically appealing feature
+ *
+ * of Hoeffding Trees not shared by other incremental decision tree learners is
+ *
+ * that it has sound guarantees of performance. Using the Hoeffding bound one
+ *
+ * can show that its output is asymptotically nearly identical to that of a
+ *
+ * non-incremental learner using inﬁnitely many examples. See for details:
+ *
+ *
+ *
+ * G. Hulten, L. Spencer, and P. Domingos. Mining time-changing data streams.
+ *
+ * In KDD’01, pages 97–106, San Francisco, CA, 2001. ACM Press.
+ *
+ *
+ *
+ * Parameters:
+ * -n : Numeric Observer to use : only support Gaussian approximation by now.
+ *  And 0 for GuassianNumericFeatureClassObserver,and default number of bins is 10.
+ *
+ * -g : The number of examples a leaf should observe between split attempts
+ *
+ * -s : Split criterion to use. Example : InfoGainSplitCriterion
+ *
+ * -c : The allowable error in split decision, values closer to 0 will take longer to decide
+ *
+ * -t : Threshold below which a split will be forced to break ties
+ *
+ * -b : Only allow binary splits
+ *
+ * -r : Disable poor attributes
+ *
+ * -o : Growth allowed
+ *
+ * -p : Disable pre-pruning
+ *
+ * -l : Leaf prediction to use: MajorityClass (0), Naive Bayes (1) or NaiveBayes adaptive (2).
+ * Default is NaiveBayes adaptive.
+ *
+ * -q : The number of examples a leaf should observe before permitting Naive Bayes
+ *
+ * -a :Split at all leaves. Different from origin algorithm,
+ *  which can split at any time, Spark streaming version can only split once for each RDD,
+ *   Either split at the leaf the last Example of one RDD belonged to, or try to split at all leaves.
+ */
 class HoeffdingTree extends Classifier {
 
   type T = HoeffdingTreeModel
 
-  //  val numClassesOption: IntOption = new IntOption("numClasses", 'h',
-  //    "Number of Classes", 2, 2, Integer.MAX_VALUE)
-  //
-  //  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
-  //    "Number of Features", 3, 1, Integer.MAX_VALUE)
-
   val numericObserverTypeOption: IntOption = new IntOption("numericObserverType", 'n',
     "numeric observer type, 0: gaussian", 0, 0, 2)
 
-  val splitCriterionOption: ClassOption = new ClassOption("splitCriterion", 'c',
+  val splitCriterionOption: ClassOption = new ClassOption("splitCriterion", 's',
     "Split criterion to use.", classOf[SplitCriterion], "InfoGainSplitCriterion")
 
-  val growthAllowedOption: IntOption = new IntOption("growthAllowed", 'g',
-    "Whether allow to grow", 1, 0, 1)
+  val growthAllowedOption: FlagOption = new FlagOption("growthAllowed", 'r',
+    "Allow to grow")
 
-  val binaryOnlyOption: IntOption = new IntOption("binaryOnly", 'b',
-    "Whether only allow binary splits", 0, 0, 1)
+  val binaryOnlyOption: FlagOption = new FlagOption("binaryOnly", 'b',
+    "Only allow binary splits")
 
-  val numGraceOption: IntOption = new IntOption("numGrace", 'm',
-    "The number of instances a leaf should observe between split attempts.",
+  val numGraceOption: IntOption = new IntOption("numGrace", 'g',
+    "The number of examples a leaf should observe between split attempts.",
     300, 1, Int.MaxValue)
 
   val tieThresholdOption: FloatOption = new FloatOption("tieThreshold", 't',
     "Threshold below which a split will be forced to break ties.", 0.05, 0, 1)
 
-  val splitConfidenceOption: FloatOption = new FloatOption("splitConfidence", 'z',
+  val splitConfidenceOption: FloatOption = new FloatOption("splitConfidence", 'c',
     "The allowable error in split decision, values closer to 0 will take longer to decide.",
     0.0000001, 0.0, 1.0)
 
-  val learningNodeOption: IntOption = new IntOption("learningNodeType", 'o',
-    "learning node type of leaf", 0, 0, 2)
+  val learningNodeOption: IntOption = new IntOption("learningNodeType", 'l',
+    "Learning node type of leaf", 0, 0, 2)
 
-  val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'a',
-    "naive bayes threshold", 0, 0, Int.MaxValue)
+  val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'q',
+    "The number of examples a leaf should observe between permitting Naive Bayes", 0, 0, Int.MaxValue)
 
-  val prePruneOption: IntOption = new IntOption("PrePrune", 'p',
-    "whether allow pre-pruning.", 0, 0, 1)
+  val noPrePruneOption: FlagOption = new FlagOption("noPrePrune", 'p', "Disable pre-pruning.")
 
-  val splitAllOption: IntOption = new IntOption("SplitAll", 'u',
-    "whether split at all leaf", 1, 0, 1)
+  val removePoorFeaturesOption: FlagOption = new FlagOption("removePoorFeatures", 'r', "Disable poor features.")
+
+  val splitAllOption: FlagOption = new FlagOption("SplitAll", 'a', "Split at all leaves")
 
   var model: HoeffdingTreeModel = null
 
@@ -87,10 +149,10 @@ class HoeffdingTree extends Classifier {
     val outputSpec = espec.outputFeatureSpecification(0)
     val numClasses = outputSpec.range()
     model = new HoeffdingTreeModel(espec, numericObserverTypeOption.getValue, splitCriterionOption.getValue(),
-      growthAllowedOption.getValue() == 1, binaryOnlyOption.getValue() == 1, numGraceOption.getValue(),
+      growthAllowedOption.isSet(), binaryOnlyOption.isSet(), numGraceOption.getValue(),
       tieThresholdOption.getValue, splitConfidenceOption.getValue(),
       learningNodeOption.getValue(), nbThresholdOption.getValue(),
-      prePruneOption.getValue() == 1, splitAllOption.getValue() == 1)
+      noPrePruneOption.isSet(), removePoorFeaturesOption.isSet(), splitAllOption.isSet())
     model.init()
   }
 
@@ -125,94 +187,13 @@ class HoeffdingTree extends Classifier {
   }
 }
 
-/**
- *
- * Hoeffding Tree or VFDT.
- *
- *
- *
- * A Hoeffding tree is an incremental, anytime decision tree induction algorithm
- *
- * that is capable of learning from massive data streams, assuming that the
- *
- * distribution generating examples does not change over time. Hoeffding trees
- *
- * exploit the fact that a small sample can often be enough to choose an optimal
- *
- * splitting attribute. This idea is supported mathematically by the Hoeffding
- *
- * bound, which quantiﬁes the number of observations (in our case, examples)
- *
- * needed to estimate some statistics within a prescribed precision (in our
- *
- * case, the goodness of an attribute).</p> <p>A theoretically appealing feature
- *
- * of Hoeffding Trees not shared by other incremental decision tree learners is
- *
- * that it has sound guarantees of performance. Using the Hoeffding bound one
- *
- * can show that its output is asymptotically nearly identical to that of a
- *
- * non-incremental learner using inﬁnitely many examples. See for details:</p>
- *
- *
- *
- * <p>G. Hulten, L. Spencer, and P. Domingos. Mining time-changing data streams.
- *
- * In KDD’01, pages 97–106, San Francisco, CA, 2001. ACM Press.</p>
- *
- *
- *
- * <p>Parameters:</p> <ul> <li> -m : Maximum memory consumed by the tree</li>
- *
- * <li> -n : Numeric estimator to use : <ul> <li>Gaussian approximation
- *
- * evaluating 10 splitpoints</li> <li>Gaussian approximation evaluating 100
- *
- * splitpoints</li> <li>Greenwald-Khanna quantile summary with 10 tuples</li>
- *
- * <li>Greenwald-Khanna quantile summary with 100 tuples</li>
- *
- * <li>Greenwald-Khanna quantile summary with 1000 tuples</li> <li>VFML method
- *
- * with 10 bins</li> <li>VFML method with 100 bins</li> <li>VFML method with
- *
- * 1000 bins</li> <li>Exhaustive binary tree</li> </ul> </li> <li> -e : How many
- *
- * instances between memory consumption checks</li> <li> -g : The number of
- *
- * instances a leaf should observe between split attempts</li> <li> -s : Split
- *
- * criterion to use. Example : InfoGainSplitCriterion</li> <li> -c : The
- *
- * allowable error in split decision, values closer to 0 will take longer to
- *
- * decide</li> <li> -t : Threshold below which a split will be forced to break
- *
- * ties</li> <li> -b : Only allow binary splits</li> <li> -z : Stop growing as
- *
- * soon as memory limit is hit</li> <li> -r : Disable poor attributes</li> <li>
- *
- * -p : Disable pre-pruning</li>
- *
- *  <li> -l : Leaf prediction to use: MajorityClass (MC), Naive Bayes (NB) or NaiveBayes
- *
- * adaptive (NBAdaptive).</li>
- *
- *  <li> -q : The number of instances a leaf should observe before
- *
- * permitting Naive Bayes</li>
- *
- * </ul>
- *
- */
-
 class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverType: Int = 0,
                          val splitCriterion: SplitCriterion = new InfoGainSplitCriterion(),
                          var growthAllowed: Boolean = true, val binaryOnly: Boolean = true,
                          val graceNum: Int = 200, val tieThreshold: Double = 0.05,
                          val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
-                         val nbThreshold: Int = 0, val prePrune: Boolean = false, val splitAll: Boolean = false)
+                         val nbThreshold: Int = 0, val noPrePrune: Boolean = true,
+                         val removePoorFeatures: Boolean = false, val splitAll: Boolean = false)
   extends Model with Serializable with Logging {
 
   type T = HoeffdingTreeModel
@@ -236,7 +217,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   def this(model: HoeffdingTreeModel) {
     this(model.espec, model.numericObserverType, model.splitCriterion, model.growthAllowed,
       model.binaryOnly, model.graceNum, model.tieThreshold, model.splitConfedence,
-      model.learningNodeType, model.nbThreshold, model.prePrune)
+      model.learningNodeType, model.nbThreshold, model.noPrePrune)
     activeNodeCount = model.activeNodeCount
     this.inactiveNodeCount = model.inactiveNodeCount
     this.deactiveNodeCount = model.deactiveNodeCount
@@ -318,7 +299,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
     }
   }
 
-  /*
+  /**
    * check whether split the activeNode or not according to Heoffding bound and merit
    * @param activeNode the node which may be splitted
    * @param bestSuggestions array of FeatureSplit
@@ -337,7 +318,22 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
     }
   }
 
-  /*
+  def desableFeatures(activeNode: ActiveLearningNode, bestSuggestions: Array[FeatureSplit], hoeffdingBound: Double): Unit = {
+    if (this.removePoorFeatures) {
+      val poorFeatures = new HashSet[Integer]()
+      val bestSuggestion = bestSuggestions.last
+      for (suggestion: FeatureSplit <- bestSuggestions) {
+        if (suggestion.conditionalTest != null &&
+          bestSuggestion.merit - suggestion.merit > hoeffdingBound) {
+          val fIndex = suggestion.conditionalTest.featureIndex()
+          poorFeatures.add(fIndex)
+          activeNode.disableFeature(fIndex)
+        }
+      }
+    }
+  }
+
+  /**
    * merge with another model's FeatureObservers and root, and try to split
    */
   def merge(that: HoeffdingTreeModel, trySplit: Boolean): HoeffdingTreeModel = {
@@ -494,5 +490,5 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   def description(): String = {
     "Hoeffding Tree Model description:\n" + root.description()
   }
-  
+
 }
