@@ -48,7 +48,7 @@ class MultinomialNaiveBayes extends Classifier {
     "Number of Features", 3, 1, Integer.MAX_VALUE)
 
   val laplaceSmoothingFactorOption: IntOption = new IntOption(
-    "laplaceSmoothingFactor", 's', "laplace Smoothing Factor", 1, 1, 
+    "laplaceSmoothingFactor", 's', "Laplace Smoothing Factor", 1, 1, 
     Integer.MAX_VALUE)
 
   var model: MultinomialNaiveBayesModel = null
