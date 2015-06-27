@@ -47,7 +47,7 @@ class EvaluatePrequential extends Task {
 
     val reader:StreamReader = this.streamReaderOption.getValue()
 
-    val learner:SGDLearner = this.learnerOption.getValue()
+    val learner:Classifier = this.learnerOption.getValue()
     learner.init(reader.getExampleSpecification())
 
     val evaluator:Evaluator = this.evaluatorOption.getValue()

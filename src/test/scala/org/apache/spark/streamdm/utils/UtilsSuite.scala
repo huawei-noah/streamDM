@@ -14,21 +14,21 @@
  * limitations under the License.
  *
  */
+package org.apache.spark.streamdm.utils
 
-package org.apache.spark.streamdm.core
+import org.scalatest.FunSuite
 
 /**
- * A Model trait defines the needed operations on any learning Model. It
- * provides methods for updating the model.
+ * Test suite for Utils
  */
-trait Model extends Serializable {
+class UtilsSuite extends FunSuite {
 
-  type T <: Model
+  test("The Majority Vote should return the most frequent item") {
+    assert (Utils.majorityVote( Array(1, 2, 1, 0),3) == 1)
+    assert (Utils.majorityVote( Array(1, 2, 2, 0),3) == 2)
+    assert (Utils.majorityVote( Array(1, 2, 0, 0),3) == 0)
+    assert (Utils.majorityVote( Array(1, 0, 1, 2),3) == 1)
 
-  /* Update the model, depending on the Instance given for training
-   *
-   * @param changeInstance the Instance based on which the Model is updated
-   * @return the updated Model
-   */
-  def update(change: Example): T
+  }
+
 }

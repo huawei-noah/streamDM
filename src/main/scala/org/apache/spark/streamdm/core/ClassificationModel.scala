@@ -18,17 +18,16 @@
 package org.apache.spark.streamdm.core
 
 /**
- * A Model trait defines the needed operations on any learning Model. It
- * provides methods for updating the model.
+ * A ClassificationModel trait defines the needed operations on any classification Model. It
+ * provides methods for updating the model and for predicting the label of a
+ * given Instance
  */
-trait Model extends Serializable {
+trait ClassificationModel extends Model {
 
-  type T <: Model
-
-  /* Update the model, depending on the Instance given for training
+  /* Predict the label of the Instance, given the current Model
    *
-   * @param changeInstance the Instance based on which the Model is updated
-   * @return the updated Model
+   * @param instance the Instance which needs a class predicted
+   * @return a Double representing the class predicted
    */
-  def update(change: Example): T
+  def predict(instance: Example): Double
 }

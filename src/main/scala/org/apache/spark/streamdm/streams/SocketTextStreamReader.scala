@@ -51,7 +51,15 @@ class SocketTextStreamReader extends StreamReader{
    * Obtains the specification of the examples in the stream
    * @return an specification of the examples
    */
-  def getExampleSpecification(): ExampleSpecification = 
+  def getExampleSpecification(): ExampleSpecification = {
+
+    //Prepare specification of class attributes
+    val outputIS = new InstanceSpecification()
+    val classFeature = new FeatureSpecification(Array("+","-"))
+    outputIS.setFeatureSpecification(0, classFeature)
+    outputIS.setName(0, "class")
+
     new ExampleSpecification(new InstanceSpecification(),
-                             new InstanceSpecification())
+      outputIS)
+  }
 }
