@@ -9,15 +9,14 @@ image:
 
 ### Hoeffding Tree
 
-Hoeffding tree is an incremental decision tree learner for extreamely large datesets or infinite data stream, assuming that the distribution of data does not change over time. It incrementally grows a decision tree based on the Hedffding bound(or additive Chernoff bound). A node is expanded, as soon as there is sufficient statistical evidence to choose an optimal splitting feature, and the decision is based on the distribution-independent Hoeffding bound. The output of Hoeffding tree is asymptotically nearly identical to that of a non-incremental learner using inﬁnitely datasets. See for details:
+The Hoeffding tree is an incremental decision tree learner for large data streams, that assumes that the data distribution is not changing over time. It grows incrementally a decision tree based on the theoretical guarantees of the Hoeffding bound (or additive Chernoff bound). A node is expanded, as soon as there is sufficient statistical evidence that an optimal splitting feature exists, and this decision is based on the distribution-independent Hoeffding bound. The model learned by the Hoeffding tree is asymptotically nearly identical to the one built by a non-incremental learner, if the number of training instances is large enough. See for details:
 
 *P. Domingos and G. Hulten. Mining High-Speed Data Streams. In KDD'00, pages 71-80, Boston, MA, 2000. ACM Press.
 
 *G. Hulten, L. Spencer, and P. Domingos. Mining time-changing data streams. In KDD’01, pages 97–106, San Francisco, CA, 2001. ACM Press.
 
 
-
-Its parameters are as the following:
+Its parameters are as follows:
 
 -n : Numeric Observer to use : only support Gaussian approximation by now. And 0 for GuassianNumericFeatureClassObserver,and default number of bins is 10.
 
