@@ -30,42 +30,39 @@ class InstanceSpecification extends Serializable {
   val nameMap = Map[Int, String]()
   val numericFeatureSpecification: NumericFeatureSpecification = new NumericFeatureSpecification
 
-  /**
-   * Gets the FeatureSpecification value present at position index
-   *
-   * @param index the index of the position
-   * @return a FeatureSpecification representing the specification for the feature
-   */
+  /** Gets the FeatureSpecification value present at position index
+    *
+    * @param index the index of the position
+    * @return a FeatureSpecification representing the specification for the
+    * feature
+    */
   def apply(index: Int): FeatureSpecification = {
     if (nominalFeatureSpecificationMap.contains(index))
       nominalFeatureSpecificationMap(index)
     else numericFeatureSpecification
   }
 
-  /**
-   * Adds a specification for the instance feature
-   *
-   * @param index the index at which the value is added
-   * @param input the feature specification which is added up
-   */
+  /** Adds a specification for the instance feature
+    *
+    * @param index the index at which the value is added
+    * @param input the feature specification which is added up
+    */
   def setFeatureSpecification(index: Int, input: FeatureSpecification): Unit =
     nominalFeatureSpecificationMap += (index -> input)
 
-  /**
-   * Gets if the feature is nominal or discrete
-   *
-   * @param index the index of the feature
-   * @return true if the feature is discrete
-   */
+  /** Evaluates whether a feature is nominal or discrete
+    *
+    * @param index the index of the feature
+    * @return true if the feature is discrete
+    */
   def isNominal(index: Int): Boolean =
     this(index).isNominal()
 
-  /**
-   * Gets if the feature is numeric
-   *
-   * @param index the index of the feature
-   * @return true if the feature is numeric
-   */
+  /** Evaluates whether a feature is numeric
+    *
+    * @param index the index of the feature
+    * @return true if the feature is numeric
+    */
   def isNumeric(index: Int): Boolean =
     !isNominal(index)
 
@@ -146,23 +143,23 @@ class NumericFeatureSpecification extends FeatureSpecification with Serializable
 
 class NominalFeatureSpecification(nominalValues: Array[String]) extends FeatureSpecification with Serializable {
   val values = nominalValues
-  val nameMap = Map[String, Int]()
-  values.zipWithIndex.map { case (element, index) => (nameMap += (element -> index)) }
 
-  /**
-   * Get the nominal string value present at position index
-   *
-   * @param index the index of the feature value
-   * @return a string containing the nominal value of the feature
-   */
-  def apply(index: Int): String = values(index)
+  val nameMap = Map[String,Int]()
+  values.zipWithIndex.map{ case (element, index) => 
+                            (nameMap += (element -> index)) }
 
-  /**
-   * Get the position index given the nominal string value
-   *
-   * @param string a string containing the nominal value of the feature
-   * @return the index of the feature value
-   */
+  /** Get the nominal string value present at position index
+    *
+    * @param index the index of the feature value
+    * @return a string containing the nominal value of the feature
+    */
+  def apply(index: Int): String =  values(index)
+
+  /** Get the position index given the nominal string value
+    *
+    * @param string a string containing the nominal value of the feature
+    * @return the index of the feature value
+    */
   def apply(string: String): Int = nameMap(string)
 
   /**

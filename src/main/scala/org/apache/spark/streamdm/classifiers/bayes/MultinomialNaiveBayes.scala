@@ -27,14 +27,20 @@ import org.apache.spark.streamdm.core._
 
 import org.apache.spark.streamdm.classifiers.trees._
 /**
- * Incremental Multinomial Naive Bayes learner. Builds a bayesian text classifier
- * making the naive assumption that all inputs are independent and that feature
- * values represent the frequencies with words occur. For more information
- * see,<br/> <br/> Andrew Mccallum, Kamal Nigam: A Comparison of Event Models
- * for Naive Bayes Text Classification. In: AAAI-98 Workshop on 'Learning for
- * Text Categorization', 1998.<br/> <br/>
+ * Incremental Multinomial Naive Bayes learner. Builds a bayesian text
+ * classifier making the naive assumption that all inputs are independent and
+ * that feature values represent the frequencies with words occur. For more
+ * information see,<br/> <br/> Andrew Mccallum, Kamal Nigam: A Comparison of
+ * Event Models for Naive Bayes Text Classification. In: AAAI-98 Workshop on
+ * 'Learning for Text Categorization', 1998.<br/> <br/>
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Number of features (<b>-f</b>)
+ *  <li> Number of classes (<b>-c</b>)
+ *  <li> Laplace smoothing parameter (<b>-s</b>)
+ * </ul>
  */
-
 class MultinomialNaiveBayes extends Classifier {
 
   type T = MultinomialNaiveBayesModel
@@ -45,44 +51,49 @@ class MultinomialNaiveBayes extends Classifier {
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "Number of Features", 3, 1, Integer.MAX_VALUE)
 
-  val laplaceSmoothingFactorOption: IntOption = new IntOption("laplaceSmoothingFactor", 's',
-    "laplace Smoothing Factor", 1, 1, Integer.MAX_VALUE)
+  val laplaceSmoothingFactorOption: IntOption = new IntOption(
+    "laplaceSmoothingFactor", 's', "Laplace Smoothing Factor", 1, 1, 
+    Integer.MAX_VALUE)
 
   var model: MultinomialNaiveBayesModel = null
 
   var exampleLearnerSpecification: ExampleSpecification = null
 
-  /* Init the model based on the algorithm implemented in the learner,
-   * from the stream of instances given for training.
+  /**
+   * Init the model based on the algorithm implemented in the learner.
    *
+   * @param exampleSpecification the ExampleSpecification of the input stream.
    */
   override def init(exampleSpecification: ExampleSpecification): Unit = {
     exampleLearnerSpecification = exampleSpecification
     model = new MultinomialNaiveBayesModel(
-      numClassesOption.getValue, numFeaturesOption.getValue, laplaceSmoothingFactorOption.getValue)
+      numClassesOption.getValue, numFeaturesOption.getValue,
+          laplaceSmoothingFactorOption.getValue)
   }
 
-  /* Train the model based on the algorithm implemented in the learner, 
-   * from the stream of instances given for training.
-   *
-   * @param input a stream of instances
-   * @return the updated Model
+  /** 
+   * Train the model based on the algorithm implemented in the learner, 
+   * from the stream of Examples given for training.
+   * 
+   * @param input a stream of Examples
    */
   override def train(input: DStream[Example]): Unit = {
     input.foreachRDD {
       rdd =>
         val tmodel = rdd.aggregate(
-          new MultinomialNaiveBayesModel(
-            model.numClasses, model.numFeatures, model.laplaceSmoothingFactor))(
-            (mod, example) => { mod.update(example) }, (mod1, mod2) => mod1.merge(mod2))
+          new MultinomialNaiveBayesModel(model.numClasses, model.numFeatures,
+            model.laplaceSmoothingFactor))(
+            (mod, example) => { mod.update(example) }, (mod1, mod2) => 
+              mod1.merge(mod2))
         model = model.merge(tmodel)
     }
   }
 
-  /* Predict the label of the Instance, given the current Model
+  /* Predict the label of the Example stream, given the current Model
    *
-   * @param instance the Instance which needs a class predicted
-   * @return a tuple containing the original instance and the predicted value
+   * @param instance the input Example stream 
+   * @return a stream of tuples containing the original instance and the
+   * predicted value
    */
   override def predict(input: DStream[Example]): DStream[(Example, Double)] = {
     input.map { x => (x, model.predict(x)) }
@@ -95,31 +106,39 @@ class MultinomialNaiveBayes extends Classifier {
   override def getModel: MultinomialNaiveBayesModel = model
 }
 
-class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val laplaceSmoothingFactor: Int)
+/**
+ * The Model used for the multinomial Naive Bayes. It contains the class
+ * statistics and the class feature statistics.
+ */
+class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, 
+                                 val laplaceSmoothingFactor: Int)
   extends Model with Serializable {
   type T = MultinomialNaiveBayesModel
 
   var classStatistics: Array[Double] = new Array[Double](numClasses)
-  var classFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatures))
+  var classFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(
+      new Array[Double](numFeatures))
 
   @transient var isReady: Boolean = false
 
-  // varialbles for prediction
+  // variables used for prediction
   @transient var logNumberDocuments: Double = 0
   @transient var logProbability: Array[Double] = null
   @transient var logConditionalProbability: Array[Array[Double]] = null
   @transient var logNumberDocumentsOfClass: Double = 0
 
   def this(numClasses: Int, numFeatures: Int, laplaceSmoothingFactor: Int,
-           classStatistics: Array[Double], classFeatureStatistics: Array[Array[Double]]) {
+           classStatistics: Array[Double],
+           classFeatureStatistics: Array[Array[Double]]) {
     this(numClasses, numFeatures, laplaceSmoothingFactor)
     this.classStatistics = classStatistics
     this.classFeatureStatistics = classFeatureStatistics
   }
 
-  /* Update the model, depending on an Instance given for training
+  /**
+   * Update the model, depending on the Instance given for training.
    *
-   * @param instance the Instance based on which the Model is updated
+   * @param change the example based on which the Model is updated
    * @return the updated Model
    */
   override def update(instance: Example): MultinomialNaiveBayesModel = {
@@ -134,21 +153,28 @@ class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val 
     this
   }
 
-  /* Prepare the model
-   * 
+  /**
+   * Prepare the model.
+   *
+   * @return a boolean indicating whether the model is ready
    */
   private def prepare(): Boolean = {
     if (!isReady) {
       logProbability = new Array[Double](numClasses)
-      logConditionalProbability = Array.fill(numClasses)(new Array[Double](numFeatures))
+      logConditionalProbability = Array.fill(numClasses)(new Array[Double](
+        numFeatures))
       val totalnum = classFeatureStatistics.map { x => x.sum }.sum
-      logNumberDocuments = math.log(totalnum + numClasses * laplaceSmoothingFactor)
+      logNumberDocuments = math.log(totalnum + numClasses *
+        laplaceSmoothingFactor)
       for (i <- 0 until numClasses) {
-        val logNumberDocumentsOfClass = math.log(classFeatureStatistics(i).sum + numFeatures * laplaceSmoothingFactor)
-        logProbability(i) = math.log(classStatistics(i) + laplaceSmoothingFactor) - logNumberDocuments
+        val logNumberDocumentsOfClass = math.log(classFeatureStatistics(i).sum +
+          numFeatures * laplaceSmoothingFactor)
+        logProbability(i) = math.log(classStatistics(i) +
+          laplaceSmoothingFactor) - logNumberDocuments
         for (j <- 0 until numFeatures) {
           logConditionalProbability(i)(j) =
-            math.log(classFeatureStatistics(i)(j) + laplaceSmoothingFactor) - logNumberDocumentsOfClass
+            math.log(classFeatureStatistics(i)(j) + laplaceSmoothingFactor) -
+              logNumberDocumentsOfClass
         }
       }
       isReady = true
@@ -156,9 +182,10 @@ class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val 
     return isReady
   }
 
-  /* Predict the label of the Instance, given the current Model
+  /**
+   * Predict the label of the Instance, given the current Model.
    *
-   * @param instance the Instance which needs a class predicted
+   * @param instance the Example which needs a class predicted
    * @return a Double representing the class predicted
    */
   def predict(instance: Example): Double = {
@@ -167,29 +194,35 @@ class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int, val 
       for (i <- 0 until numClasses) {
         predictlogProbability(i) = logProbability(i)
         for (j <- 0 until numFeatures) {
-          predictlogProbability(i) += logConditionalProbability(i)(j) * instance.featureAt(j)
+          predictlogProbability(i) += logConditionalProbability(i)(j) *
+            instance.featureAt(j)
         }
       }
       argMax(predictlogProbability)
     } else 0
   }
 
-  /* Index of maximum value of an array
-   * @param Array
-   * @return a Double
+  /**
+   * Index corresponding to the maximum value of an array of Doubles.
+   * 
+   * @param array the input Array
+   * @return the argmax index
    */
-  private def argMax(array: Array[Double]): Double = array.zipWithIndex.maxBy(_._1)._2
+  private def argMax(array: Array[Double]): Double = array.zipWithIndex.
+    maxBy(_._1)._2
 
-  /*
-   * merge the statistics into current model
-   * @param MultinomialNaiveBayesModel
+  /**
+   * Merge the statistics of another model into the current model.
+   *
+   * @param mod2 MultinomialNaiveBayesModel
    * @return MultinomialNaiveBayesModel
    */
   def merge(mod2: MultinomialNaiveBayesModel): MultinomialNaiveBayesModel = {
     val mergeClassStatistics = this.classStatistics.
       zip(mod2.classStatistics).map { case (x, y) => x + y }
     val mergeClassFeatureStatistics = this.classFeatureStatistics.
-      zip(mod2.classFeatureStatistics).map { case (a1, a2) => a1.zip(a2).map { case (x, y) => x + y } }
+      zip(mod2.classFeatureStatistics).map { case (a1, a2) => a1.zip(a2).map {
+        case (x, y) => x + y } }
     new MultinomialNaiveBayesModel(
       mod2.numClasses, mod2.numFeatures, mod2.laplaceSmoothingFactor,
       mergeClassStatistics, mergeClassFeatureStatistics)

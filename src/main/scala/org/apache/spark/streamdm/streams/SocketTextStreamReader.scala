@@ -25,7 +25,14 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streamdm.core.Instance
 
 /**
- * Stream reader that gets instances from a socket stream
+ * Stream reader that gets instances from a socket stream.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Socket host (<b>-h</b>)
+ *  <li> Socket port (<b>-p</b>)
+ *  <li> Instance type (<b>-t</b>), either <i>dense</i> or <i>sparse</i>
+ * </ul>
  */
 class SocketTextStreamReader extends StreamReader{
 
@@ -38,6 +45,12 @@ class SocketTextStreamReader extends StreamReader{
   val instanceOption: StringOption = new StringOption("instanceType", 't',
     "Type of the instance to use", "dense")
 
+  /**
+   * Obtains a stream of examples.
+   *
+   * @param ssc a Spark Streaming context
+   * @return a stream of Examples
+   */
   def getExamples(ssc:StreamingContext): DStream[Example] = {
     //stream is a localhost socket stream
     val text = ssc.socketTextStream(hostOption.getValue, portOption.getValue)
@@ -48,8 +61,9 @@ class SocketTextStreamReader extends StreamReader{
   }
 
   /**
-   * Obtains the specification of the examples in the stream
-   * @return an specification of the examples
+   * Obtains the specification of the examples in the stream.
+   *
+   * @return an ExampleSpecification of the features
    */
   def getExampleSpecification(): ExampleSpecification = 
     new ExampleSpecification(new InstanceSpecification(),

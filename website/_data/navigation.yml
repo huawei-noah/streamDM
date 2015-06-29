@@ -1,0 +1,21 @@
+# Site navigation links
+
+- title: About
+  url: /
+
+- title: Github
+  url: https://github.com/huawei-noah/streamDM
+
+- title: Getting Started
+  url: /docs/GettingStarted.html
+
+- title: Methods
+  url: /index.html#methods
+
+- title: Programming Guide
+  url: /docs/Programming.html
+
+- title: Contributors
+  url: /docs/Contributors.html
+
+

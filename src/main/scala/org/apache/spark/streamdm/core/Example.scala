@@ -21,10 +21,9 @@ package org.apache.spark.streamdm.core
  * An Example is a wrapper on top of the Instance class hierarchy. It contains a
  * reference to an input Instance and an output Instance, and provides setters
  * and getters for the features and labels. This is done so that the DStream
- * accepts any type on Instance in the parameters, and that the same DStream
- * contains multiple types of Instance.
+ * accepts any type of Instance in the parameters, and that the same DStream can
+ * be allowed to contain multiple types of Instance.
  */
-
 class Example(inInstance: Instance, outInstance: Instance = new NullInstance, 
               weightValue: Double=1.0) 
   extends Serializable {
@@ -33,17 +32,17 @@ class Example(inInstance: Instance, outInstance: Instance = new NullInstance,
   val out = outInstance
   val weight = weightValue
 
-  /** Get the feature value present at position index
+  /** Get the input value present at position index
    *
-   * @param index the index of the features
+   * @param index the index of the value
    * @return a Double representing the feature value
    */
   def featureAt(index: Int): Double = in(index)
   
-  /** Get the class value present at position index
+  /** Get the output value present at position index
    *
-   * @param index the index of the class
-   * @return a Double representing the value for the class
+   * @param index the index of the value
+   * @return a Double representing the value
    */
   def labelAt(index: Int): Double = out(index)
 
@@ -73,7 +72,6 @@ class Example(inInstance: Instance, outInstance: Instance = new NullInstance,
   def setLabel(index: Int, input: Double): Example =
     new Example(in, out.set(index, input), weight)
 
-
   override def toString = {
     val inString = in.toString
     val weightString = if (weight==1.0) "" else " %f".format(weight)
@@ -87,13 +85,12 @@ class Example(inInstance: Instance, outInstance: Instance = new NullInstance,
 
 object Example extends Serializable {
   
-  /** Parse the input string as an SparseInstance class
-   *
-   * @param input the String line to be read, where the input and output
+  /** Parse the input string as an SparseInstance class. The input and output
    * instances are separated by a whitespace character, of the form
    * "output_instance<whitespace>input_instance<whitespace>weight". The output
    * and the weight can be missing.
-   * @param inType String specifying the format of the input instance
+   *
+   * @param input the String line to be read
    * @param outType String specifying the format of the output instance
    * @return a DenseInstance which is parsed from input
    */
@@ -114,7 +111,7 @@ object Example extends Serializable {
    * associated .parse static method
    * @param input the String to be parsed
    * @param instType the type of instance to be parsed ("dense" or "sparse")
-   * @return the parsed Instance, or null if the type is not properly explained
+   * @return the parsed Instance, or null if the type is not properly specified
    */
   private def getInstance(input: String, instType: String): Instance = 
     instType match {

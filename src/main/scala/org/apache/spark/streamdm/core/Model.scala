@@ -19,16 +19,16 @@ package org.apache.spark.streamdm.core
 
 /**
  * A Model trait defines the needed operations on any learning Model. It
- * provides methods for updating the model and for predicting the label of a
- * given Instance
+ * provides a method for updating the model.
  */
 trait Model extends Serializable {
 
   type T <: Model
 
-  /* Update the model, depending on the Instance given for training
+  /**
+   * Update the model, depending on the Instance given for training.
    *
-   * @param changeInstance the Instance based on which the Model is updated
+   * @param change the example based on which the Model is updated
    * @return the updated Model
    */
   def update(change: Example): T

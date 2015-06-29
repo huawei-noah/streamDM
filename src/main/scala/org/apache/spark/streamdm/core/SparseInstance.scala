@@ -23,7 +23,8 @@ import math._
  * A SparseInstance is an Instance in which the features are sparse, i.e., most
  * features will not have any value.
  * The SparseInstance will keep two Arrays: one with the values and one with the
- * corresponding indexes.
+ * corresponding indexes. The implementation will be based on these two data
+ * structures.
  */
 
 case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
@@ -118,7 +119,7 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
   /** Perform an element by element multiplication between two instances
    *
    * @param input an Instance which is multiplied
-   * @return an Instance representing the Hadamard product
+   * @return a SparseInstance representing the Hadamard product
    */
   override def hadamard(input: Instance): SparseInstance = input match {
     case SparseInstance(ind,v) => {
@@ -195,7 +196,7 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
   /** Aggregate the values of an instance 
    *
    * @param func the function for the transformation
-   * @return the reduced value
+   * @return the aggregated value
    */
   override def reduce(func: (Double,Double)=>Double): Double =
     values.reduce(func)
@@ -207,7 +208,10 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
 
 object SparseInstance extends Serializable {
   
-  /** Parse the input string as an SparseInstance class
+  /** Parse the input string as an SparseInstance class, in LibSVM
+   * comma-separated format, where each feature is of the form "i:v" where i is
+   * the index of the feature (starting at 1), and v is the value of the
+   * feature.
    *
    * @param input the String line to be read, in LibSVM format
    * @return a DenseInstance which is parsed from input
