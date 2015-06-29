@@ -23,27 +23,37 @@ import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streaming.dstream.DStream
 
 /**
- * Classification evaluator that performs basic incremental evaluation.
- *
+ * Single label binary classification evaluator which computes the confusion
+ * matrix from a stream of tuples composes of the testing Examples and doubles
+ * predicted by the learners.
  */
 class BasicClassificationEvaluator extends Evaluator{
   var numInstancesCorrect = 0;
   var numInstancesSeen = 0;
 
-  def addResult(input: DStream[(Example, Double)]): DStream[String] = {
+  /**
+   * Process the result of a predicted stream of Examples and Doubles.
+   *
+   * @param input the input stream containing (Example,Double) tuples
+   * @return a stream of String with the processed evaluation
+   */
+  override def addResult(input: DStream[(Example, Double)]): DStream[String] = {
     //print the confusion matrix for each batch
     val pred = ConfusionMatrix.computeMatrix(input)
     pred.map(x => {"%.3f,%.0f,%.0f,%.0f,%.0f"
       .format((x._1+x._4)/(x._1+x._2+x._3+x._4),x._1,x._2,x._3,x._4)})
   }
 
-  def getResult():Double = {
+  /**
+   * Get the evaluation result.
+   *
+   * @return a Double containing the evaluation result
+   */
+  override def getResult(): Double = 
     numInstancesCorrect.toDouble/numInstancesSeen.toDouble
-  }
 }
 /**
- * Confusion matrix for binary classification.
- *
+ * Helper class for computing the confusion matrix for binary classification.
  */
 object ConfusionMatrix extends Serializable{
   def confusion(x: (Example,Double)):

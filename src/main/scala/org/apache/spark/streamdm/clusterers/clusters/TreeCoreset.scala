@@ -23,32 +23,28 @@ import scala.util.Random
 import scala.io.Source
 
 /**
- * A TreeCoreset contains the underlying tree structure for the coreset extraction
- * framework, it construct a tree structure for efficient coreset extraction from
- * a exmaple stream.
+ * A TreeCoreset contains the underlying tree structure for the coreset
+ * extraction framework. It constructs a tree structure for efficient coreset
+ * extraction from an  Example stream.
  */
 class TreeCoreset {
   
   /**
    * Wrap the information in CoresetTreeNode, which will not be modified after
-   * a CoresetTreeNode construction. It is composed of:
-   * - the number of examples in a tree node
-   * - the examples associated with a tree node
-   * - the cluster centre of the associated examples
-   * - the parent of the tree node
+   * a CoresetTreeNode construction. 
+   *
+   * <p>It is composed of:
+   * <ul>
+   *  <li> the number of examples in a tree node
+   *  <li> the examples associated with a tree node
+   *  <li> the cluster centre of the associated examples
+   *  <li> the parent of the tree node
+   * </ul>
    */
    class CoresetTreeElem(val n : Int, val points : Array[Example], 
     val centre : Example) {
     }
 
-  /**
-   * CoresetTreeNode data structure which is the component of a tree structure.
-   * Each CoresetTreeNode is associated with a cluster of examples as well as some
-   * other properties for the corresponding cluster. It is composed of:
-   * - Wrapped properties of the coresetree node
-   * - Left and right child of the node
-   * - Cost of coresettree node
-   */
   sealed trait CoresetTree {
     def elem : CoresetTreeElem
     def cost : Double
@@ -56,24 +52,26 @@ class TreeCoreset {
 
   
   /**
-   * CoresetTree Leaf Node data structure without children
+   * CoresetTreeLeaf node data structure. A leaf does not have any children.
    */
   case class CoresetTreeLeaf(val elem : CoresetTreeElem, val cost : Double) extends CoresetTree {
     /**
-     * Compute the distance between the given point and the leaf centre
-     * @param point the given point
+     * Compute the distance between the given point and the leaf centre.
+     * @param point the given Example point
      * @return the distance between the point and the leaf centre
      */
     def costOfPoint(point : Example) : Double = {
       val weight = point.weight
       val instance = if(weight != 0.0) point.in.map(x=>x/weight) else point.in
-      val centre = if(elem.centre.weight != 0.0) elem.centre.in.map(x=>x/elem.centre.weight) else elem.centre.in
+      val centre = if(elem.centre.weight != 0.0) elem.centre.in.map(x=>x/elem.centre.weight) 
+                    else elem.centre.in
       instance.distanceTo(centre)*weight
     }
 
     /**
      * Compute the leaf node cost attribute, which is the sum of the squared distances over
-     * all points associated with the leaf node to its centre
+     * all points associated with the leaf node to its centre.
+     *
      * @return a new leaf node with the computed cost value
      */
     def weightedLeaf() : CoresetTreeLeaf = {
@@ -82,8 +80,8 @@ class TreeCoreset {
     }
 
     /**
-     * Select a new centre from the leaf node for spliting. 
-     * @return centre except for the old centre of the leaf node
+     * Select a new centre from the leaf node for splitting. 
+     * @return the new centre
      */
     def chooseCentre() : Example = {
       val funcost = this.weightedLeaf().cost
@@ -100,19 +98,31 @@ class TreeCoreset {
   }
 
   /**
-   * CoresetTree inner node data structure with two children
+   * CoresetTreeNode data structure, a component of the CoresetTree structure.
+   * Each CoresetTreeNode is associated with a cluster of Example, and has its
+   * properties stored.
+   *
+   * <p> It is composed of:
+   * <ul>
+   *  <li> wrapped properties of the node
+   *  <li> left and right children of the node
+   *  <li> the cost of the node
+   * </ul>
    */
   case class CoresetTreeNode(val elem : CoresetTreeElem, val left : CoresetTree, 
     val right : CoresetTree, val cost : Double) extends CoresetTree {
   }
 
   /**
-   * Split the coreset tree leaf to generate a coreset tree node with two leaves
-   * @param leaf is the coreset tree leaf for spliting
+   * Split the coreset tree leaf to generate a coreset tree node with two
+   * leaves.
+   * 
+   * @param leaf coreset tree leaf for spliting
    * @return a coreset tree node with two leaves
    */
   private def splitCoresetTreeLeaf(leaf : CoresetTreeLeaf) : CoresetTreeNode = {
-    // Select a example from the points associated with the leaf  as a new centre for one of the new leaf 
+    // Select a example from the points associated with the leaf  as a new centre 
+    // for one of the new leaf 
     val newcentre = leaf.chooseCentre
     // The original centre as the other leaf centre
     val oldcentre = leaf.elem.centre
@@ -164,20 +174,22 @@ class TreeCoreset {
   }
   
   /**
-   * Retrieve a new coreset from a given CoresetTree recursively, in the procss the return coreset will 
-   * be combined with the given coreset.
+   * Retrieve a new coreset from a given CoresetTree recursively. During this
+   * process, the returned coreset will be combined with the given coreset.
    * @param root the CoresetTree root node
-   * @param coreset 
+   * @param coreset the current coreset
+   * @return the new coreset
    */
-  def retrieveCoreset(root :  CoresetTree, coreset : Array[Example]) : Array[Example] = root match {
-    case CoresetTreeNode(e, l, r, c) => {
-      retrieveCoreset(r, retrieveCoreset(l, coreset))
-    }
-    case CoresetTreeLeaf(e, c) => coreset :+ e.centre.setWeight(e.n)
+  def retrieveCoreset(root :  CoresetTree, coreset : Array[Example]) : Array[Example] = 
+    root match {
+      case CoresetTreeNode(e, l, r, c) => {
+        retrieveCoreset(r, retrieveCoreset(l, coreset))
+      }
+      case CoresetTreeLeaf(e, c) => coreset :+ e.centre.setWeight(e.n)
   }
 
   /**
-   * Build a coreset tree with the points and the coreset size
+   * Build a coreset tree with the points and having the given coreset size
    * @param points for coreset tree construction
    * @param m is the coreset size
    * @return a coreset tree
@@ -196,8 +208,8 @@ class TreeCoreset {
 
   /**
    * A help function for computing the squared distance between two examples
-   * @param p1
-   * @param p2
+   * @param p1 the source Example
+   * @param p2 the target Example
    * @return the squared distance 
    */
   def squaredDistance(p1 : Example, p2 : Example) : Double = {

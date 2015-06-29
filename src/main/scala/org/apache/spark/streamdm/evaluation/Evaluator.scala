@@ -24,13 +24,22 @@ import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streaming.dstream.DStream
 
 /**
- * Abstract class implemented by learner evaluators to monitor
- * the results of the learning process.
- *
+ * Abstract class which defines the operations needed to evaluate learners.
  */
 abstract class Evaluator extends Configurable with Serializable{
 
+  /**
+   * Process the result of a predicted stream of Examples and Doubles.
+   *
+   * @param input the input stream containing (Example,Double) tuples
+   * @return a stream of String with the processed evaluation
+   */
   def addResult(input: DStream[(Example, Double)]):  DStream[String]
 
-  def getResult():Double
+  /**
+   * Get the evaluation result.
+   *
+   * @return a Double containing the evaluation result
+   */
+  def getResult(): Double
 }

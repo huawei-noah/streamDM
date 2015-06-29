@@ -24,12 +24,13 @@ import scala.io.Source
 
 /**
  * The KMeans object computes the weighted k-means clustering given an array of
- * Examples.  It assumes that the inputs are weighted. Each instance will
- * contribute a _weight_ number of instances to the cluster.
+ * Examples. It assumes that the inputs are weighted. Each instance will
+ * contribute a weight number of instances to the cluster.
  */
 object KMeans extends Serializable {
 
-  /* Init the model based on the algorithm implemented in the learner,
+  /**
+   * Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    * @param input an Array of Example containing the instances to be clustered

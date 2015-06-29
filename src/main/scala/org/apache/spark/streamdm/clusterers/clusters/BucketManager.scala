@@ -24,11 +24,10 @@ import scala.util.control.Breaks._
 
 
 /**
- * Data structure for managing all buckets for streamKM++ algorithm, this data
- * structure will extract maxsize coreset exmaples from n instances. When a new 
- * example comming, the bucketmanager will update buckets in it.
- * -n instances in DStream
- * -maxsize bucket size for coreset extraction
+ * Data structure for managing all buckets for streamKM++ algorithm. The
+ * structure will extract <i>maxsize</i> coreset examples from <i>n</i>
+ * examples. When a new example occurs on the stream, the BucketManager is
+ * tasked with updating its corresponding buckets.
  */
 class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
 
@@ -36,13 +35,13 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
   
   /** 
    * Inner class Bucket for new instance management, this class has two buffers for
-   * recursively computation the coreset
+   * recursively computing the coresets.
    */
   class Bucket(val bucketsize : Int = maxsize) extends Serializable {
     val points = Queue[Example]()
     val spillover = Queue[Example]()
     def isFull : Boolean = if(points.length == bucketsize) true else false
-    override def toString : String = "%s".format("bucket buffers in bucketmanger")
+    override def toString : String = "bucket buffers in bucketmanger"
   }
  
   val L = (math.ceil(math.log(n.toDouble/maxsize.toDouble)/math.log(2))+2).toInt
@@ -50,9 +49,9 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
   for(i <- 0 until L)
     buckets(i) = new Bucket
 
-  /** Update the clustering data structure, depending on the example given
+  /** Update the BucketManager, depending on the Example given
    *
-   * @param the exmaple based on which the Model is updated
+   * @param change the input Example
    * @return the updated BucketManger object
    */
   override def update(change: Example): BucketManager = {
@@ -77,12 +76,14 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
         curbucket += 1
         nextbucket += 1
         /*
-         * As long as the nextbucket is full, output the coreset to the spillover of the next bucket
+         * As long as the nextbucket is full, output the coreset to the spillover 
+         * of the next bucket
          */
         while(buckets(nextbucket).isFull) {
           val examples = (buckets(curbucket).points union buckets(curbucket).spillover).toArray 
           val tree = new TreeCoreset
-          val coreset = tree.retrieveCoreset(tree.buildCoresetTree(examples, maxsize), new Array[Example](0))
+          val coreset = tree.retrieveCoreset(tree.buildCoresetTree(examples, maxsize),
+                          new Array[Example](0))
           // Copy coreset to nextbucket spillover
           buckets(nextbucket).spillover.clear()
           for(point <- coreset) buckets(nextbucket).spillover.enqueue(point)
@@ -94,7 +95,8 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
         }
         val examples = (buckets(curbucket).points union buckets(curbucket).spillover).toArray 
         val tree = new TreeCoreset
-        val coreset = tree.retrieveCoreset(tree.buildCoresetTree(examples, maxsize), new Array[Example](0))
+        val coreset = tree.retrieveCoreset(tree.buildCoresetTree(examples, maxsize),
+                        new Array[Example](0))
         // Copy coreset to nextbucket points
         buckets(nextbucket).points.clear()
         for(point <- coreset) buckets(nextbucket).points.enqueue(point)
@@ -110,12 +112,15 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
 
   /**
    * Return an array of weighted examples corresponding to the coreset extracted from
-   * treecoreset data structure Kmeans clustering
-   * Case 1 : when the last bucket is full, return the contents of the last bucket
-   * Case 2 : when the last bucket is not full, recursively compute a coreset from all
+   * the TreeCoreset data structure, in order to be used in k-means.
+   *
+   * <p>The following two cases can occur:
+   * <ul>
+   *  <li> if the last bucket is full, return the contents of the last bucket
+   *  <li> if the last bucket is not full, recursively compute a coreset from all
    *          nonempty buckets
-   * 
-   * @return coreset for the examples entered into the buckets.
+   * </ul> 
+   * @return the coreset for the examples entered into the buckets.
    */
   def getCoreset: Array[Example] = {
     if(buckets(L-1).isFull) {
@@ -133,7 +138,8 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
       for(j <- start until L) {
         val examples = buckets(j).points.toArray ++ coreset
         val tree = new TreeCoreset
-        coreset = tree.retrieveCoreset(tree.buildCoresetTree(examples, maxsize), new Array[Example](0))
+        coreset = tree.retrieveCoreset(tree.buildCoresetTree(examples, maxsize),
+                    new Array[Example](0))
       }
       coreset
     }
