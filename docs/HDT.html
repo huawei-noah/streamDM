@@ -5,14 +5,14 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>CluStream &#8211; streamDM</title>
+<title>Hoeffding Decision Trees &#8211; streamDM</title>
 
 
 
 
 
 <!-- Twitter Cards -->
-<meta name="twitter:title" content="CluStream">
+<meta name="twitter:title" content="Hoeffding Decision Trees">
 
 
 
@@ -23,16 +23,16 @@
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CluStream">
+<meta property="og:title" content="Hoeffding Decision Trees">
 
-<meta property="og:url" content="http://huawei-noah.github.io/streamDM//docs/CluStream.html">
+<meta property="og:url" content="http://huawei-noah.github.io/streamDM//docs/HDT.html">
 <meta property="og:site_name" content="streamDM">
 
 
 
 
 
-<link rel="canonical" href="http://huawei-noah.github.io/streamDM//docs/CluStream.html">
+<link rel="canonical" href="http://huawei-noah.github.io/streamDM//docs/HDT.html">
 <link href="http://huawei-noah.github.io/streamDM//feed.xml" type="application/atom+xml" rel="alternate" title="streamDM Feed">
 
 <!-- http://t.co/dKP3o1e -->
@@ -131,63 +131,55 @@
 
 <div id="main" role="main">
   <article class="entry">
-    <img src="http://huawei-noah.github.io/streamDM//images/screen_network.png" class="entry-feature-image" alt="CluStream" >
+    <img src="http://huawei-noah.github.io/streamDM//images/screen_network.png" class="entry-feature-image" alt="Hoeffding Decision Trees" >
     <div class="entry-wrapper">
       <header class="entry-header">
-        <h1 class="entry-title">CluStream</h1>
+        <h1 class="entry-title">Hoeffding Decision Trees</h1>
       </header>
       <div class="entry-content">
-        <h2 id="clustream-clustering">CluStream Clustering</h2>
-
-<p><em>Charu C. Aggarwal, Jiawei Han, Jianyong Wang, Philip S. Yu.
-A Framework for Clustering Evolving Data Streams. 
-VLDB 2003: 81-92</em></p>
+        <h2 id="hoeffding-decision-trees">Hoeffding Decision Trees</h2>
 
 <h3 id="general-description">General Description</h3>
 
-<p>The <em>CluStream</em> method is a method of clustering data streams, based on the
-concept of <em>microclusters</em>. Microclusters are data structures which summarize a
-set of instances from the stream, and is composed of a set of statistics which
-are easily updated and allow fast analysis.</p>
+<p>The Hoeffding tree is an incremental decision tree learner for large data
+streams, that assumes that the data distribution is not changing over time. It
+grows incrementally a decision tree based on the theoretical guarantees of the
+Hoeffding bound (or additive Chernoff bound). A node is expanded as soon as
+there is sufficient statistical evidence that an optimal splitting feature
+exists, a decision based on the distribution-independent Hoeffding bound. The
+model learned by the Hoeffding tree is asymptotically nearly identical to the
+one built by a non-incremental learner, if the number of training instances is
+large enough. See for details:</p>
 
-<p>CluStream has two phases. In the <em>online</em> phase, a set of microclusters are kept
-in main memory; each instance coming from the input stream can then be either
-appended to an existing microcluster or created as a new microcluster. Space for
-the new microcluster is created either by deleting a microcluster (by analyzing
-its expiration timestamp) or by merging the two closest microclusters. The
-<em>offline</em> phase will apply a weighted k-means algorithm on the microclusters, to
-obtain the final clusters from the stream.</p>
+<p><em>P. Domingos and G. Hulten. Mining High-Speed Data Streams. In KDD, pages 71-80,
+Boston, MA, 2000. ACM Press.</em></p>
+
+<p><em>G. Hulten, L. Spencer, and P. Domingos. Mining time-changing data streams. In
+KDD, pages 97–106, San Francisco, CA, 2001. ACM Press.</em></p>
 
 <h3 id="implementation">Implementation</h3>
 
-<p>In StreamDM, two classes deal with the implementation of the CluStream
-algorithm: <code>MicroClusters</code> and <code>Clustream</code>.</p>
-
-<p><code>MicroClusters</code> is the main data structure keeping the online microclusters
-updated. It is controlled by the following options:</p>
+<p>In StreamDM, Hoeffding trees are implemented in the <code>HoeffdingTree</code> class,
+supported by the model implemented in <code>HoeffdingTreeModel</code>. The <code>HoeffdingTree</code>
+is controlled by the following parameters:</p>
 
 <ul>
-<li>Horizon parameter (<strong>-h</strong>), which controls the size of horizon window in
-seconds (1000 by default), which controls which microclusters become expired;</li>
-<li>Cluster radius multiplier parameter (<strong>-r</strong>), which controls how large the
-radius of a microcluster is to allow new instances to be appended (2 by
-default); and</li>
-<li>m-value parameter (<strong>-m</strong>) which controls the number of standard deviations
-from the mean timestamp in a microcluster, for expiry analysis (100 by default).</li>
-</ul>
-
-<p><code>Clustream</code> implements the main algorithm, and is controlled by the following
-parameters:</p>
-
-<ul>
-<li>Initial buffer parameter (<strong>-b</strong>), which controls the initial buffer from which
-microclusters are created (1000 by default);</li>
-<li>Number of microclusters parameter (<strong>-m</strong>), which controls how many
-microclusters are kept (100 by default);</li>
-<li>Number of clusters parameter (<strong>-k</strong>), which controls how many clusters are
-output by the offline k-means algorithm (10 by default); and</li>
-<li>k-means iterations parameter (<strong>-i</strong>), which controls for how many iterations the
-k-means algorithm iterates (1000 by default).</li>
+<li>Numeric observer to use (<strong>-n</strong>); for the moment, only Gaussian approximation is supported; class of type <code>FeatureClassObserver</code>;</li>
+<li>Number of examples a leaf should observe before a split attempt (<strong>-g</strong>);</li>
+<li>Number of examples a leaf should observe before applying NaiveBayes (<strong>-q</strong>);</li>
+<li>Split criterion to use (<strong>-s</strong>), an object of type <code>SplitCriterionType</code>;</li>
+<li>Allowable error in split decision (<strong>-c</strong>);</li>
+<li>Threshold of allowable error in breaking ties (<strong>-t</strong>);</li>
+<li>Allow only binary splits (<strong>-b</strong>), boolean flag;</li>
+<li>Disable poor attributes (<strong>-r</strong>);</li>
+<li>Allow growth (<strong>-o</strong>);</li>
+<li>Disable pre-pruning (<strong>-p</strong>);</li>
+<li>Leaf prediction to use (<strong>-l</strong>), either <code>MajorityClass</code> (0), <code>NaiveBayes</code> (1)
+or adaptive <code>NaiveBayes</code> (2, default); and</li>
+<li>Enable splitting at all leaves (<strong>-a</strong>); the original algorithm can split at
+any time, but in Spark Streaming one can only split once per RDD; the option
+controls whether to split at leaf of the last <code>Example</code> of the RDD, or at
+every leaf.</li>
 </ul>
 
       </div><!-- /.entry-content -->
