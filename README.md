@@ -28,10 +28,10 @@ internally as a sequence of RDDs.
 
 In this first pre-release of StreamDM, we have implemented:
 
-* [SGD Learner](http://huawei-noah.github.io/streamDM/SGD.html) and [Perceptron](http://huawei-noah.github.io/streamDM/SGD.html#perceptron)
-* [Naive Bayes](http://huawei-noah.github.io/streamDM/NB.html)
-* [CluStream](http://huawei-noah.github.io/streamDM/CluStream.html)
-* [Hoeffding Decision Trees](http://huawei-noah.github.io/streamDM/HDT.html)
+* [SGD Learner](http://huawei-noah.github.io/streamDM/docs/SGD.html) and [Perceptron](http://huawei-noah.github.io/streamDM/docs/SGD.html#perceptron)
+* [Naive Bayes](http://huawei-noah.github.io/streamDM/docs/NB.html)
+* [CluStream](http://huawei-noah.github.io/streamDM/docs/CluStream.html)
+* [Hoeffding Decision Trees](http://huawei-noah.github.io/streamDM/docs/HDT.html)
 * Stream KM++
 
 In the next releases we plan to add: 
