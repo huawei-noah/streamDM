@@ -102,6 +102,7 @@ first predict the instance using the current linear model, and then train (and
 update) the model using the true label. The evaluation will be based on the
 difference between the predicted label and the true label. The code listing of
 the resulting `EvaluatePrequential` is:
+
 ```scala
 class EvaluatePrequential extends Task {
   //Task options

@@ -5,23 +5,50 @@ image:
   feature: screen_finance.png
 ---
 
-streamDM is an open source software for mining big data streams using Spark Streaming, developed at Huawei Noah's Ark Lab. streamDM is licensed under Apache Software License v2.0.
+streamDM is a new open source software for mining big data streams using [Spark Streaming](https://spark.apache.org/streaming/), developed at [Huawei Noah's Ark
+Lab](http://www.noahlab.com.hk/). streamDM is licensed under Apache Software License v2.0.
 
 <p align="center"><img height="100" width="100" src="images/huawei-logo.png" alt="Huawei"></p>
 
-# Spark Streaming
+## Big Data Stream Learning 
 
-Spark Streaming is an extension of the core Spark API that enables scalable, high-throughput, fault-tolerant stream processing of data streams.
-StreamDM is designed to be easily extended and used, and is the first library to contain advanced stream mining algorithms for Spark Streaming. 
+Big Data stream learning is more challenging than batch or offline learning,
+since the data may not keep the same distribution over the lifetime of the
+stream. Moreover, each example coming in a stream can only be processed once, or
+they need to be summarized with a small memory footprint, and the learning
+algorithms must be very efficient. 
 
-# Efficient and Simple to Use
- 
-The tools and algorithms in streamDM are specifically designed for the data stream setting. Due to the large amount of data that is created – and needs to be processed – in real-time streams, such methods need to be extremely time-efficient while using very small amounts of time and memory. StreamDM includes advanced stream mining algorithms willing to be the gathering point of practical implementation and deployments for large-scale data streams.
+### Spark Streaming
 
+[Spark Streaming](https://spark.apache.org/streaming/) is an extension of the
+core [Spark](https://spark.apache.org)  API that enables stream processing from
+a variety of sources. Spark is a extensible and programmable framework for
+massive distributed processing of datasets, called Resilient Distributed
+Datasets (RDD). Spark Streaming receives input data streams and divides the data
+into batches, which are then processed by the Spark engine to generate the
+results.
 
-* Ease of use. Experiments can be executed from the command-line, as in WEKA or MOA.
-* No dependence on third-part libraries, specially on the linear algebra package Breeze. MLlib uses  Breeze, which depends on netlib-java, and jblas that depend on native Fortran routines. Due to license issues, netlib-java’s native libraries are not included in MLlib’s dependency set under default settings. 
-* Ease of extensibility
-* Advanced machine learning methods will be available such as the streaming classification methods of decision trees and streaming random forests, and the streaming clustering methods of CluStream and StreamKM++. 
+Spark Streaming data is organized into a sequence of DStreams, represented
+internally as a sequence of RDDs.
 
+### <a name="methods"></a>Included Methods
 
+In this first pre-release of StreamDM, we have implemented:
+
+* [SGD Learner](SGD.html) and [Perceptron](SGD.html#perceptron)
+* [Naive Bayes](NB.html)
+* [CluStream](CluStream.html)
+* [Hoeffding Decision Trees](HDT.html)
+* Stream KM++
+
+In the next releases we plan to add: 
+
+* Random Forests
+* Frequent Itemset Miner: IncMine
+
+## Going Further
+
+For a quick introduction to running StreamDM, refer to the [Getting
+Started](docs/GettingStarted.html) document. The StreamDM [Programming
+Guide](docs/Programming.html) presents a detailed view of StreamDM. The full API
+documentation can be consulted here. 

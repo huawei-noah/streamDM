@@ -5,7 +5,7 @@ locale: en_US
 description: stream Data Mining for Spark Streaming
 logo: site-logo.png
 search: true
-url: http://streamdm.noahlab.com.hk
+url: http://huawei-noah.github.io/streamDM
 
 # Jekyll configuration
 
