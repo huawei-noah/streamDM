@@ -2,13 +2,13 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
 <title type="text">streamDM</title>
 <generator uri="https://github.com/jekyll/jekyll">Jekyll</generator>
-<link rel="self" type="application/atom+xml" href="http://huawei-noah.github.io/streamDM//feed.xml" />
-<link rel="alternate" type="text/html" href="http://huawei-noah.github.io/streamDM/" />
-<updated>2015-06-29T13:36:11+08:00</updated>
-<id>http://huawei-noah.github.io/streamDM//</id>
+<link rel="self" type="application/atom+xml" href="http://huawei-noah.github.io/streamDM/feed.xml" />
+<link rel="alternate" type="text/html" href="http://huawei-noah.github.io/streamDM" />
+<updated>2015-06-29T13:47:58+08:00</updated>
+<id>http://huawei-noah.github.io/streamDM/</id>
 <author>
   <name></name>
-  <uri>http://huawei-noah.github.io/streamDM//</uri>
+  <uri>http://huawei-noah.github.io/streamDM/</uri>
   
 </author>
 
