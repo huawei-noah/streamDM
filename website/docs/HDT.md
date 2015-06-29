@@ -7,44 +7,43 @@ image:
 
 ## Hoeffding Decision Trees
 
-### Hoeffding Tree
+### General Description
 
-The Hoeffding tree is an incremental decision tree learner for large data streams, that assumes that the data distribution is not changing over time. It grows incrementally a decision tree based on the theoretical guarantees of the Hoeffding bound (or additive Chernoff bound). A node is expanded, as soon as there is sufficient statistical evidence that an optimal splitting feature exists, and this decision is based on the distribution-independent Hoeffding bound. The model learned by the Hoeffding tree is asymptotically nearly identical to the one built by a non-incremental learner, if the number of training instances is large enough. See for details:
+The Hoeffding tree is an incremental decision tree learner for large data
+streams, that assumes that the data distribution is not changing over time. It
+grows incrementally a decision tree based on the theoretical guarantees of the
+Hoeffding bound (or additive Chernoff bound). A node is expanded as soon as
+there is sufficient statistical evidence that an optimal splitting feature
+exists, a decision based on the distribution-independent Hoeffding bound. The
+model learned by the Hoeffding tree is asymptotically nearly identical to the
+one built by a non-incremental learner, if the number of training instances is
+large enough. See for details:
 
-*P. Domingos and G. Hulten. Mining High-Speed Data Streams. In KDD'00, pages 71-80, Boston, MA, 2000. ACM Press.
+*P. Domingos and G. Hulten. Mining High-Speed Data Streams. In , pages 71-80,
+Boston, MA, 2000. ACM Press.*
 
-*G. Hulten, L. Spencer, and P. Domingos. Mining time-changing data streams. In KDD’01, pages 97–106, San Francisco, CA, 2001. ACM Press.
+*G. Hulten, L. Spencer, and P. Domingos. Mining time-changing data streams. In
+KDD, pages 97–106, San Francisco, CA, 2001. ACM Press.*
 
+### Implementation
 
-Its parameters are as follows:
+In StreamDM, Hoeffding trees are implemented in the `HoeffdingTree` class,
+supported by the model implemented in `HoeffdingTreeModel`. The `HoeffdingTree`
+is controlled by the following parameters:
 
--n : Numeric Observer to use : only support Gaussian approximation by now. And 0 for GuassianNumericFeatureClassObserver,and default number of bins is 10.
-
--g : The number of examples a leaf should observe between split attempts
-
--s : Split criterion to use. Example : InfoGainSplitCriterion
-
--c : The allowable error in split decision, values closer to 0 will take longer to decide
-
--t : Threshold below which a split will be forced to break ties
-
--b : Only allow binary splits
-
--r : Disable poor attributes
-
--o : Growth allowed
-
--p : Disable pre-pruning
-
--l : Leaf prediction to use: MajorityClass (0), Naive Bayes (1) or NaiveBayes adaptive (2).Default is NaiveBayes adaptive.
-
--q : The number of examples a leaf should observe before permitting Naive Bayes
-
--a :Split at all leaves. Different from origin algorithm, which can split at any time, Spark streaming version can only split once for each RDD, Either split at the leaf the last Example of one RDD belonged to, or try to split at all leaves.
-
-### Hoeffding Adaptive Tree
-
-(add later)
-
-
-
+* Numeric observer to use (**-n**); for the moment, only Gaussian approximation is supported; class of type `FeatureClassObserver`;
+* Number of examples a leaf should observe before a split attempt (**-g**);
+* Number of examples a leaf should observe before applying NaiveBayes (**-q**);
+* Split criterion to use (**-s**), an object of type `SplitCriterionType`;
+* Allowable error in split decision (**-c**);
+* Threshold of allowable error in breaking ties (**-t**);
+* Allow only binary splits (**-b**), boolean flag;
+* Disable poor attributes (**-r**);
+* Allow growth (**-o**);
+* Disable pre-pruning (**-p**);
+* Leaf prediction to use (**-l**), either `MajorityClass` (0), `NaiveBayes` (1)
+  or adaptive `NaiveBayes` (2, default); and
+* Enable splitting at all leaves (**-a**); the original algorithm can split at
+  any time, but in Spark Streaming one can only split once per RDD; the option
+  controls whether to split at leaf of the last `Example` of the RDD, or at
+  every leaf.
