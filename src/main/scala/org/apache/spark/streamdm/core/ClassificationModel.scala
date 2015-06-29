@@ -30,4 +30,13 @@ trait ClassificationModel extends Model {
    * @return a Double representing the class predicted
    */
   def predict(instance: Example): Double
+
+  /** Computes the probability for a given label class, given the current Model
+    *
+    * @param instance the Instance which needs a class predicted
+    * @return the predicted probability
+    */
+
+  def prob(instance: Example): Double
+
 }

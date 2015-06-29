@@ -44,7 +44,7 @@ class LogisticLoss extends Loss with Serializable {
     -y*(1.0-1.0/(1.0+math.exp(-y*dot)))
   }
 
-  /** Computes the binary prediction based on a dot prodcut
+  /** Computes the binary prediction based on a dot product
    * @param dot the dot product of the linear model and the instance
    * @return the predicted binary class
    */

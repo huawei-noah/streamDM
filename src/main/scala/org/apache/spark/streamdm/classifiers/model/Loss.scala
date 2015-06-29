@@ -36,9 +36,15 @@ trait Loss extends Serializable {
    */
   def gradient(label: Double, dot: Double): Double
 
-  /** Computes the binary prediction based on a dot prodcut
+  /** Computes the binary prediction based on a dot product
    * @param dot the dot product of the linear model and the instance
    * @return the predicted binary class
    */
   def predict(dot: Double): Double
+
+  /** Computes the probability of a binary prediction based on a dot product
+    * @param dot the dot product of the linear model and the instance
+    * @return the predicted probability
+    */
+  def prob(dot: Double): Double = loss(1, dot)
 }

@@ -61,6 +61,15 @@ class LinearModel(lossFunction: Loss, initialModel: Instance,numberFeatures:Int)
 
   def regularize(regularizer: Regularizer): Instance = 
     modelInstance.map(x => -regularizer.gradient(x))
+
+  /** Computes the probability for a given label class, given the current Model
+    *
+    * @param instance the Instance which needs a class predicted
+    * @return the predicted probability
+    */
+
+  def prob(instance: Example): Double =
+    loss.prob(modelInstance.dot(instance.in.set(numFeatures,1.0)))
   
   override def toString = "Model %s".format(modelInstance.toString)
 }
