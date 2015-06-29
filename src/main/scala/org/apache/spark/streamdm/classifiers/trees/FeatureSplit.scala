@@ -20,25 +20,32 @@ package org.apache.spark.streamdm.classifiers.trees
 import scala.math.Ordered
 
 /**
- * class FeatureSplit is a split suggestion
+ * Class for recording a split suggestion.
  */
-class FeatureSplit(val conditionalTest: ConditionalTest, val merit: Double, val result: Array[Array[Double]]) extends Ordered[FeatureSplit] {
+class FeatureSplit(val conditionalTest: ConditionalTest, val merit: Double, 
+  val result: Array[Array[Double]]) extends Ordered[FeatureSplit] {
+
+  /** Compares two FeatureSplit objects.
+   * @param that the comparison feature 
+   * @return comparison result
+   */
   override def compare(that: FeatureSplit): Int = {
     if (this.merit < that.merit) -1
     else if (this.merit > that.merit) 1
     else 0
   }
+
   /**
-   * returns the number of the split
+   * Returns the number of the split.
    * @return the number of the split
    */
   def numSplit(): Int = result.length
 
   /**
-   * returns the distribution of the index
+   * Returns the distribution of the split index.
    *
-   * @param splitIndex the index
-   * @return the distribution
+   * @param splitIndex the split index
+   * @return an Array containing the distribution   
    */
   def distributionFromSplit(splitIndex: Int): Array[Double] = result(splitIndex)
 

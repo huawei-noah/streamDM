@@ -25,7 +25,7 @@ import org.apache.spark.streamdm.util.Util
 /**
  * Trait FeatureClassObserver for observing the class distribution of one feature.
  * The observer monitors the class distribution of a given feature.
- * Used in naive bayes and decision trees to monitor data statistics on leaves.
+ * Used in Naive Bayes and decision trees to monitor data statistics on leaves.
  */
 trait FeatureClassObserver extends Serializable {
 
@@ -36,7 +36,6 @@ trait FeatureClassObserver extends Serializable {
    * @param cIndex the index of class
    * @param fValue the value of the feature
    * @param weight the weight of the example
-   * @return Unit
    */
   def observeClass(cIndex: Double, fValue: Double, weight: Double): Unit
 
@@ -58,7 +57,8 @@ trait FeatureClassObserver extends Serializable {
    * @param isBinarySplit true to use binary splits
    * @return suggestion of best feature split
    */
-  def bestSplit(criterion: SplitCriterion, pre: Array[Double], fValue: Double, isBinarySplit: Boolean): FeatureSplit
+  def bestSplit(criterion: SplitCriterion, pre: Array[Double], fValue: Double,
+    isBinarySplit: Boolean): FeatureSplit
 
   /**
    * Merge the FeatureClassObserver to current FeatureClassObserver
@@ -70,15 +70,13 @@ trait FeatureClassObserver extends Serializable {
   def merge(that: FeatureClassObserver, trySplit: Boolean): FeatureClassObserver
 
   /**
-   * observeTarget not supported yet
-   *
+   * Not yet supported.
    */
   def observeTarget(fValue: Double, weight: Double): Unit = {}
 
 }
 /**
- * class NullFeatureClassObserver will do nothing.
- * Used in naive bayes and decision trees to monitor data statistics on leaves.
+ * NullFeatureClassObserver is a null class for observers.
  */
 class NullFeatureClassObserver extends FeatureClassObserver with Serializable {
 
@@ -110,7 +108,8 @@ class NullFeatureClassObserver extends FeatureClassObserver with Serializable {
    * @param isBinarySplit true to use binary splits
    * @return suggestion of best feature split
    */
-  override def bestSplit(criterion: SplitCriterion, pre: Array[Double], fValue: Double, isBinarySplit: Boolean): FeatureSplit = { null }
+  override def bestSplit(criterion: SplitCriterion, pre: Array[Double], fValue: Double,
+    isBinarySplit: Boolean): FeatureSplit = { null }
 
   /**
    * Merge the FeatureClassObserver to current FeatureClassObserver
@@ -122,15 +121,18 @@ class NullFeatureClassObserver extends FeatureClassObserver with Serializable {
   override def merge(that: FeatureClassObserver, trySplit: Boolean): FeatureClassObserver = this
 }
 /**
- * class NominalFeatureClassObserver for observing the class distribution of a nominal feature.
+ * Class for observing the class distribution of a nominal feature.
  * The observer monitors the class distribution of a given feature.
- * Used in naive bayes and decision trees to monitor data statistics on leaves.
+ * Used in Naive Bayes and decision trees to monitor data statistics on leaves.
  */
-class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numFeatureValues: Int, val laplaceSmoothingFactor: Int = 1) extends FeatureClassObserver with Serializable {
+class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numFeatureValues: Int,
+  val laplaceSmoothingFactor: Int = 1) extends FeatureClassObserver with Serializable {
 
-  var classFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
+  var classFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double]
+    (numFeatureValues))
 
-  var blockClassFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double](numFeatureValues))
+  var blockClassFeatureStatistics: Array[Array[Double]] = Array.fill(numClasses)(new Array[Double]
+    (numFeatureValues))
 
   var totalWeight: Double = 0.0
   var blockWeight: Double = 0.0
@@ -138,7 +140,8 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
   def this(that: NominalFeatureClassObserver) {
     this(that.numClasses, that.fIndex, that.numFeatureValues, that.laplaceSmoothingFactor)
     for (i <- 0 until numClasses; j <- 0 until numFeatureValues) {
-      classFeatureStatistics(i)(j) = that.classFeatureStatistics(i)(j) + that.blockClassFeatureStatistics(i)(j)
+      classFeatureStatistics(i)(j) = that.classFeatureStatistics(i)(j) + 
+        that.blockClassFeatureStatistics(i)(j)
     }
     totalWeight = that.totalWeight + that.blockWeight
   }
@@ -215,12 +218,14 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
       else {
         if (!trySplit) {
           totalWeight += observer.blockWeight
-          for (i <- 0 until blockClassFeatureStatistics.length; j <- 0 until blockClassFeatureStatistics(0).length) {
+          for (i <- 0 until blockClassFeatureStatistics.length; j <- 0 until
+               blockClassFeatureStatistics(0).length) {
             blockClassFeatureStatistics(i)(j) += observer.blockClassFeatureStatistics(i)(j)
           }
         } else {
           totalWeight += observer.totalWeight
-          for (i <- 0 until classFeatureStatistics.length; j <- 0 until classFeatureStatistics(0).length) {
+          for (i <- 0 until classFeatureStatistics.length; j <- 0 until
+               classFeatureStatistics(0).length) {
             classFeatureStatistics(i)(j) += observer.blockClassFeatureStatistics(i)(j)
           }
         }
@@ -229,18 +234,21 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
     }
   }
   /**
-   * binary split the data with the input value
+   * Binary split the tree data depending on the input value
+   * @param fValue the input value
+   * @return an Array encoding the split
    */
   private[trees] def binarySplit(fValue: Double): Array[Array[Double]] =
     { Util.splitTranspose(classFeatureStatistics, fValue.toInt) }
   /**
-   * split the data with all values
+   * Split the data globally.
+   * @return an Array encoding the split
    */
   private[trees] def multiwaySplit(): Array[Array[Double]] =
     { Util.transpose(classFeatureStatistics) }
 }
 /**
- * trait NumericFeatureClassObserver
+ * Trait for the numeric feature observers.
  */
 trait NumericFeatureClassObserver extends FeatureClassObserver
 
@@ -249,7 +257,9 @@ trait NumericFeatureClassObserver extends FeatureClassObserver
  * This observer monitors the class distribution of a given feature.
  * Used in naive Bayes and decision trees to monitor data statistics on leaves.
  */
-class GaussianNumericFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numBins: Int = 10) extends NumericFeatureClassObserver with Serializable {
+
+class GaussianNumericFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numBins: Int = 10) 
+extends NumericFeatureClassObserver with Serializable {
 
   val estimators: Array[GaussianEstimator] = Array.fill(numClasses)(new GaussianEstimator())
   val minValuePerClass: Array[Double] = Array.fill(numClasses)(Double.PositiveInfinity)
@@ -316,7 +326,9 @@ class GaussianNumericFeatureClassObserver(val numClasses: Int, val fIndex: Int, 
   }
 
   /**
-   * binary split the data with the input value,values equal to splitValue go to left
+   * Binary split the tree data depending on the input value
+   * @param splitValue the input value
+   * @return an Array encoding the split
    */
   private[trees] def binarySplit(splitValue: Double): Array[Array[Double]] = {
     val rst: Array[Array[Double]] = Array.fill(2)(new Array(numClasses))
@@ -380,7 +392,8 @@ class GaussianNumericFeatureClassObserver(val numClasses: Int, val fIndex: Int, 
  * ojbect FeatureClassObserver for create FeatureClassObserver.
  */
 object FeatureClassObserver {
-  def createFeatureClassObserver(numClasses: Int, fIndex: Int, featureSpec: FeatureSpecification): FeatureClassObserver = {
+  def createFeatureClassObserver(numClasses: Int, fIndex: Int,
+    featureSpec: FeatureSpecification): FeatureClassObserver = {
     if (featureSpec.isNominal())
       new NominalFeatureClassObserver(numClasses, fIndex, featureSpec.range())
     else
