@@ -78,12 +78,12 @@ class Bagging extends Classifier {
      */
   override def train(input: DStream[Example]): Unit = {
     for (i <- 0 until ensembleSizeOption.getValue) {
-      classifiers(i).train(input.map(convertInstance))
+      classifiers(i).train(input.map(onlineSampling))
     }
     //Online Sampling with replacement
-    def convertInstance(example: Example): Example = {
+    def onlineSampling(example: Example): Example = {
       val weight = Utils.poisson(1.0, classifierRandom);
-      new Example(example.in, example.out, weight)
+      new Example(example.in, example.out, weight * example.weight)
     }
   }
 
