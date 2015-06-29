@@ -52,3 +52,10 @@ For a quick introduction to running StreamDM, refer to the [Getting
 Started](docs/GettingStarted.html) document. The StreamDM [Programming
 Guide](docs/Programming.html) presents a detailed view of StreamDM. The full API
 documentation can be consulted here. 
+
+##Mailing lists
+
+###User support and questions mailing list:
+<a href="mailto:streamdm-user@googlegroups.com">streamdm-user@googlegroups.com</a>
+###Development related discussions:
+<a href="mailto:streamdm-dev@googlegroups.com">streamdm-dev@googlegroups.com</a>
