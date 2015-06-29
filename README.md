@@ -1,67 +1,53 @@
-# streamDM: Coding Guide
+#streamDM for Spark Streaming
 
-We will follow Spark coding style:
+streamDM is a new open source software for mining big data streams using [Spark Streaming](https://spark.apache.org/streaming/), started at [Huawei Noah's Ark
+Lab](http://www.noahlab.com.hk/). streamDM is licensed under Apache Software License v2.0.
 
-[https://cwiki.apache.org/confluence/display/SPARK/Spark+Code+Style+Guide](https://cwiki.apache.org/confluence/display/SPARK/Spark+Code+Style+Guide)
+## Big Data Stream Learning 
 
-It is based on the Scala Style Guide:
+Big Data stream learning is more challenging than batch or offline learning,
+since the data may not keep the same distribution over the lifetime of the
+stream. Moreover, each example coming in a stream can only be processed once, or
+they need to be summarized with a small memory footprint, and the learning
+algorithms must be very efficient. 
 
-[http://docs.scala-lang.org/style/](http://docs.scala-lang.org/style/)
+### Spark Streaming
 
-It uses JavaDoc instead of ScalaDoc:
+[Spark Streaming](https://spark.apache.org/streaming/) is an extension of the
+core [Spark](https://spark.apache.org)  API that enables stream processing from
+a variety of sources. Spark is a extensible and programmable framework for
+massive distributed processing of datasets, called Resilient Distributed
+Datasets (RDD). Spark Streaming receives input data streams and divides the data
+into batches, which are then processed by the Spark engine to generate the
+results.
 
-[http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html](http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html)
+Spark Streaming data is organized into a sequence of DStreams, represented
+internally as a sequence of RDDs.
 
+### <a name="methods"></a>Included Methods
 
-##Effective Scala Programming
+In this first pre-release of StreamDM, we have implemented:
 
-We recommend to read the book:
+* [SGD Learner](http://huawei-noah.github.io/streamDM/docs/SGD.html) and [Perceptron](http://huawei-noah.github.io/streamDM/docs/SGD.html#perceptron)
+* [Naive Bayes](http://huawei-noah.github.io/streamDM/docs/NB.html)
+* [CluStream](http://huawei-noah.github.io/streamDM/docs/CluStream.html)
+* [Hoeffding Decision Trees](http://huawei-noah.github.io/streamDM/docs/HDT.html)
+* Stream KM++
 
-[**Programming in Scala**, Second Edition A comprehensive step-by-step guide by Martin Odersky, Lex Spoon, and Bill Venners ](http://www.artima.com/shop/programming_in_scala)
+In the next releases we plan to add: 
 
-and follow the Twitter Effective Scala guidelines:
+* Random Forests
+* Frequent Itemset Miner: IncMine
 
-[http://twitter.github.io/effectivescala/](http://twitter.github.io/effectivescala/)
+## Going Further
 
-# streamDM: Compiling the code
+For a quick introduction to running StreamDM, refer to the [Getting
+Started](http://huawei-noah.github.io/streamDM/docs/GettingStarted.html) document. The StreamDM [Programming
+Guide](http://huawei-noah.github.io/streamDM/docs/Programming.html) presents a detailed view of StreamDM. The full API
+documentation can be consulted here. 
 
-Use 
-
-```
-#!bash
-
-sbt package
-```
-# streamDM: Running the app
-
-You need to run two scripts in two different terminals.
-
-*  In the first terminal: create the dataset syn.dat (only the first time)
-```
-#!bash
-
-cd scripts/instance_server
-./generate_dataset.py
-```
-* And then send instances into port 9999, localhost
-
-```
-#!bash
-
-cd scripts/instance_server
-./server.py syn.dat 1000
-```
-* In the second terminal: use Spark to learn the model and output accuracy:
-
-```
-#!bash
-cd scripts
-./spark
-```
-
-or using command-line options to specify task, learner, and evaluation parameters:
-```
-#!bash
-cd scripts
-./spark "EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -o ZeroRegularizer)"
-```
+##Mailing lists
+###User support and questions mailing list:
+<a href="mailto:streamdm-user@googlegroups.com">streamdm-user@googlegroups.com</a>
+###Development related discussions:
+<a href="mailto:streamdm-dev@googlegroups.com">streamdm-dev@googlegroups.com</a>
