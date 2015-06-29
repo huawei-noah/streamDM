@@ -27,6 +27,11 @@ import org.apache.spark.streamdm.utils.Utils
  * The MultiClassLearner trains a model for each class.
  * The class predicted is the one that its model predicts with highest
  * confidence.
+ *
+ * <p>It uses the following option:
+ * <ul>
+ *  <li> Base Classifier to use (<b>-l</b>)
+ * </ul>
  */
 
 class MultiClassLearner extends Classifier {

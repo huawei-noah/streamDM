@@ -29,6 +29,12 @@ import org.apache.spark.streamdm.utils.Utils
 /**
  * The Bagging classifier trains an ensemble of classifier to improve performance.
  * It is based on doing sampling with replacement at the input of each classifier.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Base Classifier to use (<b>-l</b>)
+ *  <li> Size of the ensemble (<b>-s</b>)
+ * </ul>
  */
 
 class Bagging extends Classifier {
