@@ -22,16 +22,16 @@ import org.apache.spark.streaming.dstream._
 
 /**
  * A Classifier trait defines the needed operations on any implemented
- * classifier. It provides methods for training the model and for predicting the
- * labels for a stream of Instance RDDs.
+ * classifier. It is a subtrait of Learner and it adds a method for predicting
+ * the class of and input stream of Examples.
  */
 trait Classifier extends Learner with Serializable {
 
-  /** Builds a stream of Examples and predictions based on the algorithm implemented in the classifier,
-   * from the stream of instances given for testing.
+  /* Predict the label of the Example stream, given the current Model
    *
-   * @param input a stream of examples
-   * @return a stream of examples and numeric values
+   * @param instance the input Example stream 
+   * @return a stream of tuples containing the original instance and the
+   * predicted value
    */
   def predict(input: DStream[Example]): DStream[(Example, Double)]
 }

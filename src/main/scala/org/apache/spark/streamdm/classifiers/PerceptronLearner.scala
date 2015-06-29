@@ -23,12 +23,10 @@ import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.model._
 import org.apache.spark.streaming.dstream._
 
-/**
- * The PerceptronLearner trains a LinearModel which is a perceptron. It
+/** The PerceptronLearner trains a LinearModel which is a perceptron. It
  * currently is implemented as an SGDLearner with a PerceptronLoss function.
- * The lambda learning rate parameter, and the 
- * number of features need to be specified in the associated Task configuration
- * file.
+ * The lambda learning rate parameter, and the number of features need to be
+ * specified in the associated Task configuration file.
  */
 class PerceptronLearner extends SGDLearner {
 

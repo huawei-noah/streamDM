@@ -28,6 +28,14 @@ import org.apache.spark.streamdm.evaluation.Evaluator
 /**
  * Task for evaluating a clustering on a stream by first applying the clustering
  * and then evaluating the cluster statistics.
+ * 
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Clusterer (<b>-c</b>), an object of type <tt>Clusterer</tt>
+ *  <li> Evaluator (<b>-e</b>), an object of type <tt>Evaluator</tt>
+ *  <li> Reader (<b>-s</b>), a reader object of type <tt>StreamReader</tt>
+ *  <li> Writer (<b>-w</b>), a writer object of type <tt>StreamWriter</tt>
+ * </ul>
  */
 class ClusteringTrainEvaluate extends Task {
 
@@ -42,7 +50,10 @@ class ClusteringTrainEvaluate extends Task {
 
   val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
     "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
-
+  /**
+   * Run the task.
+   * @param ssc The Spark Streaming context in which the task is run.
+   */
   def run(ssc:StreamingContext): Unit = {
 
     val reader:StreamReader = this.streamReaderOption.getValue()

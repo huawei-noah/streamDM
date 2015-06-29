@@ -21,13 +21,13 @@ import org.apache.spark.streaming.dstream.DStream
 import com.github.javacliparser.Configurable
 
 /**
- * Abstract class Writer that outputs a Dstream of examples
- *
+ * Abstract class that defines the output from a DStream of Strings.
  */
 abstract class StreamWriter extends Configurable {
   /**
-   * Output a stream of Strings
-   * @param stream a stream to output
+   * Process the output.
+   * 
+   * @param stream a DStream of Strings for which the output is processed 
    */
-  def output(stream: DStream[String] ):Unit
+  def output(stream: DStream[String]): Unit
 }
