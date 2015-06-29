@@ -270,40 +270,38 @@ the stream consists of a stream of single label instances. The objective is to
 first predict the instance using the current linear model, and then train (and
 update) the model using the true label. The evaluation will be based on the
 difference between the predicted label and the true label. The code listing of
-the resulting <code>EvaluatePrequential</code> is:
-```scala
-class EvaluatePrequential extends Task {
-  //Task options
-  val learnerOption:ClassOption = new ClassOption(&quot;learner&quot;, &#39;l&#39;,
-    &quot;Learner to use&quot;, classOf[Classifier], &quot;SGDLearner&quot;)
-  val evaluatorOption:ClassOption = new ClassOption(&quot;evaluator&quot;, &#39;e&#39;,
-    &quot;Evaluator to use&quot;, classOf[Evaluator], &quot;BasicClassificationEvaluator&quot;)
-  val streamReaderOption:ClassOption = new ClassOption(&quot;streamReader&quot;, &#39;s&#39;,
-    &quot;Stream reader to use&quot;, classOf[StreamReader], &quot;SocketTextStreamReader&quot;)
-  val resultsWriterOption:ClassOption = new ClassOption(&quot;resultsWriter&quot;, &#39;w&#39;,
-    &quot;Stream writer to use&quot;, classOf[StreamWriter], &quot;PrintStreamWriter&quot;)</p>
+the resulting <code>EvaluatePrequential</code> is:</p>
+<div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">class</span> <span class="nc">EvaluatePrequential</span> <span class="k">extends</span> <span class="nc">Task</span> <span class="o">{</span>
+  <span class="c1">//Task options</span>
+  <span class="k">val</span> <span class="n">learnerOption</span><span class="k">:</span><span class="kt">ClassOption</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ClassOption</span><span class="o">(</span><span class="s">&quot;learner&quot;</span><span class="o">,</span> <span class="-Symbol">&#39;l</span><span class="err">&#39;</span><span class="o">,</span>
+    <span class="s">&quot;Learner to use&quot;</span><span class="o">,</span> <span class="n">classOf</span><span class="o">[</span><span class="kt">Classifier</span><span class="o">],</span> <span class="s">&quot;SGDLearner&quot;</span><span class="o">)</span>
+  <span class="k">val</span> <span class="n">evaluatorOption</span><span class="k">:</span><span class="kt">ClassOption</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ClassOption</span><span class="o">(</span><span class="s">&quot;evaluator&quot;</span><span class="o">,</span> <span class="-Symbol">&#39;e</span><span class="err">&#39;</span><span class="o">,</span>
+    <span class="s">&quot;Evaluator to use&quot;</span><span class="o">,</span> <span class="n">classOf</span><span class="o">[</span><span class="kt">Evaluator</span><span class="o">],</span> <span class="s">&quot;BasicClassificationEvaluator&quot;</span><span class="o">)</span>
+  <span class="k">val</span> <span class="n">streamReaderOption</span><span class="k">:</span><span class="kt">ClassOption</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ClassOption</span><span class="o">(</span><span class="s">&quot;streamReader&quot;</span><span class="o">,</span> <span class="-Symbol">&#39;s</span><span class="err">&#39;</span><span class="o">,</span>
+    <span class="s">&quot;Stream reader to use&quot;</span><span class="o">,</span> <span class="n">classOf</span><span class="o">[</span><span class="kt">StreamReader</span><span class="o">],</span> <span class="s">&quot;SocketTextStreamReader&quot;</span><span class="o">)</span>
+  <span class="k">val</span> <span class="n">resultsWriterOption</span><span class="k">:</span><span class="kt">ClassOption</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ClassOption</span><span class="o">(</span><span class="s">&quot;resultsWriter&quot;</span><span class="o">,</span> <span class="-Symbol">&#39;w</span><span class="err">&#39;</span><span class="o">,</span>
+    <span class="s">&quot;Stream writer to use&quot;</span><span class="o">,</span> <span class="n">classOf</span><span class="o">[</span><span class="kt">StreamWriter</span><span class="o">],</span> <span class="s">&quot;PrintStreamWriter&quot;</span><span class="o">)</span>
 
-<p>//Run the task
-  def run(ssc:StreamingContext): Unit = {
-    //Parse options and init
-    val reader:StreamReader = this.streamReaderOption.getValue()
-    val learner:SGDLearner = this.learnerOption.getValue()
-    learner.init(reader.getExampleSpecification())
-    val evaluator:Evaluator = this.evaluatorOption.getValue()
-    val writer:StreamWriter = this.resultsWriterOption.getValue()</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">//Parse stream and get Examples
-val instances = reader.getExamples(ssc)
-//Predict
-val predPairs = learner.predict(instances)
-//Train
-learner.train(instances)
-//Evaluate and output
-writer.output(evaluator.addResult(predPairs))
+  <span class="c1">//Run the task</span>
+  <span class="k">def</span> <span class="n">run</span><span class="o">(</span><span class="n">ssc</span><span class="k">:</span><span class="kt">StreamingContext</span><span class="o">)</span><span class="k">:</span> <span class="kt">Unit</span> <span class="o">=</span> <span class="o">{</span>
+    <span class="c1">//Parse options and init</span>
+    <span class="k">val</span> <span class="n">reader</span><span class="k">:</span><span class="kt">StreamReader</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="n">streamReaderOption</span><span class="o">.</span><span class="n">getValue</span><span class="o">()</span>
+    <span class="k">val</span> <span class="n">learner</span><span class="k">:</span><span class="kt">SGDLearner</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="n">learnerOption</span><span class="o">.</span><span class="n">getValue</span><span class="o">()</span>
+    <span class="n">learner</span><span class="o">.</span><span class="n">init</span><span class="o">(</span><span class="n">reader</span><span class="o">.</span><span class="n">getExampleSpecification</span><span class="o">())</span>
+    <span class="k">val</span> <span class="n">evaluator</span><span class="k">:</span><span class="kt">Evaluator</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="n">evaluatorOption</span><span class="o">.</span><span class="n">getValue</span><span class="o">()</span>
+    <span class="k">val</span> <span class="n">writer</span><span class="k">:</span><span class="kt">StreamWriter</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="n">resultsWriterOption</span><span class="o">.</span><span class="n">getValue</span><span class="o">()</span>
+
+    <span class="c1">//Parse stream and get Examples</span>
+    <span class="k">val</span> <span class="n">instances</span> <span class="k">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">getExamples</span><span class="o">(</span><span class="n">ssc</span><span class="o">)</span>
+    <span class="c1">//Predict</span>
+    <span class="k">val</span> <span class="n">predPairs</span> <span class="k">=</span> <span class="n">learner</span><span class="o">.</span><span class="n">predict</span><span class="o">(</span><span class="n">instances</span><span class="o">)</span>
+    <span class="c1">//Train</span>
+    <span class="n">learner</span><span class="o">.</span><span class="n">train</span><span class="o">(</span><span class="n">instances</span><span class="o">)</span>
+    <span class="c1">//Evaluate and output</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">output</span><span class="o">(</span><span class="n">evaluator</span><span class="o">.</span><span class="n">addResult</span><span class="o">(</span><span class="n">predPairs</span><span class="o">))</span>
+  <span class="o">}</span>
+<span class="o">}</span>
 </code></pre></div>
-<p>}
-}
-```</p>
-
 <p>First, <code>EvaluatePrequential</code> is created by extending <code>Task</code> and implementing its
 <code>run</code> method. <code>run</code> takes a <code>StreamingContext</code> as an argument, and its
 objective is to process the streams in this context.</p>
