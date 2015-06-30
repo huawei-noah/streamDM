@@ -40,7 +40,7 @@ In this first pre-release of StreamDM, we have implemented:
 * [CluStream](docs/CluStream.html)
 * [Hoeffding Decision Trees](docs/HDT.html)
 * [Bagging](docs/Bagging.html)
-* Stream KM++
+* [Stream KM++](docs/StreamKM.html)
 
 In the next releases we plan to add: 
 
