@@ -32,7 +32,7 @@ In this first pre-release of StreamDM, we have implemented:
 * [Naive Bayes](http://huawei-noah.github.io/streamDM/docs/NB.html)
 * [CluStream](http://huawei-noah.github.io/streamDM/docs/CluStream.html)
 * [Hoeffding Decision Trees](http://huawei-noah.github.io/streamDM/docs/HDT.html)
-* Stream KM++
+* [Stream KM++](http://huawei-noah.github.io/streamDM/docs/StreamKM.html)
 
 In the next releases we plan to add: 
 
