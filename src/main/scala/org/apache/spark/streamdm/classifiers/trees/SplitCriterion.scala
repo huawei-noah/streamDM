@@ -21,9 +21,6 @@ import scala.math.{ max }
 
 import org.apache.spark.streamdm.util.Util
 
-/**
- * trait SplitCriterionType and the case classes
- */
 trait SplitCriterionType
 
 case class InfoGainSplitCriterionType() extends SplitCriterionType
@@ -33,7 +30,7 @@ case class GiniSplitCriterionType() extends SplitCriterionType
 case class VarianceReductionSplitCriterionType() extends SplitCriterionType
 
 /**
- * trait SplitCriterion for computing splitting criteria with respect to distributions of class values.
+ * Trait for computing splitting criteria with respect to distributions of class values.
  * The split criterion is used as a parameter on decision trees and decision stumps.
  * The two split criteria most used are Information Gain and Gini.
  */
@@ -60,9 +57,8 @@ trait SplitCriterion extends Serializable {
 }
 
 /**
- * class InfoGainSplitCriterion for computing splitting criteria using Information Gain
- * with respect to distributions of class values.
- * The split criterion is used as a parameter on decision trees and decision stumps.
+ * Class for computing splitting criteria using information gain with respect to
+ * distributions of class values.
  */
 class InfoGainSplitCriterion extends SplitCriterion with Serializable {
 
@@ -98,9 +94,9 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
   override def rangeMerit(pre: Array[Double]): Double = Util.log2(max(pre.length, 2))
 
   /**
-   * Returns the entropy of an array
-   *
-   * @param pre the array to be calculated
+   * Returns the entropy of a distribution
+    *
+   * @param pre an Array containing the distribution
    * @return the entropy
    */
   def entropy(pre: Array[Double]): Double = {
@@ -109,9 +105,9 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
   }
 
   /**
-   * computes the entropy of an matrix
+   * Computes the entropy of an matrix
    *
-   * @param post the matrix to be calculated
+   * @param post the matrix as an Array of Array
    * @return the entropy
    */
   def entropy(post: Array[Array[Double]]): Double = {
@@ -123,11 +119,11 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
   }
 
   /**
-   * Returns number of subsets which greater than minFrac
+   * Returns number of subsets which have values greater than minFrac
    *
-   * @param post the matrix
+   * @param post he matrix as an Array of Array
    * @param minFrac the min threshold
-   * @return number of subsets which greater than minFrac
+   * @return number of subsets
    */
   def numGTFrac(post: Array[Array[Double]], minFrac: Double): Int = {
     if (post == null || post.length == 0) {
@@ -141,7 +137,7 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
   /**
    * Returns whether a array has negative value
    *
-   * @param pre an array to be valued
+   * @param pre an Array to be valued
    * @return whether a array has negative value
    */
   private[trees] def hasNegative(pre: Array[Double]): Boolean = pre.filter(x => x < 0).length > 0
@@ -149,9 +145,8 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
 }
 
 /**
- * class GiniSplitCriterion for computing splitting criteria using Gini
- * with respect to distributions of class values.
- * The split criterion is used as a parameter on decision trees and decision stumps.
+ * Class for computing splitting criteria using Gini with respect to
+ * distributions of class values.
  */
 
 class GiniSplitCriterion extends SplitCriterion with Serializable {
@@ -193,10 +188,8 @@ class GiniSplitCriterion extends SplitCriterion with Serializable {
 }
 
 /**
- * class VarianceReductionSplitCriterion for computing splitting criteria
- * using variance reduction
- * with respect to distributions of class values.
- * The split criterion is used as a parameter on decision trees and decision stumps.
+ * Class for computing splitting criteria using variance reduction with respect
+ * to distributions of class values.
  */
 class VarianceReductionSplitCriterion extends SplitCriterion with Serializable {
 
@@ -228,9 +221,9 @@ class VarianceReductionSplitCriterion extends SplitCriterion with Serializable {
   override def rangeMerit(pre: Array[Double]): Double = 1.0
 
   /**
-   * computes the standard deviation
+   * Computes the standard deviation of a distribution
    *
-   * @param pre an array
+   * @param pre an Array containing the distribution
    * @return the standard deviation
    */
   private[trees] def computeSD(pre: Array[Double]): Double = {
@@ -244,7 +237,10 @@ class VarianceReductionSplitCriterion extends SplitCriterion with Serializable {
 object SplitCriterion {
 
   /**
-   * return a new SplitCriterion, the default will be InfoGainSplitCriterion.
+   * Return a new SplitCriterion, by default InfoGainSplitCriterion.
+   * @param scType the type of the split criterion
+   * @param minBranch branch parameter
+   * @return the new SplitCriterion
    */
   def createSplitCriterion(
     scType: SplitCriterionType, minBranch: Double = 0.01): SplitCriterion = scType match {

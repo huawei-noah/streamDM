@@ -21,8 +21,10 @@ import scala.math.{ sqrt, Pi, pow, exp, max }
 import org.apache.spark.streamdm.util.Statistics
 
 /**
- * Gaussian incremental estimator that uses incremental method that is more resistant to floating point imprecision.
- * for more info see Donald Knuth's "The Art of Computer Programming, Volume 2: Seminumerical Algorithms", section 4.2.2.
+ * Gaussian incremental estimator that uses incremental method, more resilient
+ * to floating point imprecision.
+ * For more info see Donald Knuth's "The Art of Computer Programming, Volume 2:
+ * Seminumerical Algorithms", section 4.2.2.
  */
 
 class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
@@ -36,11 +38,10 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
     this(that.weightSum, that.mean, that.varianceSum)
   }
   /**
-   * observe the data and update the gaussian estimator
+   * Observe the data and update the Gaussian estimator
    *
    * @param value value of a feature
    * @param weight weight of the Example
-   * @return Unit
    */
   def observe(value: Double, weight: Double): Unit = {
     if (!value.isInfinite() && !value.isNaN() && weight > 0) {
@@ -56,11 +57,11 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
     }
   }
   /**
-   * merge current GaussianEstimator with another one, return current one
+   * Merge current GaussianEstimator with another one.
    *
-   * @param that the GaussianEstimator will be merged
-   * @param trySplit whether the Hoeffding Tree tries to split
-   * @return current GaussianEstimator
+   * @param that the GaussianEstimator to be merged
+   * @param trySplit flag indicating whether the Hoeffding Tree tries to split
+   * @return the new GaussianEstimator
    */
   def merge(that: GaussianEstimator, trySplit: Boolean): GaussianEstimator = {
     if (!trySplit) {
@@ -71,8 +72,10 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
         blockVarianceSum = that.blockVarianceSum
       } else {
         val newBlockWeightSum = blockWeightSum + that.blockWeightSum
-        val newBlockMean = (this.blockMean * blockWeightSum + that.blockMean * that.blockWeightSum) / newBlockWeightSum
-        val newBlockVarianceSum = this.blockVarianceSum + that.blockVarianceSum + pow(this.blockMean - that.blockMean, 2) *
+        val newBlockMean = (this.blockMean * blockWeightSum + that.blockMean *
+          that.blockWeightSum) / newBlockWeightSum
+        val newBlockVarianceSum = this.blockVarianceSum + that.blockVarianceSum +
+          pow(this.blockMean - that.blockMean, 2) *
           this.blockWeightSum * that.blockWeightSum / (this.blockWeightSum + that.blockWeightSum)
         blockWeightSum = newBlockWeightSum
         blockMean = newBlockMean
@@ -86,9 +89,11 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
         varianceSum = that.blockVarianceSum
       } else {
         val newWeightSum = weightSum + that.blockWeightSum
-        val newMean = (this.mean * weightSum + that.blockMean * that.blockWeightSum) / newWeightSum
-        val newVarianceSum = this.varianceSum + that.blockVarianceSum + pow(this.mean - that.blockMean, 2) *
-          this.weightSum * that.blockWeightSum / (this.weightSum + that.blockWeightSum)
+        val newMean = (this.mean * weightSum + that.blockMean * that.blockWeightSum) / 
+                        newWeightSum
+        val newVarianceSum = this.varianceSum + that.blockVarianceSum + pow(this.mean -
+                              that.blockMean, 2) * this.weightSum * that.blockWeightSum /
+                              (this.weightSum + that.blockWeightSum)
         weightSum = newWeightSum
         mean = newMean
         varianceSum = newVarianceSum
@@ -133,10 +138,11 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
   }
 
   /**
-   * Returns the probability density of the input value
+   * Returns the cumulative probability of the input value in the current
+   * distribution.
    *
-   * @param value the
-   * @return the probability density of the input value
+   * @param value the value
+   * @return the cumulative probability
    */
 
   def probabilityDensity(value: Double): Double = {
@@ -153,10 +159,11 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
   }
 
   /**
-   * returns an array of weights sum, with less than, equal and greater than of split value
+   * Returns an array of weights  which have the sum less than, equal to, and
+   * greater than the split value. 
    *
-   * @param splitValue the value splitted
-   * @return an array of weights sum, with less than, equal and greater than of split value
+   * @param splitValue the value of the split 
+   * @return the resulting Array of values
    */
   def tripleWeights(splitValue: Double): Array[Double] = {
     //equal weights sum
