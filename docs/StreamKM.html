@@ -5,14 +5,14 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>Bagging &#8211; streamDM</title>
+<title>StreamKM++ &#8211; streamDM</title>
 
 
 
 
 
 <!-- Twitter Cards -->
-<meta name="twitter:title" content="Bagging">
+<meta name="twitter:title" content="StreamKM++">
 
 
 
@@ -23,16 +23,16 @@
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Bagging">
+<meta property="og:title" content="StreamKM++">
 
-<meta property="og:url" content="http://huawei-noah.github.io/streamDM/docs/Bagging.html">
+<meta property="og:url" content="http://huawei-noah.github.io/streamDM/docs/StreamKM.html">
 <meta property="og:site_name" content="streamDM">
 
 
 
 
 
-<link rel="canonical" href="http://huawei-noah.github.io/streamDM/docs/Bagging.html">
+<link rel="canonical" href="http://huawei-noah.github.io/streamDM/docs/StreamKM.html">
 <link href="http://huawei-noah.github.io/streamDM/feed.xml" type="application/atom+xml" rel="alternate" title="streamDM Feed">
 
 <!-- http://t.co/dKP3o1e -->
@@ -131,39 +131,56 @@
 
 <div id="main" role="main">
   <article class="entry">
-    <img src="http://huawei-noah.github.io/streamDM/images/screen_network.png" class="entry-feature-image" alt="Bagging" >
+    <img src="http://huawei-noah.github.io/streamDM/images/screen_network.png" class="entry-feature-image" alt="StreamKM++" >
     <div class="entry-wrapper">
       <header class="entry-header">
-        <h1 class="entry-title">Bagging</h1>
+        <h1 class="entry-title">StreamKM++</h1>
       </header>
       <div class="entry-content">
-        <h2 id="online-bagging">Online Bagging</h2>
+        <h2 id="streamkm++-clustering">StreamKM++ Clustering</h2>
 
-<p><em>Nikunj C. Oza, Stuart J. Russell:
-Online Bagging and Boosting. AISTATS 2001</em></p>
+<p><em>Ackermann, Lammersen, Märtens, Raupach, Sohler, Swierkot. StreamKM++: A
+Clustering Algorithm for Data Streams. In Proceedings of the 12th Workshop on
+Algorithm Engineering and Experiments (ALENEX 2010)</em></p>
 
 <h3 id="general-description">General Description</h3>
 
-<p><em>Bagging</em> is an ensemble method that improves the accuracy of a single
-classifier.  Non-streaming bagging builds a set of base models, training each
-model with a bootstrap sample created by drawing random samples with replacement
-from the original training set.  Each base model&#39;s training set contains each of
-the original training example a number of times that follows a binomial
-distribution.  This binomial distribution tends towards a Poisson(1) for large
-values. Thus, the online version of the Bagging classifier, instead of using
-sampling with replacement, gives each example a weight according to a Poisson(1)
-distribution. </p>
+<p><em>StreamKM++</em> computes a small weighted sample of the data stream,called the
+<em>coreset</em> of the data stream. A new data structure called coreset tree is
+developed in order to significantly speed up the time necessary for sampling
+non-uniformly during the coreset construction. After the coreset is extracted
+from the data stream, a weighted k-means algorithm is applied on the coreset to
+get the final clusters for the original stream data.</p>
 
 <h3 id="implementation">Implementation</h3>
 
-<p>In StreamDM, the main algorithm is implemented in <code>Bagging</code>, which
-is controlled by the following options:</p>
+<p>In StreamDM, three classes deal with the implementation of the StreamKM++
+algorithm: <code>StreamKM</code>, <code>BucketManager</code>, and <code>TreeCoreset</code>.</p>
+
+<p><code>BucketManager</code> and <code>TreeCoreset</code> are the data structures to deal with the
+coreset tree construction process. For the <code>TreeCoreset</code> class no parameters are
+required; its behaviour is controlled by the <code>BucketMaanger</code>. The options for
+<code>BucketManager</code> are:</p>
 
 <ul>
-<li>Number of classifiers (<strong>-s</strong>), which sets the number of classifiers used to build the
-ensemble (10 by default); and</li>
-<li>Base classifier (<strong>-l</strong>), which sets the base classifier to be used to build the members 
-of the ensemble (<code>SGDLearner</code> by default).</li>
+<li>Stream data window size parameter (<strong>-n</strong>), which controls the stream data size 
+(100000 by default), this value is inherited from the parameters of class <code>StreamKM</code>;</li>
+<li>Coreset size parameter (<strong>-maxsize</strong>) which controls the number of examples in 
+the coreset for the stream data (10000 by default).</li>
+</ul>
+
+<p><code>StreamKM</code> implements the main algorithm, and is controlled by the following
+parameters:</p>
+
+<ul>
+<li>Number of clusters parameter (<strong>-k</strong>), which controls how many clusters are
+output by the offline k-means algorithm (10 by default); </li>
+<li>k-means iterations parameter (<strong>-i</strong>), which controls for how many iterations the
+k-means algorithm iterates (1000 by default);</li>
+<li>Coreset size parameter(<strong>-s</strong>), which controls the number of examples in the coreset
+for the StreamKM++ algorithm;</li>
+<li>Windows size parameter(<strong>-w</strong>), which controls how many examples in the stream data
+are used for coreset extraction for the StreamKM++ algorithm .</li>
 </ul>
 
       </div><!-- /.entry-content -->
