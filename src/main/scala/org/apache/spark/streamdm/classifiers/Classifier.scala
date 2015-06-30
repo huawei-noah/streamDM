@@ -33,5 +33,5 @@ trait Classifier extends Learner with Serializable {
    * @return a stream of tuples containing the original instance and the
    * predicted value
    */
-  def predict(input: DStream[Example]): DStream[(Example,Double)]
+  def predict(input: DStream[Example]): DStream[(Example, Double)]
 }

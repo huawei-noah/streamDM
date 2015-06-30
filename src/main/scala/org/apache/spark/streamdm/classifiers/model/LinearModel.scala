@@ -25,7 +25,7 @@ import org.apache.spark.streamdm.core._
  * given Instance
  */
 class LinearModel(lossFunction: Loss, initialModel: Instance,numberFeatures:Int)
-  extends Model with Serializable {
+  extends ClassificationModel with Serializable {
 
   type T = LinearModel
   
@@ -45,7 +45,7 @@ class LinearModel(lossFunction: Loss, initialModel: Instance,numberFeatures:Int)
    * @param instance the Instance which needs a class predicted
    * @return a Double representing the class predicted
    */
-  def predict(instance: Example): Double =
+  override def predict(instance: Example): Double =
     loss.predict(modelInstance.dot(instance.in.set(numFeatures,1.0)))
 
   /* Compute the loss of the direction of the change
@@ -61,6 +61,15 @@ class LinearModel(lossFunction: Loss, initialModel: Instance,numberFeatures:Int)
 
   def regularize(regularizer: Regularizer): Instance = 
     modelInstance.map(x => -regularizer.gradient(x))
+
+  /** Computes the probability for a given label class, given the current Model
+    *
+    * @param instance the Instance which needs a class predicted
+    * @return the predicted probability
+    */
+
+  def prob(instance: Example): Double =
+    loss.prob(modelInstance.dot(instance.in.set(numFeatures,1.0)))
   
   override def toString = "Model %s".format(modelInstance.toString)
 }
