@@ -35,10 +35,11 @@ internally as a sequence of RDDs.
 
 In this first pre-release of StreamDM, we have implemented:
 
-* [SGD Learner](SGD.html) and [Perceptron](SGD.html#perceptron)
-* [Naive Bayes](NB.html)
-* [CluStream](CluStream.html)
-* [Hoeffding Decision Trees](HDT.html)
+** [SGD Learner](SGD.html) and [Perceptron](docs/SGD.html#perceptron)
+* [Naive Bayes](docs/NB.html)
+* [CluStream](docs/CluStream.html)
+* [Hoeffding Decision Trees](docs/HDT.html)
+* [Bagging](docs/Bagging.html)
 * Stream KM++
 
 In the next releases we plan to add: 
