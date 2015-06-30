@@ -1,0 +1,519 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>trees - org.apache.spark.streamdm.classifiers.trees</title>
+          <meta name="description" content="trees - org.apache.spark.streamdm.classifiers.trees" />
+          <meta name="keywords" content="trees org.apache.spark.streamdm.classifiers.trees" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../../index.html';
+            var hash = 'org.apache.spark.streamdm.classifiers.trees.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../../package.html" class="extype" name="org">org</a>.<a href="../../../../package.html" class="extype" name="org.apache">apache</a>.<a href="../../../package.html" class="extype" name="org.apache.spark">spark</a>.<a href="../../package.html" class="extype" name="org.apache.spark.streamdm">streamdm</a>.<a href="../package.html" class="extype" name="org.apache.spark.streamdm.classifiers">classifiers</a></p>
+        <h1>trees</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">trees</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="org.apache.spark.streamdm.classifiers.trees.ActiveLearningNode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ActiveLearningNodeextendsLearningNodewithSerializable"></a>
+      <a id="ActiveLearningNode:ActiveLearningNode"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ActiveLearningNode.html"><span class="name">ActiveLearningNode</span></a><span class="result"> extends <a href="LearningNode.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.LearningNode">LearningNode</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Basic majority class active learning node for Hoeffding tree
+</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.ConditionalTest" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ConditionalTestextendsSerializable"></a>
+      <a id="ConditionalTest:ConditionalTest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ConditionalTest.html"><span class="name">ConditionalTest</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">ConditionalTest is an abstract class for  conditional tests, used for
+splitting nodes in Hoeffding trees.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.FeatureClassObserver" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="FeatureClassObserverextendsSerializable"></a>
+      <a id="FeatureClassObserver:FeatureClassObserver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="FeatureClassObserver.html"><span class="name">FeatureClassObserver</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Trait FeatureClassObserver for observing the class distribution of one feature.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.FeatureSplit" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FeatureSplitextendsOrdered[org.apache.spark.streamdm.classifiers.trees.FeatureSplit]"></a>
+      <a id="FeatureSplit:FeatureSplit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="FeatureSplit.html"><span class="name">FeatureSplit</span></a><span class="result"> extends <span class="extype" name="scala.math.Ordered">Ordered</span>[<a href="FeatureSplit.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.FeatureSplit">FeatureSplit</a>]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Class for recording a split suggestion.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.FoundNode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FoundNodeextendsSerializable"></a>
+      <a id="FoundNode:FoundNode"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="FoundNode.html"><span class="name">FoundNode</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The container of a node.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.GaussianEstimator" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GaussianEstimatorextendsSerializable"></a>
+      <a id="GaussianEstimator:GaussianEstimator"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="GaussianEstimator.html"><span class="name">GaussianEstimator</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Gaussian incremental estimator that uses incremental method, more resilient
+to floating point imprecision.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.GaussianNumericFeatureClassObserver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GaussianNumericFeatureClassObserverextendsNumericFeatureClassObserverwithSerializable"></a>
+      <a id="GaussianNumericFeatureClassObserver:GaussianNumericFeatureClassObserver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="GaussianNumericFeatureClassObserver.html"><span class="name">GaussianNumericFeatureClassObserver</span></a><span class="result"> extends <a href="NumericFeatureClassObserver.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.NumericFeatureClassObserver">NumericFeatureClassObserver</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Class GuassianNumericFeatureClassObserver for observing the class data distribution for a numeric feature using gaussian estimators.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.GiniSplitCriterion" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GiniSplitCriterionextendsSplitCriterionwithSerializable"></a>
+      <a id="GiniSplitCriterion:GiniSplitCriterion"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="GiniSplitCriterion.html"><span class="name">GiniSplitCriterion</span></a><span class="result"> extends <a href="SplitCriterion.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.SplitCriterion">SplitCriterion</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Class for computing splitting criteria using Gini with respect to
+distributions of class values.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.GiniSplitCriterionType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GiniSplitCriterionTypeextendsSplitCriterionTypewithProductwithSerializable"></a>
+      <a id="GiniSplitCriterionType:GiniSplitCriterionType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GiniSplitCriterionType.html"><span class="name">GiniSplitCriterionType</span></a><span class="params">()</span><span class="result"> extends <a href="SplitCriterionType.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.SplitCriterionType">SplitCriterionType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HoeffdingTreeextendsClassifier"></a>
+      <a id="HoeffdingTree:HoeffdingTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="HoeffdingTree.html"><span class="name">HoeffdingTree</span></a><span class="result"> extends <a href="../Classifier.html" class="extype" name="org.apache.spark.streamdm.classifiers.Classifier">Classifier</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The Hoeffding tree is an incremental decision tree learner for large data
+streams, that assumes that the data distribution is not changing over time.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTreeModel" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HoeffdingTreeModelextendsModelwithSerializablewithLogging"></a>
+      <a id="HoeffdingTreeModel:HoeffdingTreeModel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="HoeffdingTreeModel.html"><span class="name">HoeffdingTreeModel</span></a><span class="result"> extends <a href="../../core/Model.html" class="extype" name="org.apache.spark.streamdm.core.Model">Model</a> with <span class="extype" name="scala.Serializable">Serializable</span> with <span class="extype" name="org.apache.spark.Logging">Logging</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.InactiveLearningNode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InactiveLearningNodeextendsLearningNodewithSerializable"></a>
+      <a id="InactiveLearningNode:InactiveLearningNode"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="InactiveLearningNode.html"><span class="name">InactiveLearningNode</span></a><span class="result"> extends <a href="LearningNode.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.LearningNode">LearningNode</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Inactive learning node for Hoeffding trees
+</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.InfoGainSplitCriterion" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InfoGainSplitCriterionextendsSplitCriterionwithSerializable"></a>
+      <a id="InfoGainSplitCriterion:InfoGainSplitCriterion"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="InfoGainSplitCriterion.html"><span class="name">InfoGainSplitCriterion</span></a><span class="result"> extends <a href="SplitCriterion.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.SplitCriterion">SplitCriterion</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Class for computing splitting criteria using information gain with respect to
+distributions of class values.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.InfoGainSplitCriterionType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InfoGainSplitCriterionTypeextendsSplitCriterionTypewithProductwithSerializable"></a>
+      <a id="InfoGainSplitCriterionType:InfoGainSplitCriterionType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="InfoGainSplitCriterionType.html"><span class="name">InfoGainSplitCriterionType</span></a><span class="params">()</span><span class="result"> extends <a href="SplitCriterionType.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.SplitCriterionType">SplitCriterionType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.LearningNode" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="LearningNodeextendsNodewithSerializable"></a>
+      <a id="LearningNode:LearningNode"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="LearningNode.html"><span class="name">LearningNode</span></a><span class="result"> extends <a href="Node.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.Node">Node</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Learning node class type for Hoeffding trees.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.LearningNodeNB" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LearningNodeNBextendsActiveLearningNodewithSerializable"></a>
+      <a id="LearningNodeNB:LearningNodeNB"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="LearningNodeNB.html"><span class="name">LearningNodeNB</span></a><span class="result"> extends <a href="ActiveLearningNode.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.ActiveLearningNode">ActiveLearningNode</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Naive Bayes based learning node.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.LearningNodeNBAdaptive" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LearningNodeNBAdaptiveextendsActiveLearningNodewithSerializable"></a>
+      <a id="LearningNodeNBAdaptive:LearningNodeNBAdaptive"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="LearningNodeNBAdaptive.html"><span class="name">LearningNodeNBAdaptive</span></a><span class="result"> extends <a href="ActiveLearningNode.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.ActiveLearningNode">ActiveLearningNode</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Adaptive Naive Bayes learning node.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.Node" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="NodeextendsSerializable"></a>
+      <a id="Node:Node"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Node.html"><span class="name">Node</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Abstract class containing the node information for the Hoeffding trees.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.NominalBinaryTest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NominalBinaryTestextendsConditionalTestwithSerializable"></a>
+      <a id="NominalBinaryTest:NominalBinaryTest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="NominalBinaryTest.html"><span class="name">NominalBinaryTest</span></a><span class="result"> extends <a href="ConditionalTest.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.ConditionalTest">ConditionalTest</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Nominal binary conditional test for splitting nodes in Hoeffding trees.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.NominalFeatureClassObserver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NominalFeatureClassObserverextendsFeatureClassObserverwithSerializable"></a>
+      <a id="NominalFeatureClassObserver:NominalFeatureClassObserver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="NominalFeatureClassObserver.html"><span class="name">NominalFeatureClassObserver</span></a><span class="result"> extends <a href="FeatureClassObserver.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.FeatureClassObserver">FeatureClassObserver</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Class for observing the class distribution of a nominal feature.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.NominalMultiwayTest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NominalMultiwayTestextendsConditionalTestwithSerializable"></a>
+      <a id="NominalMultiwayTest:NominalMultiwayTest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="NominalMultiwayTest.html"><span class="name">NominalMultiwayTest</span></a><span class="result"> extends <a href="ConditionalTest.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.ConditionalTest">ConditionalTest</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Nominal multi-way conditional test for splitting nodes in Hoeffding trees.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.NullFeatureClassObserver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NullFeatureClassObserverextendsFeatureClassObserverwithSerializable"></a>
+      <a id="NullFeatureClassObserver:NullFeatureClassObserver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="NullFeatureClassObserver.html"><span class="name">NullFeatureClassObserver</span></a><span class="result"> extends <a href="FeatureClassObserver.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.FeatureClassObserver">FeatureClassObserver</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">NullFeatureClassObserver is a null class for observers.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.NumericBinaryRulePredicate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NumericBinaryRulePredicateextendsConditionalTestwithSerializable"></a>
+      <a id="NumericBinaryRulePredicate:NumericBinaryRulePredicate"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="NumericBinaryRulePredicate.html"><span class="name">NumericBinaryRulePredicate</span></a><span class="result"> extends <a href="ConditionalTest.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.ConditionalTest">ConditionalTest</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Numeric binary rule predicate test for splitting nodes in Hoeffding trees.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.NumericBinaryTest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NumericBinaryTestextendsConditionalTestwithSerializable"></a>
+      <a id="NumericBinaryTest:NumericBinaryTest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="NumericBinaryTest.html"><span class="name">NumericBinaryTest</span></a><span class="result"> extends <a href="ConditionalTest.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.ConditionalTest">ConditionalTest</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Numeric binary conditional test for splitting nodes in Hoeffding trees.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.NumericFeatureClassObserver" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="NumericFeatureClassObserverextendsFeatureClassObserver"></a>
+      <a id="NumericFeatureClassObserver:NumericFeatureClassObserver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="NumericFeatureClassObserver.html"><span class="name">NumericFeatureClassObserver</span></a><span class="result"> extends <a href="FeatureClassObserver.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.FeatureClassObserver">FeatureClassObserver</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Trait for the numeric feature observers.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.SplitCriterion" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SplitCriterionextendsSerializable"></a>
+      <a id="SplitCriterion:SplitCriterion"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SplitCriterion.html"><span class="name">SplitCriterion</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Trait for computing splitting criteria with respect to distributions of class values.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.SplitCriterionType" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="SplitCriterionTypeextendsAnyRef"></a>
+      <a id="SplitCriterionType:SplitCriterionType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SplitCriterionType.html"><span class="name">SplitCriterionType</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.SplitNode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SplitNodeextendsNodewithSerializable"></a>
+      <a id="SplitNode:SplitNode"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SplitNode.html"><span class="name">SplitNode</span></a><span class="result"> extends <a href="Node.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.Node">Node</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Branch node of the Hoeffding tree.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.VarianceReductionSplitCriterion" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VarianceReductionSplitCriterionextendsSplitCriterionwithSerializable"></a>
+      <a id="VarianceReductionSplitCriterion:VarianceReductionSplitCriterion"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="VarianceReductionSplitCriterion.html"><span class="name">VarianceReductionSplitCriterion</span></a><span class="result"> extends <a href="SplitCriterion.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.SplitCriterion">SplitCriterion</a> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Class for computing splitting criteria using variance reduction with respect
+to distributions of class values.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.VarianceReductionSplitCriterionType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VarianceReductionSplitCriterionTypeextendsSplitCriterionTypewithProductwithSerializable"></a>
+      <a id="VarianceReductionSplitCriterionType:VarianceReductionSplitCriterionType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="VarianceReductionSplitCriterionType.html"><span class="name">VarianceReductionSplitCriterionType</span></a><span class="params">()</span><span class="result"> extends <a href="SplitCriterionType.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.SplitCriterionType">SplitCriterionType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="org.apache.spark.streamdm.classifiers.trees.FeatureClassObserver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FeatureClassObserver"></a>
+      <a id="FeatureClassObserver:FeatureClassObserver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="FeatureClassObserver$.html"><span class="name">FeatureClassObserver</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">ojbect FeatureClassObserver for create FeatureClassObserver.</p>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.SplitCriterion" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SplitCriterion"></a>
+      <a id="SplitCriterion:SplitCriterion"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SplitCriterion$.html"><span class="name">SplitCriterion</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../../../../lib/template.js"></script>
+    </body>
+      </html>
