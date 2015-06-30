@@ -69,7 +69,7 @@ class SocketTextStreamReader extends StreamReader{
 
     //Prepare specification of class attributes
     val outputIS = new InstanceSpecification()
-    val classFeature = new FeatureSpecification(Array("+","-"))
+    val classFeature = new NominalFeatureSpecification(Array("+","-"))
     outputIS.setFeatureSpecification(0, classFeature)
     outputIS.setName(0, "class")
 

@@ -118,7 +118,7 @@ class Bagging extends Classifier {
 
   def numberClasses(): Integer = {
     if (exampleLearnerSpecification == null) 2
-    else exampleLearnerSpecification.out(0).values.length
+    else exampleLearnerSpecification.out(0).range
   }
 
 
