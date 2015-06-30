@@ -5,34 +5,34 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>streamDM: Data Mining for Spark Streaming &#8211; streamDM</title>
+<title>Bagging &#8211; streamDM</title>
 
 
 
 
 
 <!-- Twitter Cards -->
-<meta name="twitter:title" content="streamDM: Data Mining for Spark Streaming">
+<meta name="twitter:title" content="Bagging">
 
 
 
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://huawei-noah.github.io/streamDM/images/screen_finance.png">
+<meta name="twitter:image" content="http://huawei-noah.github.io/streamDM/images/screen_network.png">
 
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="streamDM: Data Mining for Spark Streaming">
+<meta property="og:title" content="Bagging">
 
-<meta property="og:url" content="http://huawei-noah.github.io/streamDM/">
+<meta property="og:url" content="http://huawei-noah.github.io/streamDM/docs/Bagging.html">
 <meta property="og:site_name" content="streamDM">
 
 
 
 
 
-<link rel="canonical" href="http://huawei-noah.github.io/streamDM/">
+<link rel="canonical" href="http://huawei-noah.github.io/streamDM/docs/Bagging.html">
 <link href="http://huawei-noah.github.io/streamDM/feed.xml" type="application/atom+xml" rel="alternate" title="streamDM Feed">
 
 <!-- http://t.co/dKP3o1e -->
@@ -131,72 +131,39 @@
 
 <div id="main" role="main">
   <article class="entry">
-    <img src="http://huawei-noah.github.io/streamDM/images/screen_finance.png" class="entry-feature-image" alt="streamDM: Data Mining for Spark Streaming" >
+    <img src="http://huawei-noah.github.io/streamDM/images/screen_network.png" class="entry-feature-image" alt="Bagging" >
     <div class="entry-wrapper">
       <header class="entry-header">
-        <h1 class="entry-title">streamDM: Data Mining for Spark Streaming</h1>
+        <h1 class="entry-title">Bagging</h1>
       </header>
       <div class="entry-content">
-        <p>streamDM is a new open source software for mining big data streams using <a href="https://spark.apache.org/streaming/">Spark Streaming</a>, developed at <a href="http://www.noahlab.com.hk/">Huawei Noah&#39;s Ark
-Lab</a>. streamDM is licensed under Apache Software License v2.0.</p>
+        <h2 id="online-bagging">Online Bagging</h2>
 
-<p align="center"><img height="100" width="100" src="images/huawei-logo.png" alt="Huawei"></p>
+<p><em>Nikunj C. Oza, Stuart J. Russell:
+Online Bagging and Boosting. AISTATS 2001</em></p>
 
-<h2 id="big-data-stream-learning">Big Data Stream Learning</h2>
+<h3 id="general-description">General Description</h3>
 
-<p>Big Data stream learning is more challenging than batch or offline learning,
-since the data may not keep the same distribution over the lifetime of the
-stream. Moreover, each example coming in a stream can only be processed once, or
-they need to be summarized with a small memory footprint, and the learning
-algorithms must be very efficient. </p>
+<p><em>Bagging</em> is an ensemble method that improves the accuracy of a single classifier. 
+Non-streaming bagging builds a set of base models, training each model with a 
+bootstrap sample created by drawing random samples with replacement from the 
+original training set.  Each base model&#39;s training set contains each of the 
+original training example a number of times that follows a binomial distribution. 
+This binomial distribution  for large values tends to a Poisson(1) distribution. 
+This Online Bagging classifier, instead of using sampling with replacement, 
+it gives each example a weight according to Poisson(1). </p>
 
-<h3 id="spark-streaming">Spark Streaming</h3>
+<h3 id="implementation">Implementation</h3>
 
-<p><a href="https://spark.apache.org/streaming/">Spark Streaming</a> is an extension of the
-core <a href="https://spark.apache.org">Spark</a>  API that enables stream processing from
-a variety of sources. Spark is a extensible and programmable framework for
-massive distributed processing of datasets, called Resilient Distributed
-Datasets (RDD). Spark Streaming receives input data streams and divides the data
-into batches, which are then processed by the Spark engine to generate the
-results.</p>
-
-<p>Spark Streaming data is organized into a sequence of DStreams, represented
-internally as a sequence of RDDs.</p>
-
-<h3 id="included-methods"><a name="methods"></a>Included Methods</h3>
-
-<p>In this first pre-release of StreamDM, we have implemented:</p>
-
-<p>** <a href="SGD.html">SGD Learner</a> and <a href="docs/SGD.html#perceptron">Perceptron</a>
-* <a href="docs/NB.html">Naive Bayes</a>
-* <a href="docs/CluStream.html">CluStream</a>
-* <a href="docs/HDT.html">Hoeffding Decision Trees</a>
-* <a href="docs/Bagging.html">Bagging</a>
-* Stream KM++</p>
-
-<p>In the next releases we plan to add: </p>
+<p>In StreamDM, the main algorithm is implemented in <code>Bagging</code>, which
+is controlled by the following options:</p>
 
 <ul>
-<li>Random Forests</li>
-<li>Frequent Itemset Miner: IncMine</li>
+<li>Number of classifiers (<strong>-s</strong>), which sets the number of classifiers used to build the
+ensemble (10 by default); and</li>
+<li>Base classifier (<strong>-l</strong>), which sets the base classifier to be used to build the members 
+of the ensemble (SGDLearner by default).</li>
 </ul>
-
-<h2 id="going-further">Going Further</h2>
-
-<p>For a quick introduction to running StreamDM, refer to the <a href="docs/GettingStarted.html">Getting
-Started</a> document. The StreamDM <a href="docs/Programming.html">Programming
-Guide</a> presents a detailed view of StreamDM. The full API
-documentation can be consulted here. </p>
-
-<h2 id="mailing-lists">Mailing lists</h2>
-
-<h3 id="user-support-and-questions-mailing-list:">User support and questions mailing list:</h3>
-
-<p><a href="mailto:streamdm-user@googlegroups.com"><a href="mailto:streamdm-user@googlegroups.com">streamdm-user@googlegroups.com</a></a></p>
-
-<h3 id="development-related-discussions:">Development related discussions:</h3>
-
-<p><a href="mailto:streamdm-dev@googlegroups.com"><a href="mailto:streamdm-dev@googlegroups.com">streamdm-dev@googlegroups.com</a></a></p>
 
       </div><!-- /.entry-content -->
     </div><!-- /.entry-wrapper -->
