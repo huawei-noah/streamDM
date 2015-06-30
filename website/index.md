@@ -52,7 +52,7 @@ In the next releases we plan to add:
 For a quick introduction to running StreamDM, refer to the [Getting
 Started](docs/GettingStarted.html) document. The StreamDM [Programming
 Guide](docs/Programming.html) presents a detailed view of StreamDM. The full API
-documentation can be consulted here. 
+documentation can be consulted [here](api/index.html). 
 
 ##Mailing lists
 
