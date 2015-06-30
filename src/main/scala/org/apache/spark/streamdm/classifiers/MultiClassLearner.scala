@@ -104,7 +104,7 @@ class MultiClassLearner extends Classifier {
   def ensemblePredict(example: Example): Double = {
     val predictions: Array[Double] = new Array(sizeEnsemble)
     for (labelClass <- 0 until sizeEnsemble) {
-      predictions(labelClass) = classifiers(labelClass).getModel.asInstanceOf[ClassificationModel].predict(convertExample(example))
+      predictions(labelClass) = classifiers(labelClass).getModel.asInstanceOf[ClassificationModel].prob(convertExample(example))
 
       def convertExample(example: Example): Example = {
         new Example(example.in, new DenseInstance(Array(if (example.labelAt(0) == labelClass) 1 else 0)))
