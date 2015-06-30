@@ -32,10 +32,10 @@ class InstanceSpecification extends Serializable {
   /** Gets the FeatureSpecification value present at position index
     *
     * @param index the index of the position
-    * @return a FeatureSpecification representing the specification for the feature
+    * @return a FeatureSpecification representing the specification for the
+    * feature
     */
   def apply(index: Int): FeatureSpecification = featureSpecificationMap(index)
-
 
   /** Adds a specification for the instance feature
     *
@@ -46,15 +46,15 @@ class InstanceSpecification extends Serializable {
     featureSpecificationMap += (index -> input)
 
 
-  /** Gets if the feature is nominal or discrete
+  /** Evaluates whether a feature is nominal or discrete
     *
     * @param index the index of the feature
     * @return true if the feature is discrete
     */
-  def isNominal(index:Int):Boolean =
+  def isNominal(index:Int): Boolean =
     featureSpecificationMap.contains(index)
 
-  /** Gets if the feature is numeric
+  /** Evaluates whether a feature is numeric
     *
     * @param index the index of the feature
     * @return true if the feature is numeric
@@ -92,7 +92,8 @@ class InstanceSpecification extends Serializable {
 class FeatureSpecification(nominalValues:Array[String]) extends Serializable {
   val values = nominalValues
   val nameMap = Map[String,Int]()
-  values.zipWithIndex.map{ case (element, index) => (nameMap += (element -> index)) }
+  values.zipWithIndex.map{ case (element, index) => 
+                            (nameMap += (element -> index)) }
 
   /** Get the nominal string value present at position index
     *

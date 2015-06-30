@@ -35,7 +35,8 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
   val timeSum: Long, val sqTimeSum: Double, val num: Int)
   extends Serializable {
  
-  /* Insert an instance into the microcluster 
+  /**
+   * Insert an instance into the microcluster.
    *
    * @param inst the Instance which needs a class predicted
    * @param time the timestamp of the Instance
@@ -50,7 +51,8 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
                        sqTimeSum+time.toDouble*time.toDouble, num+1)
   }
    
-  /* Merges two microclusters together 
+  /**
+   * Merges two microclusters together.
    *
    * @param other the MicroCluster which gets added
    * @return the new MicroCluster
@@ -59,7 +61,8 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
     new MicroCluster(sum.add(other.sum), sqSum.add(other.sqSum),
       timeSum+other.timeSum, sqTimeSum+other.sqTimeSum, num+other.num)
    
-  /* Compute the centroid of a Microcluster
+  /**
+   * Compute the centroid of a Microcluster.
    * 
    * @return an instance representing the centroid
    */ 
@@ -69,7 +72,8 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
     else
       sum.map(x=>x)
 
-  /* Compute the RMSE of a microcluster
+  /**
+   * Compute the RMSE of a microcluster.
    *
    * @return the RMSE of a microcluster
    */
@@ -83,7 +87,8 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
     }
   }
 
-  /* Compute the threshold timestamp of the microcluster
+  /**
+   * Compute the threshold timestamp of the microcluster.
    * 
    * @return the threshold timestamp
    */
@@ -102,7 +107,8 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
     }
   }
 
-  /* Return the microcluster as a weighted Example, containing the centroid and
+  /**
+   * Return the microcluster as a weighted Example, containing the centroid and
    * the number of elements.
    *
    * @return the output Example 
@@ -117,7 +123,8 @@ case class MicroCluster(val sum:Instance, val sqSum: Instance,
 
 /* Helper functions for MicroClusters. */
 object MicroClusterUtils {
-  /* Compute the inverse error functions, for computing the timestamp threshold
+  /**
+   * Compute the inverse error functions, for computing the timestamp threshold
    * in a MicroCluster.
    */
   def inverr(x:Double): Double = {

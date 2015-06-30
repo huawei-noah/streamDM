@@ -27,5 +27,10 @@ import org.apache.spark.streaming.StreamingContext
  *
  */
 abstract class Task extends Configurable with Serializable{
+
+  /**
+   * Run the task.
+   * @param ssc The Spark Streaming context in which the task is run.
+   */
   def run(ssc:StreamingContext): Unit
 }

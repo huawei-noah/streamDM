@@ -23,9 +23,8 @@ import math._
  * A DenseInstance is an Instance in which the features are dense, i.e., there
  * exists a value for (almost) every feature.
  * The DenseInstance will keep an Array of the values and the
- * corresponding dot product will be based on that.
+ * corresponding operations will be based on this data structure.
  */
-
 case class DenseInstance(inVector: Array[Double])
   extends Instance with Serializable {
   
@@ -175,8 +174,7 @@ case class DenseInstance(inVector: Array[Double])
     returnInstance
   }
 
-  /** Apply an operation to every feature of the Instance (essentially a map)
-   * TODO try to extend map to this case
+  /** Apply an operation to every feature of the Instance
    * @param func the function for the transformation
    * @return a new Instance with the transformed features
    */
@@ -186,7 +184,7 @@ case class DenseInstance(inVector: Array[Double])
   /** Aggregate the values of an instance 
    *
    * @param func the function for the transformation
-   * @return the reduced value
+   * @return the aggregated value
    */
   override def reduce(func: (Double,Double)=>Double): Double =
     features.reduce(func)
@@ -196,7 +194,8 @@ case class DenseInstance(inVector: Array[Double])
 
 object DenseInstance extends Serializable {
   
-  /** Parse the input string as an DenseInstance class
+  /** Parse the input string as an DenseInstance class, where each features is
+   * separated by a comma (CSV format).
    *
    * @param input the String line to be read
    * @return a DenseInstance which is parsed from input

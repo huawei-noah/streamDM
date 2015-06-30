@@ -24,13 +24,16 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streamdm.core.Instance
 
 /**
- * Stream writer that output text to the standard output
+ * Stream writer that outputs the stream to the standard output.
  */
 class PrintStreamWriter extends StreamWriter{
 
   /**
-   * Output a stream of Strings to stdout
-   * @param stream a stream to output
+   * Process the output.
+   * <p>
+   * In the PrintStreamWriter, each String in the stream is sent to stdout.
+   * 
+   * @param stream a DStream of Strings for which the output is processed 
    */
   def output(stream: DStream[String]) = {
     stream.foreachRDD(rdd => {

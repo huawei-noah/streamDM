@@ -23,21 +23,22 @@ import org.apache.spark.streaming.dstream.DStream
 import com.github.javacliparser.Configurable
 
 /**
- * Abstract class Reader that outputs a Dstream of instances to be used 
- * inside tasks
- *
+ * Abstract class for outputing a DStream of Examples to be used 
+ * inside tasks.
  */
 abstract class StreamReader extends Configurable {
   /**
-   * Obtains a stream of Examples
-   * @param ssc a Spark Streaming Context
+   * Obtains a stream of examples.
+   *
+   * @param ssc a Spark Streaming context
    * @return a stream of Examples
    */
   def getExamples(ssc:StreamingContext): DStream[Example]
 
   /**
-   * Obtains the specification of the examples in the stream
-   * @return an specification of the examples
+   * Obtains the specification of the examples in the stream.
+   *
+   * @return an ExampleSpecification of the features
    */
   def getExampleSpecification(): ExampleSpecification
 }
