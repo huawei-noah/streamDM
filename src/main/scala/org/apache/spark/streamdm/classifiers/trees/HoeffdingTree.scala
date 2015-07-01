@@ -75,7 +75,7 @@ class HoeffdingTree extends Classifier {
   val splitCriterionOption: ClassOption = new ClassOption("splitCriterion", 's',
     "Split criterion to use.", classOf[SplitCriterion], "InfoGainSplitCriterion")
 
-  val growthAllowedOption: FlagOption = new FlagOption("growthAllowed", 'r',
+  val growthAllowedOption: FlagOption = new FlagOption("growthAllowed", 'o',
     "Allow to grow")
 
   val binaryOnlyOption: FlagOption = new FlagOption("binaryOnly", 'b',
