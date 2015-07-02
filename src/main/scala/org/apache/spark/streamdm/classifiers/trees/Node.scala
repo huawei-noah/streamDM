@@ -25,7 +25,7 @@ import org.apache.spark.streamdm.classifiers.bayes._
 import org.apache.spark.streamdm.util.Util
 
 /**
- * Abstract class containing the node information for the Hoeffding trees. 
+ * Abstract class containing the node information for the Hoeffding trees.
  */
 abstract class Node(val classDistribution: Array[Double]) extends Serializable {
 
@@ -58,7 +58,7 @@ abstract class Node(val classDistribution: Array[Double]) extends Serializable {
 
   /**
    * Returns depth of current node in the tree
-   * 
+   *
    * @return the depth
    */
   def depth(): Int = dep
@@ -80,7 +80,7 @@ abstract class Node(val classDistribution: Array[Double]) extends Serializable {
    * Merge two nodes
    *
    * @param node the node which will be merged
-   * @param trySplit flag indicating whether the node will be split 
+   * @param trySplit flag indicating whether the node will be split
    * @return new node
    */
   def merge(that: Node, trySplit: Boolean): Node
@@ -96,8 +96,10 @@ abstract class Node(val classDistribution: Array[Double]) extends Serializable {
    * Returns the node description
    * @return String containing the description
    */
-  def description(): String = { "  " * dep + "Leaf" + " weight = " +
-    Util.arraytoString(classDistribution) + "\n" }
+  def description(): String = {
+    "  " * dep + "Leaf" + " weight = " +
+      Util.arraytoString(classDistribution) + "\n"
+  }
 
 }
 
@@ -109,7 +111,7 @@ class FoundNode(val node: Node, val parent: SplitNode, val index: Int) extends S
 }
 
 /**
- * Branch node of the Hoeffding tree. 
+ * Branch node of the Hoeffding tree.
  */
 class SplitNode(classDistribution: Array[Double], val conditionalTest: ConditionalTest)
   extends Node(classDistribution) with Serializable {
@@ -169,7 +171,7 @@ class SplitNode(classDistribution: Array[Double], val conditionalTest: Condition
    * Merge two nodes
    *
    * @param node the node which will be merged
-   * @param trySplit flag indicating whether the node will be split 
+   * @param trySplit flag indicating whether the node will be split
    * @return new node
    */
   override def merge(that: Node, trySplit: Boolean): Node = {
@@ -200,7 +202,7 @@ class SplitNode(classDistribution: Array[Double], val conditionalTest: Condition
 
 }
 /**
- * Learning node class type for Hoeffding trees. 
+ * Learning node class type for Hoeffding trees.
  */
 abstract class LearningNode(classDistribution: Array[Double]) extends Node(classDistribution)
   with Serializable {
@@ -235,9 +237,11 @@ abstract class LearningNode(classDistribution: Array[Double]) extends Node(class
  * Basic majority class active learning node for Hoeffding tree
  */
 class ActiveLearningNode(classDistribution: Array[Double])
-  extends LearningNode(classDistribution) with Serializable {
+  extends LearningNode(classDistribution) with Serializable{
 
   var addonWeight: Double = 0
+
+  var blockAddonWeight: Double = 0
 
   var instanceSpecification: InstanceSpecification = null
 
@@ -252,7 +256,7 @@ class ActiveLearningNode(classDistribution: Array[Double])
   def this(that: ActiveLearningNode) {
     this(Util.mergeArray(that.classDistribution, that.blockClassDistribution),
       that.instanceSpecification)
-
+    this.addonWeight = that.addonWeight
   }
   def init(): Unit = {
     if (featureObservers == null) {
@@ -307,15 +311,14 @@ class ActiveLearningNode(classDistribution: Array[Double])
   def blockWeight(): Double = blockClassDistribution.sum
 
   def addOnWeight(): Double = {
-    if (blockWeight() != 0) blockWeight()
-    else addonWeight
+    addonWeight
   }
 
   /**
    * Merge two nodes
    *
    * @param node the node which will be merged
-   * @param trySplit flag indicating whether the node will be split 
+   * @param trySplit flag indicating whether the node will be split
    * @return new node
    */
   override def merge(that: Node, trySplit: Boolean): Node = {
@@ -323,11 +326,11 @@ class ActiveLearningNode(classDistribution: Array[Double])
       val node = that.asInstanceOf[ActiveLearningNode]
       //merge addonWeight and class distribution
       if (!trySplit) {
-        this.addonWeight += that.blockClassDistribution.sum
+        this.blockAddonWeight += that.blockClassDistribution.sum
         for (i <- 0 until blockClassDistribution.length)
           this.blockClassDistribution(i) += that.blockClassDistribution(i)
       } else {
-        this.addonWeight = node.addonWeight
+        this.addonWeight += node.blockAddonWeight
         for (i <- 0 until classDistribution.length)
           this.classDistribution(i) += that.blockClassDistribution(i)
       }
@@ -344,8 +347,7 @@ class ActiveLearningNode(classDistribution: Array[Double])
    * @param ht a Hoeffding tree model
    * @return an array of FeatureSplit
    */
-  def getBestSplitSuggestions(splitCriterion: SplitCriterion, ht: HoeffdingTreeModel): 
-  Array[FeatureSplit] = {
+  def getBestSplitSuggestions(splitCriterion: SplitCriterion, ht: HoeffdingTreeModel): Array[FeatureSplit] = {
     val bestSplits = new ArrayBuffer[FeatureSplit]()
     featureObservers.zipWithIndex.foreach(x =>
       bestSplits.append(x._1.bestSplit(splitCriterion, classDistribution, x._2, ht.binaryOnly)))
@@ -385,7 +387,7 @@ class InactiveLearningNode(classDistribution: Array[Double])
    * Merge two nodes
    *
    * @param node the node which will be merged
-   * @param trySplit flag indicating whether the node will be split 
+   * @param trySplit flag indicating whether the node will be split
    * @return new node
    */
   override def merge(that: Node, trySplit: Boolean): Node = this
@@ -432,7 +434,7 @@ class LearningNodeNB(classDistribution: Array[Double], instanceSpecification: In
  */
 
 class LearningNodeNBAdaptive(classDistribution: Array[Double],
-  instanceSpecification: InstanceSpecification)
+                             instanceSpecification: InstanceSpecification)
   extends ActiveLearningNode(classDistribution, instanceSpecification) with Serializable {
 
   var mcCorrectWeight: Double = 0
@@ -444,31 +446,32 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double],
   def this(that: LearningNodeNBAdaptive) {
     this(Util.mergeArray(that.classDistribution, that.blockClassDistribution),
       that.instanceSpecification)
-    mcCorrectWeight = that.mcCorrectWeight + that.mcBlockCorrectWeight
-    nbCorrectWeight = that.nbCorrectWeight + that.nbBlockCorrectWeight
+    addonWeight = that.addonWeight
+    mcCorrectWeight = that.mcCorrectWeight
+    nbCorrectWeight = that.nbCorrectWeight
     init()
   }
 
   /**
-   * Learn and update the node. 
+   * Learn and update the node.
    *
-   * @param ht a Hoeffding tree model 
+   * @param ht a Hoeffding tree model
    * @param example an input example
    */
   override def learn(ht: HoeffdingTreeModel, example: Example): Unit = {
     super.learn(ht, example)
     if (Util.argmax(classDistribution) == example.labelAt(0))
       mcBlockCorrectWeight += example.weight
-    if (Util.argmax(NaiveBayes.predict(example, classDistribution, featureObservers)) == 
+    if (Util.argmax(NaiveBayes.predict(example, classDistribution, featureObservers)) ==
       example.labelAt(0))
-        nbBlockCorrectWeight += example.weight
+      nbBlockCorrectWeight += example.weight
   }
 
   /**
    * Merge two nodes
    *
    * @param node the node which will be merged
-   * @param trySplit flag indicating whether the node will be split 
+   * @param trySplit flag indicating whether the node will be split
    * @return new node
    */
   override def merge(that: Node, trySplit: Boolean): Node = {
@@ -476,15 +479,15 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double],
       val nbaNode = that.asInstanceOf[LearningNodeNBAdaptive]
       //merge weights and class distribution
       if (!trySplit) {
-        this.addonWeight += nbaNode.blockClassDistribution.sum
-        mcCorrectWeight += nbaNode.mcBlockCorrectWeight
-        nbCorrectWeight += nbaNode.nbBlockCorrectWeight
+        this.blockAddonWeight += nbaNode.blockClassDistribution.sum
+        mcBlockCorrectWeight += nbaNode.mcBlockCorrectWeight
+        nbBlockCorrectWeight += nbaNode.nbBlockCorrectWeight
         for (i <- 0 until blockClassDistribution.length)
           this.blockClassDistribution(i) += that.blockClassDistribution(i)
       } else {
-        this.addonWeight = nbaNode.addonWeight
-        mcCorrectWeight += nbaNode.mcCorrectWeight
-        nbCorrectWeight += nbaNode.nbCorrectWeight
+        this.addonWeight += nbaNode.blockAddonWeight
+        mcCorrectWeight += nbaNode.mcBlockCorrectWeight
+        nbCorrectWeight += nbaNode.nbBlockCorrectWeight
         for (i <- 0 until classDistribution.length)
           this.classDistribution(i) += that.blockClassDistribution(i)
       }
