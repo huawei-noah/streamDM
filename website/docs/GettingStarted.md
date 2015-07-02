@@ -54,6 +54,13 @@ The example can be run by executing the following steps:
   ./spark.sh
   {% endhighlight %}
 
+* It is possible to add command-line options to specify task, learner, and evaluation parameters:
+ 
+  {% highlight bash %}
+  cd scripts
+  ./spark "EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -o ZeroRegularizer)"
+  {% endhighlight %}
+
 * [Optional] It is advisable to separate the standard and the error output, for
   better readability:
 
