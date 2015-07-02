@@ -58,7 +58,7 @@ The example can be run by executing the following steps:
  
   {% highlight bash %}
   cd scripts
-  ./spark "EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -o ZeroRegularizer)"
+  ./spark.sh "EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -r ZeroRegularizer)"
   {% endhighlight %}
 
 * [Optional] It is advisable to separate the standard and the error output, for
