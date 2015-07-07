@@ -142,7 +142,7 @@ desiring to quickly run a StreamDM task. We describe how StreamDM can be
 compiled, and how a quick task can be run.</p>
 
 <p>The basic requirement for running the example in this documents is to have Spark
-1.3 installed. The example works best on a Linux/Unix machine.</p>
+1.4 installed. The example works best on a Linux/Unix machine.</p>
 
 <h2 id="compiling-the-code">Compiling The Code</h2>
 
@@ -183,6 +183,13 @@ modifying the <code>SPARK_HOME</code> variable with the folder of your Spark ins
 
 <div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd </span>scripts
   ./spark.sh</code></pre></div>
+
+<ul>
+<li>It is possible to add command-line options to specify task, learner, and evaluation parameters:</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd </span>scripts
+  ./spark.sh <span class="s2">&quot;EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -r ZeroRegularizer)&quot;</span></code></pre></div>
 
 <ul>
 <li>[Optional] It is advisable to separate the standard and the error output, for
