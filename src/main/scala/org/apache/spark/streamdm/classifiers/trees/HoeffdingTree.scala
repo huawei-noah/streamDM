@@ -93,7 +93,7 @@ class HoeffdingTree extends Classifier {
     0.0000001, 0.0, 1.0)
 
   val learningNodeOption: IntOption = new IntOption("learningNodeType", 'l',
-    "Learning node type of leaf", 0, 0, 2)
+    "Learning node type of leaf", 2, 0, 2)
 
   val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'q',
     "The number of examples a leaf should observe between permitting Naive Bayes", 0, 0, Int.MaxValue)
