@@ -9,7 +9,7 @@ desiring to quickly run a StreamDM task. We describe how StreamDM can be
 compiled, and how a quick task can be run.
 
 The basic requirement for running the example in this documents is to have Spark
-1.3 installed. The example works best on a Linux/Unix machine.
+1.4 installed. The example works best on a Linux/Unix machine.
 
 ## Compiling The Code
 
