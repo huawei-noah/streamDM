@@ -338,7 +338,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
       logInfo("{tree size (nodes),tree size (leaves),active learning leaves,tree depth}")
       val tree_size_nodes = activeNodeCount + decisionNodeCount + inactiveNodeCount
       val tree_size_leaves = activeNodeCount + inactiveNodeCount
-      logInfo("{" + tree_size_nodes + "," + tree_size_leaves + "," + activeNodeCount + "," + treeDepth() + "}")
+      logInfo("{" + tree_size_nodes + "," + tree_size_leaves + "," + activeNodeCount + "," + treeHeight() + "}")
     }
     this
   }
@@ -458,11 +458,11 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
     heoffdingBound
   }
   /*
-   * Returns the depth of Hoeffding Tree
+   * Returns the height of Hoeffding Tree
    */
-  def treeDepth(): Int = {
-    if (root == null) 0
-    else root.depth()
+  def treeHeight(): Int = {
+    if (root == null) -1
+    else root.height()
   }
 
   /* Description of the Hoeffding Tree Model

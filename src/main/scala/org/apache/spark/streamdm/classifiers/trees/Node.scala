@@ -57,6 +57,13 @@ abstract class Node(val classDistribution: Array[Double]) extends Serializable {
   def isLeaf(): Boolean = true
 
   /**
+   * Returns height of the tree
+   *
+   * @return the height
+   */
+  def height(): Int = 0
+
+  /**
    * Returns depth of current node in the tree
    *
    * @return the depth
@@ -161,6 +168,19 @@ class SplitNode(classDistribution: Array[Double], val conditionalTest: Condition
   override def isLeaf() = false
 
   /**
+   * Returns height of the tree
+   *
+   * @return the height
+   */
+  override def height(): Int = {
+    var height = 0
+    for (child: Node <- children) {
+      height = max(height, child.height()) + 1
+    }
+    height
+  }
+
+  /**
    * Returns number of children
    *
    * @return  number of children
@@ -237,7 +257,7 @@ abstract class LearningNode(classDistribution: Array[Double]) extends Node(class
  * Basic majority class active learning node for Hoeffding tree
  */
 class ActiveLearningNode(classDistribution: Array[Double])
-  extends LearningNode(classDistribution) with Serializable{
+  extends LearningNode(classDistribution) with Serializable {
 
   var addonWeight: Double = 0
 
