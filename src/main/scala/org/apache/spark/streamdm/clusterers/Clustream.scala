@@ -56,7 +56,7 @@ class Clustream extends Clusterer {
     "Size of initial buffer", 1000, 1, Integer.MAX_VALUE)
 
   val repOption: IntOption = new IntOption("kMeansIters", 'i',
-    "Number of k-means iterations", 1000, 1, Integer.MAX_VALUE)
+    "Number of k-means iterations", 100, 1, Integer.MAX_VALUE)
 
   var exampleLearnerSpecification: ExampleSpecification = null
 
@@ -77,35 +77,39 @@ class Clustream extends Clusterer {
     input.foreachRDD(rdd => {
       val numInstances: Long = initialBuffer.length + 1
       if (numInstances<initOption.getValue) {
-        initialBuffer = initialBuffer++fromRDDToArray(rdd)
+        val neededInstances = (initOption.getValue - numInstances).toDouble
+        val rddCount = rdd.count.toDouble
+        var procRDD = rdd
+        val fractionNeeded = neededInstances/rddCount
+        val fractionRatio = 1.25
+        println("need %.2f of the RDD".format(fractionNeeded))
+        //we are conservative: we get a bit more than we need
+        if (fractionRatio*fractionNeeded<1.0) {
+          println("sampling %.2f of RDD".format(fractionRatio*fractionNeeded))
+          procRDD = rdd.sample(false, fractionRatio*fractionNeeded)
+        }
+        initialBuffer = initialBuffer ++ ClusterUtils.fromRDDToArray(procRDD)
       }
       else if(microclusters.microclusters.length==0) {
         val timestamp = System.currentTimeMillis / 1000
-        initialBuffer = initialBuffer++fromRDDToArray(rdd)
-
         microclusters = new MicroClusters(Array.fill[MicroCluster]
-        (mcOption.getValue)(new MicroCluster(new NullInstance(), 
-                            new NullInstance, 0, 0.0, 0)))
-        //cluster the initial buffer to get the centroids of the microclusters
+                (mcOption.getValue)(new MicroCluster(new NullInstance(), 
+                                    new NullInstance, 0, 0.0, 0)))
+        //cluster the initial buffer to get the 
+        //centroids of themicroclusters
         val centr = KMeans.cluster(initialBuffer, mcOption.getValue,
-                                     repOption.getValue)
-        //for every instance in the initial buffer, add it to the closest
-        //microcluster
+                                    repOption.getValue)
+        //for every instance in the initial buffer, add it 
+        //to the closest microcluster
         initialBuffer.foreach(iex => {
-          val closest = centr.foldLeft((0,Double.MaxValue,0))((cl,centr) => {
-            val dist = centr.in.distanceTo(iex.in)
-            if(dist<cl._2) ((cl._3,dist,cl._3+1))
-            else ((cl._1,cl._2,cl._3+1))
-          })._1
-        microclusters = microclusters.addToMicrocluster(closest, iex, 
-                                                            timestamp)
+          val closest = ClusterUtils.assignToCluster(iex,centr)
+          microclusters = microclusters.addToMicrocluster(closest, iex, 
+                                                          timestamp)
         })
+        microclusters = processMicroclusters(rdd, microclusters)
       }
-      else{
-        fromRDDToArray(rdd).
-          foreach(ex => {
-            microclusters = microclusters.update(ex)
-          })
+      else {
+        microclusters = processMicroclusters(rdd, microclusters)
       }
       //perform "offline" clustering
       if(initialBuffer.length<initOption.getValue) {
@@ -118,7 +122,6 @@ class Clustream extends Clusterer {
                                   repOption.getValue)
       }
     })
-
   }
 
   /* Gets the current MicroClusters.
@@ -126,6 +129,18 @@ class Clustream extends Clusterer {
    * @return the current MicroClusters object
    */
   def getModel: MicroClusters = microclusters
+
+  /**
+   * Processes the new microclusters from an input RDD and given an initial
+   * state of the microclusters.
+   * @param rdd the input RDD of Example
+   * @param microclusters the initial MicroClusters data structure
+   * @return the updated microclusters
+   */
+  private def processMicroclusters(rdd: RDD[Example], input: MicroClusters):
+    MicroClusters =
+    rdd.aggregate(input)((mic,ex) =>mic.update(ex), (mic1,mic2) => mic1)
+
 
 
   /* Compute the output cluster centroids, based on the current microcluster
@@ -136,10 +151,7 @@ class Clustream extends Clusterer {
   def getClusters: Array[Example] =
     if (clusters==null) Array[Example]() else clusters
 
-  private def fromRDDToArray(input: RDD[Example]): Array[Example] =
-    input.aggregate(Array[Example]())((arr, ex) => arr:+ex, 
-                                    (arr1,arr2) => arr1++arr2)
-
+  
   /* Assigns examples to clusters, given the current microclusters. 
    *
    * @param input the DStream of Examples to be assigned a cluster
@@ -148,12 +160,7 @@ class Clustream extends Clusterer {
    */
   def assign(input: DStream[Example]): DStream[(Example,Double)] = {
     input.map(x => {
-      val assignedCl = getClusters.foldLeft((0,Double.MaxValue,0))(
-        (cl,centr) => {
-          val dist = centr.in.distanceTo(x.in)
-          if(dist<cl._2) ((cl._3,dist,cl._3+1))
-          else ((cl._1,cl._2,cl._3+1))
-        })._1
+      val assignedCl = ClusterUtils.assignToCluster(x,getClusters)
       (x,assignedCl)
     })
   }
