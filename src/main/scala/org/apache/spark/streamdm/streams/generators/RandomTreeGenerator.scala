@@ -33,14 +33,14 @@ import scala.util.Random
 
 class RandomTreeGenerator extends StreamReader {
 
-  val chunkSizeOption: IntOption = new IntOption("chunkSize", 'c',
+  val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
     "Chunk Size", 1000, 1, Integer.MAX_VALUE)
 
   val slideDurationOption: IntOption = new IntOption("slideDuration", 'd',
     "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
 
-  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
-    "Number of Features", 3, 1, Integer.MAX_VALUE)
+//  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
+//    "Number of Features", 3, 1, Integer.MAX_VALUE)
 
   //  val treeRandomSeedOption: IntOption = new IntOption("treeRandomSeed",
   //    'r', "Seed for random generation of tree.", 1);
@@ -49,7 +49,7 @@ class RandomTreeGenerator extends StreamReader {
   //    "instanceRandomSeed", 'i',
   //    "Seed for random generation of instances.", 1)
 
-  val numClassesOption = new IntOption("numClasses", 'n', //default is 'c'
+  val numClassesOption = new IntOption("numClasses", 'c', //default is 'c'
     "The number of classes to generate.", 2, 2, Integer.MAX_VALUE)
 
   val numNominalsOption = new IntOption("numNominals", 'o',
