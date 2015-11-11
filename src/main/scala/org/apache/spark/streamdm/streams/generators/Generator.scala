@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 Holmes Team at HUAWEI Noah's Ark Lab.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package org.apache.spark.streamdm.streams.generators
 
 import org.apache.spark.rdd.RDD
@@ -9,12 +25,27 @@ import org.apache.spark.streamdm.streams.StreamReader
 
 abstract class Generator extends StreamReader {
 
-  val chunkSizeOption: IntOption = new IntOption("chunkSize", 'c',
-    "Chunk Size", 1000, 1, Integer.MAX_VALUE)
+  /**
+   * returns chunk size
+   */
+  def getChunkSize(): Int
 
-  val slideDurationOption: IntOption = new IntOption("slideDuration", 'd',
-    "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
+  /**
+   * returns slide duration
+   */
+  def getslideDuration(): Int
+
+  /**
+   * initializes the generator
+   */
   def init(): Unit
+
+  /**
+   * generates a random example.
+   *
+   * @return a random example
+   */
+
   def getExample(): Example
 
   /**
@@ -32,13 +63,12 @@ abstract class Generator extends StreamReader {
 
       override def compute(validTime: Time): Option[RDD[Example]] = {
         init()
-        val examples: Array[Example] = Array.fill[Example](chunkSizeOption.
-          getValue)(getExample)
+        val examples: Array[Example] = Array.fill[Example](getChunkSize())(getExample)
         Some(ssc.sparkContext.parallelize(examples))
       }
 
       override def slideDuration = {
-        new Duration(slideDurationOption.getValue)
+        new Duration(getslideDuration)
       }
     }
   }
