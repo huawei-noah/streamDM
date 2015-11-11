@@ -16,12 +16,10 @@
  */
 package org.apache.spark.streamdm.streams
 
-import java.io.Serializable
-
-import com.github.javacliparser.Configurable
 import com.github.javacliparser.{ IntOption, StringOption, ClassOption }
 import org.apache.spark.streamdm.streams.generators._
-
+import org.apache.spark.streamdm.core._
+import java.io._
 /**
  * FileWriter use generator to generate data and save to file or HDFS for simulation or test.
  *
@@ -33,73 +31,105 @@ import org.apache.spark.streamdm.streams.generators._
  * </ul>
  */
 
-class FileWriter extends Configurable with Serializable {
+class FileWriter {
+
   val chunkNumberOption: IntOption = new IntOption("chunkNumber", 'n',
-    "Chunk Number", 1000, 1, Integer.MAX_VALUE)
+    "Number of chunks to be generated", 10, 1, Integer.MAX_VALUE)
 
   val fileNameOption: StringOption = new StringOption("fileName", 'f',
-    "File Name", "./sampleData")
+    "File Name", "./sampleDriftData")
 
   val generatorOption: ClassOption = new ClassOption("generator", 'g',
-    "generator to use", classOf[generators.Generator], "SampleGenerator")
+    "generator to use", classOf[Generator], "RandomRBFDriftGenerator")
 
   var generator: Generator = null
-
   /**
    * writes sample data to file or HDFS file
    */
   def write(): Unit = {
     generator = generatorOption.getValue()
     if (generator != null)
-      write(fileNameOption.getValue, generator.getChunkSize(), chunkNumberOption.getValue)
+      write(fileNameOption.getValue, chunkNumberOption.getValue)
   }
-
   /**
    * writes sample data to file or HDFS file
    * @param fileName file name to be stored
-   * @chunkSize chunk size of RDD
-   * @chunkNumber chunk number would be stored
+   * @param chunkSize chunk size of RDD
+   * @param chunkNumber chunk number would be stored
    *
    * @return Unit
    */
-  private def write(fileName: String, chunkSize: Int, chunkNumber: Int): Unit = {
-    if (fileName.startsWith("HDFS")) writeToHDFS(fileName, chunkSize, chunkNumber)
-    else writeToFile(fileName, chunkSize, chunkNumber)
+  private def write(fileName: String, chunkNumber: Int): Unit = {
+    if (fileName.startsWith("HDFS")) writeToHDFS(fileName, chunkNumber)
+    else writeToFile(fileName, chunkNumber)
   }
 
   /**
    * writes sample data to file
    * @param fileName file name to be stored
-   * @chunkSize chunk size of RDD
-   * @chunkNumber chunk number would be stored
+   * @param chunkSize chunk size of RDD
+   * @param chunkNumber chunk number would be stored
    *
    * @return Unit
    */
-  private def writeToFile(fileName: String, chunkSize: Int, chunkNumber: Int): Unit = {
-
+  private def writeToFile(fileName: String, chunkNumber: Int): Unit = {
+    val file: File = new File(fileName + ".txt")
+    val fileArrf: File = new File(fileName + ".arrf")
+    println(file)
+    println(fileArrf)
+    if (file.exists() || fileArrf.exists()) {
+      println("out put file exists, input a new file name")
+      exit()
+    } else {
+      val writer = new PrintWriter(file)
+      val writerArrf = new PrintWriter(fileArrf)
+      for (i <- 0 until chunkNumber) {
+        println(i)
+        val examples: Array[Example] = generatorOption.getValue[Generator].getExamples()
+        val length: Int = examples.length
+        var str: String = new String
+        for (i <- 0 until length) {
+          str = examples(i).toString()
+          writer.append(str + "\n")
+          val tokens = str.split("\\s+")
+          val length = tokens.length
+          if (length == 1) writerArrf.append(str + "\n")
+          else {
+            val strArrf = tokens.tail.mkString(",") + "," + tokens.head
+            writerArrf.append(strArrf + "\n")
+          }
+          writer.flush()
+          writerArrf.flush()
+        }
+      }
+      writer.close()
+      writerArrf.close()
+    }
   }
 
   /**
    * writes sample data to HDFS file
    * @param fileName file name to be stored
-   * @chunkSize chunk size of RDD
-   * @chunkNumber chunk number would be stored
+   * @param chunkSize chunk size of RDD
+   * @param chunkNumber chunk number would be stored
    *
    * @return Unit
    */
-  private def writeToHDFS(fileName: String, chunkSize: Int, chunkNumber: Int): Unit = {
-
+  private def writeToHDFS(fileName: String, chunkNumber: Int): Unit = {
+    //todo
   }
 
 }
 
 object SampleDataWriter {
+  
   def main(args: Array[String]) {
-    var params = "FileWriter -n 105 -s (RandomTreeGenerator -c 110)"
-    if (args.length > 0) {
+    var params = "FileWriter -n 10 -g (RandomRBFGenerator -c 2)"
+    if (args != null) {
       params = args.mkString(" ")
     }
     try {
+      println(params)
       val writer: FileWriter = ClassOption.cliStringToObject(params, classOf[FileWriter], null)
       writer.write()
     } catch {
