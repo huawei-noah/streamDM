@@ -16,6 +16,7 @@
  */
 package org.apache.spark.streamdm.streams
 
+import com.github.javacliparser.Configurable
 import com.github.javacliparser.{ IntOption, StringOption, ClassOption }
 import org.apache.spark.streamdm.streams.generators._
 import org.apache.spark.streamdm.core._
@@ -31,16 +32,16 @@ import java.io._
  * </ul>
  */
 
-class FileWriter {
+class FileWriter extends Configurable with Serializable {
 
   val chunkNumberOption: IntOption = new IntOption("chunkNumber", 'n',
     "Number of chunks to be generated", 10, 1, Integer.MAX_VALUE)
 
   val fileNameOption: StringOption = new StringOption("fileName", 'f',
-    "File Name", "./sampleDriftData")
+    "File Name", "./sampleData")
 
   val generatorOption: ClassOption = new ClassOption("generator", 'g',
-    "generator to use", classOf[Generator], "RandomRBFDriftGenerator")
+    "generator to use", classOf[Generator], "RandomTreeGenerator")
 
   var generator: Generator = null
   /**
@@ -75,36 +76,30 @@ class FileWriter {
   private def writeToFile(fileName: String, chunkNumber: Int): Unit = {
     val file: File = new File(fileName + ".txt")
     val fileArrf: File = new File(fileName + ".arrf")
-    println(file)
-    println(fileArrf)
-    if (file.exists() || fileArrf.exists()) {
-      println("out put file exists, input a new file name")
-      exit()
-    } else {
-      val writer = new PrintWriter(file)
-      val writerArrf = new PrintWriter(fileArrf)
-      for (i <- 0 until chunkNumber) {
-        println(i)
-        val examples: Array[Example] = generatorOption.getValue[Generator].getExamples()
-        val length: Int = examples.length
-        var str: String = new String
-        for (i <- 0 until length) {
-          str = examples(i).toString()
-          writer.append(str + "\n")
-          val tokens = str.split("\\s+")
-          val length = tokens.length
-          if (length == 1) writerArrf.append(str + "\n")
-          else {
-            val strArrf = tokens.tail.mkString(",") + "," + tokens.head
-            writerArrf.append(strArrf + "\n")
-          }
-          writer.flush()
-          writerArrf.flush()
+    val writer = new PrintWriter(file)
+    val writerArrf = new PrintWriter(fileArrf)
+    for (i <- 0 until chunkNumber) {
+      println(i)
+      val examples: Array[Example] = generatorOption.getValue[Generator].getExamples()
+      val length: Int = examples.length
+      var str: String = new String
+      for (i <- 0 until length) {
+        str = examples(i).toString()
+        writer.append(str + "\n")
+        val tokens = str.split("\\s+")
+        val length = tokens.length
+        if (length == 1) writerArrf.append(str + "\n")
+        else {
+          val strArrf = tokens.tail.mkString(",") + "," + tokens.head
+          writerArrf.append(strArrf + "\n")
         }
+        writer.flush()
+        writerArrf.flush()
       }
-      writer.close()
-      writerArrf.close()
     }
+    writer.close()
+    writerArrf.close()
+
   }
 
   /**
@@ -122,7 +117,7 @@ class FileWriter {
 }
 
 object SampleDataWriter {
-  
+
   def main(args: Array[String]) {
     var params = "FileWriter -n 10 -g (RandomRBFGenerator -c 2)"
     if (args != null) {
