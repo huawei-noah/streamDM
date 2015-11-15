@@ -62,9 +62,24 @@ class FileReader extends StreamReader {
       }
     }
   }
-  
-  def getExampleSpecification(): ExampleSpecification = {null}
-  
+
+  /**
+   * Obtains the specification of the examples in the stream.
+   *
+   * @return an ExampleSpecification of the features
+   */
+  def getExampleSpecification(): ExampleSpecification = {
+
+    //Prepare specification of class attributes
+    val outputIS = new InstanceSpecification()
+    val classFeature = new NominalFeatureSpecification(Array("+", "-"))
+    outputIS.setFeatureSpecification(0, classFeature)
+    outputIS.setName(0, "class")
+
+    new ExampleSpecification(new InstanceSpecification(),
+      outputIS)
+  }
+
   override def getExamples(ssc: StreamingContext): DStream[Example] = {
     read(ssc)
   }
