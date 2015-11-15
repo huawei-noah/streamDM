@@ -31,8 +31,8 @@ class RandomRBFGenerator extends Generator {
   val numClassesOption: IntOption = new IntOption("numClasses", 'c',
     "The number of classes to generate.", 2, 2, Integer.MAX_VALUE)
 
-  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'a',
-    "The number of features to generate.", 4, 0, Integer.MAX_VALUE)
+  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
+    "The number of features to generate.", 5, 0, Integer.MAX_VALUE)
 
   val numCentroidsOption: IntOption = new IntOption("numCentroids", 'n',
     "The number of centroids in the model.", 50, 1, Integer.MAX_VALUE)
@@ -141,7 +141,7 @@ class RandomRBFGenerator extends Generator {
    *
    * @return an ExampleSpecification of the features
    */
-  def getExampleSpecification(): ExampleSpecification = {
+  override def getExampleSpecification(): ExampleSpecification = {
 
     //Prepare specification of class attributes
     val outputIS = new InstanceSpecification()

@@ -40,7 +40,7 @@ class RandomTreeGenerator extends Generator {
     "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
 
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
-    "Number of Features", 3, 1, Integer.MAX_VALUE)
+    "Number of Features", 10, 1, Integer.MAX_VALUE)
 
   //  val treeRandomSeedOption: IntOption = new IntOption("treeRandomSeed",
   //    'r', "Seed for random generation of tree.", 1);
@@ -91,7 +91,7 @@ class RandomTreeGenerator extends Generator {
     slideDurationOption.getValue
   }
 
-  def init(): Unit = { generateRandomTree() }
+  override def init(): Unit = { generateRandomTree() }
 
   def getExample(): Example = {
     if (treeRoot == null)
@@ -125,7 +125,7 @@ class RandomTreeGenerator extends Generator {
    * Obtains the specification of the examples in the stream
    * @return an specification of the examples
    */
-  def getExampleSpecification(): ExampleSpecification = {
+  override def getExampleSpecification(): ExampleSpecification = {
 
     //Prepare specification of class feature
     val outputIS = new InstanceSpecification()
