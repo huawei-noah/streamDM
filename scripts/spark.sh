@@ -1,4 +1,3 @@
-SPARK_HOME=/home/albert/Software/spark/spark-1.1.1
 $SPARK_HOME/bin/spark-submit \
   --class "org.apache.spark.streamdm.streamDMJob" \
   --master local[2] \
