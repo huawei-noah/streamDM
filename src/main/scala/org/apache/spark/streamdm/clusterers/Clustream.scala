@@ -82,10 +82,8 @@ class Clustream extends Clusterer {
         var procRDD = rdd
         val fractionNeeded = neededInstances/rddCount
         val fractionRatio = 1.25
-        println("need %.2f of the RDD".format(fractionNeeded))
         //we are conservative: we get a bit more than we need
         if (fractionRatio*fractionNeeded<1.0) {
-          println("sampling %.2f of RDD".format(fractionRatio*fractionNeeded))
           procRDD = rdd.sample(false, fractionRatio*fractionNeeded)
         }
         initialBuffer = initialBuffer ++ ClusterUtils.fromRDDToArray(procRDD)
