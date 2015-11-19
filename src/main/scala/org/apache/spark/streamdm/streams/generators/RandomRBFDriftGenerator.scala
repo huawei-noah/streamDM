@@ -7,10 +7,16 @@ package org.apache.spark.streamdm.streams.generators
  * Stream generator for a random radial basis function stream with drift
  *
  * this file refers to the RandomRBFGeneratorDrift.java in MOA.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Speed of change of centroids in the model (<b>-s</b>)
+ *  <li> the number of centroids with drift (<b>-r</b>)
+ * </ul>
  */
 import org.apache.spark.streamdm.streams.StreamReader
 import org.apache.spark.streamdm.streams.StreamReader
-import com.github.javacliparser.{ IntOption, FloatOption }
+import com.github.javacliparser.{ IntOption, FloatOption, StringOption }
 import org.apache.spark.streaming.dstream.{ DStream, InputDStream }
 import org.apache.spark.streaming.{ Time, Duration, StreamingContext }
 import org.apache.spark.rdd.RDD
@@ -22,6 +28,30 @@ import scala.collection._
 
 class RandomRBFDriftGenerator extends RandomRBFGenerator {
 
+/* override val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
+    "Chunk Size", 10000, 1, Integer.MAX_VALUE)
+
+  override val slideDurationOption: IntOption = new IntOption("slideDuration", 'w',
+    "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
+ 
+   override val modelRandomSeedOption: IntOption = new IntOption("modelRandomSeed",'d',
+      "Seed for random generation of model.", 1, 1, Integer.MAX_VALUE)
+
+  override val instanceRandomSeedOption: IntOption = new IntOption("instanceRandomSeed", 'i',
+      "Seed for random generation of instances.", 1, 1, Integer.MAX_VALUE)
+
+  override val numClassesOption: IntOption = new IntOption("numClasses", 'c',
+    "The number of classes to generate.", 2, 2, Integer.MAX_VALUE)
+
+  override val numFeaturesOption: IntOption = new IntOption("numFeatures", 'a',
+    "The number of features to generate.", 4, 0, Integer.MAX_VALUE)
+
+  override val numCentroidsOption: IntOption = new IntOption("numCentroids", 'n',
+    "The number of centroids in the model.", 50, 1, Integer.MAX_VALUE)
+
+  override val instanceTypeOption: StringOption = new StringOption("instanceType", 't',
+    "Type of the instance to use", "dense")*/
+   
   val speedChangeOption: FloatOption = new FloatOption("speedChange", 's',
     "Speed of change of centroids in the model.", 2.0, 0, Float.MaxValue);
 
@@ -30,13 +60,26 @@ class RandomRBFDriftGenerator extends RandomRBFGenerator {
 
   private var speedCentroids: Array[Array[Double]] = null
 
+ /* override val centroids = new Array[Centroid](numCentroidsOption.getValue)
+
+  override  val centroidWeights = new Array[Double](centroids.length)
+
+  override val instanceRandom: Random = new Random(instanceRandomSeedOption.getValue())
+  */
+  override def init(): Unit = {
+    if(!inited) {
+      this.generateCentroids
+      inited = true
+    }
+  }
+  
   /**
    * Obtains a stream of examples.
    *
    * @param ssc a Spark Streaming context
    * @return a stream of Examples
    */
-
+   
   override def getExample(): Example = {
     //Update Centroids with drift
     var len: Int = 0
@@ -64,7 +107,7 @@ class RandomRBFDriftGenerator extends RandomRBFGenerator {
    * generate centroids based on the drift parameters
    */
   override def generateCentroids() {
-    super.generateCentroids()
+    super.generateCentroids() 
     val modelRand: Random = new Random(modelRandomSeedOption.getValue())
 
     var len: Int = 0

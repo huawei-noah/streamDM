@@ -9,7 +9,6 @@ import org.apache.spark.streamdm.streams.StreamReader
 
 abstract class Generator extends StreamReader {
 
-  var inited: Boolean = false
   /**
    * returns chunk size
    */
@@ -24,6 +23,10 @@ abstract class Generator extends StreamReader {
    * initializes the generator
    */
   def init(): Unit
+  // call initialization
+  
+   var inited:Boolean = false
+  
   /**
    * generates a random example.
    *
@@ -39,6 +42,7 @@ abstract class Generator extends StreamReader {
    * @return a stream of Examples
    */
   def getExamples(ssc: StreamingContext): DStream[Example] = {
+    init()
     new InputDStream[Example](ssc) {
 
       override def start(): Unit = {}
@@ -61,10 +65,7 @@ abstract class Generator extends StreamReader {
    * @return an array of Examples
    */
   def getExamples(length: Int = getChunkSize()): Array[Example] = {
-    if(!inited){
-      init()
-      inited=true
-    }
+    init()
     Array.fill[Example](length)(getExample())
   }
 }

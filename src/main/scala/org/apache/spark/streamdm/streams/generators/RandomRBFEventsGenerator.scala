@@ -26,15 +26,13 @@ import org.apache.spark.streaming.dstream.{ InputDStream, DStream }
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import scala.math._
-import scala.io._
-import java.io._
 
 /**
  *   Stream generator for  Clustream  with a random radial basis function.
  */
 class RandomRBFEventsGenerator extends Generator {
 
-  val chunkSizeOption: IntOption = new IntOption("chunkSize", 'c',
+  val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
     "Chunk Size", 50, 1, Integer.MAX_VALUE);
 
   val instanceOption: StringOption = new StringOption("instanceType", 't',
@@ -49,10 +47,10 @@ class RandomRBFEventsGenerator extends Generator {
   val instanceRandomSeedOption: IntOption = new IntOption("instanceRandomSeed", 'i',
     "Seed for random generation of instances.", 5);
 
-  val numClusterOption: IntOption = new IntOption("numCluster", 'K',
+  val numClusterOption: IntOption = new IntOption("numCluster", 'C',
     "The average number of centroids in the model.", 5, 1, Integer.MAX_VALUE);
 
-  val numClusterRangeOption: IntOption = new IntOption("numClusterRange", 'k',
+  val numClusterRangeOption: IntOption = new IntOption("numClusterRange", 'c',
     "Deviation of the number of centroids in the model.", 3, 0, Integer.MAX_VALUE);
 
   val kernelRadiiOption: FloatOption = new FloatOption("kernelRadius", 'R',
@@ -83,7 +81,7 @@ class RandomRBFEventsGenerator extends Generator {
   val eventMergeSplitOption: FlagOption = new FlagOption("eventMergeSplitOption", 'M',
     "Enable merging and splitting of clusters. Set eventFrequency and numClusterRange!");
 
-  val eventDeleteCreateOption: FlagOption = new FlagOption("eventDeleteCreate", 'C',
+  val eventDeleteCreateOption: FlagOption = new FlagOption("eventDeleteCreate", 'e',
     "Enable emering and disapperaing of clusters. Set eventFrequency and numClusterRange!");
 
   val numAttsOption: IntOption = new IntOption("numAtts", 'a', "The number of attributes to generate.", 2, 0, Integer.MAX_VALUE);
@@ -96,15 +94,15 @@ class RandomRBFEventsGenerator extends Generator {
   val maxDistanceMoveThresholdByStep = 0.01;
   val maxOverlapFitRuns = 50;
   val eventFrequencyRange = 0;
-  var kernels: ArrayBuffer[GeneratorCluster] = _;
-  var instanceRandom: Random = _;
-  var numGeneratedInstances: Int = _;
-  var numActiveKernels: Int = _;
-  var nextEventCounter: Int = _;
+  var kernels: ArrayBuffer[GeneratorCluster] = null;
+  var instanceRandom: Random = null;
+  var numGeneratedInstances: Int = 0;
+  var numActiveKernels: Int = 0;
+  var nextEventCounter: Int = 0;
   var nextEventChoice = -1;
-  var clusterIdCounter: Int = _;
-  var mergeClusterA: GeneratorCluster = _;
-  var mergeClusterB: GeneratorCluster = _;
+  var clusterIdCounter: Int = 0;
+  var mergeClusterA: GeneratorCluster = null;
+  var mergeClusterB: GeneratorCluster = null;
   var mergeKernelsOverlapping = false;
 
   /**
@@ -114,12 +112,12 @@ class RandomRBFEventsGenerator extends Generator {
    */
   class GeneratorCluster {
 
-    var generator: SphereCluster = _;
+    var generator: SphereCluster = null;
     var kill: Int = -1;
     var merging = false;
     var moveVector = new Array[Double](numAttsOption.getValue());
-    var totalMovementSteps: Int = _;
-    var currentMovementSteps: Int = _;
+    var totalMovementSteps: Int = 0;
+    var currentMovementSteps: Int = 0;
     var isSplitting = false;
     val microClusters = new ArrayBuffer[SphereCluster]();
     val microClustersDecay = new ArrayBuffer[Int]();
@@ -163,10 +161,9 @@ class RandomRBFEventsGenerator extends Generator {
       this.generator.setId(label);
       setDesitnation(null);
     }
-    
-    
-    /* 
-     * update the cluster(remove the invalid microcluster. etc.)
+
+    /* *
+     *  update the cluster(remove the invalid microcluster. etc.)
      */
     def updateKernel(): Unit = {
       if (kill == 0) {
@@ -193,12 +190,12 @@ class RandomRBFEventsGenerator extends Generator {
       }
     }
 
-   /* 
-    * set the move-path for the cluster 
+  /* *
+   * set the move-path for the cluster 
    *
    * @param destination_t move-destination Array
    */
-    def setDesitnation(destination_t: Array[Double]) {
+    def setDesitnation(destination_t: Array[Double]): Unit = {
 
       var destination: Array[Double] = null;
       if (destination_t == null) {
@@ -225,11 +222,12 @@ class RandomRBFEventsGenerator extends Generator {
       currentMovementSteps = 0;
     }
 
-  /* 
-   *try to merge two cluster.
-   * @param merge the Cluster want to be merged
-   * @return info string for merging
-   */
+   /* *
+    * try to merge two cluster.
+    * 
+    * @param merge the Cluster want to be merged
+    * @return info string for merging
+    */
     def tryMerging(merge: GeneratorCluster): String = {
       var message = "";
       val overlapDegree: Double = generator.overlapRadiusDegree(merge.generator);
@@ -261,8 +259,9 @@ class RandomRBFEventsGenerator extends Generator {
       message;
     }
 
-   /* 
+   /* *
     * split a cluster from the cluster
+    * 
     * @return message for splitting
     */
     def splitKernel(): String = {
@@ -290,8 +289,9 @@ class RandomRBFEventsGenerator extends Generator {
       }
     }
 
-    /* 
+    /* *
      *  fade out the cluster.
+     *  
      * @return message for fading out
      */
     def fadeOut(): String = {
@@ -302,8 +302,9 @@ class RandomRBFEventsGenerator extends Generator {
       "Fading out C" + generator.getId();
     }
 
-    /* 
+    /* *
      * add an instance.
+     * 
      * @param instance the instance want to be added
      */
     def addInstance(instance: Instance): Unit = {
@@ -354,7 +355,7 @@ class RandomRBFEventsGenerator extends Generator {
 
     }
 
-    /* 
+    /* *
      * move the cluster.
      */
     def move(): Unit = {
@@ -393,14 +394,14 @@ class RandomRBFEventsGenerator extends Generator {
    * normalize weights of the cluster.
    */
   def normalizeWeights(): Unit = {
-   
+
     val sumWeights = kernels.foldLeft(0.0)((sum, k) => sum + k.generator.getWeight());
     kernels.foreach(k => {
       k.generator.setWeight(k.generator.getWeight() / sumWeights);
     })
   }
 
- /* 
+ /* *
   * init the clusters.
   */
   def initKernels(): Unit = {
@@ -412,8 +413,9 @@ class RandomRBFEventsGenerator extends Generator {
     normalizeWeights();
   }
 
-  /* 
-   *get the code for next event.
+  /* *
+   * get the code for next event.
+   * 
    * @return the code for next event.
    */
   def getNextEvent(): Int = {
@@ -454,9 +456,10 @@ class RandomRBFEventsGenerator extends Generator {
     choice;
   }
 
-  /* 
-   *get a Weighted-Element.
-   *@return index of the choosen element
+  /* *
+   * get a Weighted-Element.
+   * 
+   * @return index of the choosen element
    */
   def chooseWeightedElement(): Int = {
     var r = instanceRandom.nextDouble();
@@ -471,9 +474,10 @@ class RandomRBFEventsGenerator extends Generator {
     i;
   }
 
-  /* 
-   *get a noise.
-   *@return the noise vector
+  /* *
+   * get a noise.
+   * 
+   * @return the noise vector
    */
   def getNoisePoint(): Array[Double] = {
     var sample = new Array[Double](numAttsOption.getValue());
@@ -497,10 +501,11 @@ class RandomRBFEventsGenerator extends Generator {
     sample;
   }
 
-  /* 
-   * merge clusters.
-   * @param steps used for choosing clusters to merge
-   * @return info string for merging
+  /* *
+   *  merge clusters.
+   * 
+   *  @param steps used for choosing clusters to merge
+   *  @return info string for merging
    */
   def mergeKernels(steps: Int): String = {
 
@@ -547,8 +552,9 @@ class RandomRBFEventsGenerator extends Generator {
     } else "";
   }
 
-  /* 
+  /* *
    * split a cluster.
+   * 
    * @return message for splitting
    */
   def splitKernel(): String = {
@@ -562,8 +568,9 @@ class RandomRBFEventsGenerator extends Generator {
     message;
   }
 
- /* 
+  /* *
    * fade out a cluster.
+   * 
    * @return message for fading out
    */
   def fadeOut(): String = {
@@ -575,8 +582,9 @@ class RandomRBFEventsGenerator extends Generator {
     message;
   }
 
-  /* 
+  /* *
    * add a cluster.
+   * 
    * @return message for fading in
    */
   def fadeIn(): String = {
@@ -588,7 +596,7 @@ class RandomRBFEventsGenerator extends Generator {
     "Creating new cluster";
   }
 
-  /* 
+  /* *
    * eventScheduler
    */
   def eventScheduler(): Unit = {
@@ -652,8 +660,8 @@ class RandomRBFEventsGenerator extends Generator {
     }
   }
 
-  /**
-   * initializes the generator
+  /* *
+   *  initializes the generator
    */
   def init(): Unit = {
     noiseInClusterOption.set();
@@ -669,24 +677,24 @@ class RandomRBFEventsGenerator extends Generator {
     initKernels();
   }
 
-  /**
-   * returns chunk size
+  /* *
+   * @return chunk size
    */
   def getChunkSize(): Int = {
     chunkSizeOption.getValue
   }
 
-  /**
-   * returns slide duration
+  /* *
+   * @return slide duration
    */
   def getslideDuration(): Int = {
     slideDurationOption.getValue
   }
 
-  /**
-   * Obtains a single example.
-   *
-   * @return a Example.
+  /* *
+   *  Obtains a single example.
+   *  
+   *  @return a Example.
    */
   def getExample(): Example = {
 
@@ -718,10 +726,10 @@ class RandomRBFEventsGenerator extends Generator {
     }
   }
 
-  /**
-   * Obtains the specification of the examples in the stream.
-   *
-   * @return an ExampleSpecification of the features
+  /* *
+   *  Obtains the specification of the examples in the stream.
+   *  
+   *  @return an ExampleSpecification of the features
    */
   def getExampleSpecification(): ExampleSpecification = {
     //Prepare specification of class attributes
