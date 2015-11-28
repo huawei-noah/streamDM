@@ -332,6 +332,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
             case activeNode: ActiveLearningNode => {
               attemptToSplit(activeNode, foundNode.parent, foundNode.index)
             }
+            case other: Node=> {}
           }
         }
       }
