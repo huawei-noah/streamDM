@@ -18,9 +18,39 @@
 package org.apache.spark.streamdm.clusterers.utils
 
 import org.apache.spark.streamdm.core._
+import org.apache.spark.rdd._
 
 import scala.util.Random
 import scala.io.Source
+
+/**
+ * Clustering helper functions.
+ */
+object ClusterUtils extends Serializable {
+  
+  /**
+   * Transforms an Example RDD into an array of RDD
+   * @param input the input RDD
+   * @return the output Array
+   */
+  def fromRDDToArray(input: RDD[Example]): Array[Example] =
+    input.aggregate(Array[Example]())((arr, ex) => arr:+ex, 
+                                    (arr1,arr2) => arr1++arr2)
+
+  /**
+   * Assigns the input example to the cluster corresponding to the closest
+   * centroid.
+   * @param example the input Example
+   * @param centroids the Array of centroids
+   * @return the assigned cluster index
+   */
+  def assignToCluster(example: Example, centroids: Array[Example]): Int =
+    centroids.foldLeft((0,Double.MaxValue,0))((cl,centr) => {
+      val dist = centr.in.distanceTo(example.in)
+      if(dist<cl._2) ((cl._3,dist,cl._3+1))
+      else ((cl._1,cl._2,cl._3+1))
+    })._1
+}
 
 /**
  * The KMeans object computes the weighted k-means clustering given an array of
@@ -59,16 +89,10 @@ object KMeans extends Serializable {
       //find the closest centroid for each instance
       //assign the instance to the corresponding cluster
       input.foreach(ex => {
-        val closest = centroids.foldLeft((0,Double.MaxValue,0))((cl,centr) => {
-          val dist = centr.distanceTo(ex.in)
-          if(dist<cl._2)
-            ((cl._3,dist,cl._3+1))
-          else
-            ((cl._1,cl._2,cl._3+1))
-        })._1
+        val closest = ClusterUtils.assignToCluster(ex, centroids.map(
+                        new Example(_)))
         clusters(closest) = addInstancesToCluster(clusters(closest),
                                                   (ex.in,ex.weight))
-
       })
       //recompute centroids
       centroids = clusters.foldLeft(Array[Instance]())((a,cl) => {
