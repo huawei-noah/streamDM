@@ -20,12 +20,12 @@ import java.io._
  * <p>It uses the following options:
  * <ul>
  *  <li> Chunk size (<b>-k</b>)
- *  <li> Slid duration (<b>-w</b>)
- *  <li> Seed for random generation of model (<b>-r</b>)
+ *  <li> Slid duration (<b>-d</b>)
+ *  <li> Seed for random generation of model (<b>-m</b>)
  *  <li> Seed for random generation of instances (<b>-i</b>)
- *  <li> The number of classes to generate (<b>-c</b>)
- *  <li> The number of features to generate (<b>-a</b>)
- *  <li> The number of centroids in the model (<b>-n</b>)
+ *  <li> The number of classes to generate (<b>-n</b>)
+ *  <li> The number of features to generate (<b>-f</b>)
+ *  <li> The number of centroids in the model (<b>-c</b>)
  *  <li> Type of the instance to use (<b>-t</b>)
  * </ul>
  */
@@ -35,28 +35,29 @@ class RandomRBFGenerator extends Generator {
   val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
     "Chunk Size", 10000, 1, Integer.MAX_VALUE)
 
-  val slideDurationOption: IntOption = new IntOption("slideDuration", 'w',
+  val slideDurationOption: IntOption = new IntOption("slideDuration", 'd',
     "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
  
-  val modelRandomSeedOption: IntOption = new IntOption("modelRandomSeed",'d',
+  val modelRandomSeedOption: IntOption = new IntOption("modelRandomSeed",'m',
       "Seed for random generation of model.", 1, 1, Integer.MAX_VALUE)
 
   val instanceRandomSeedOption: IntOption = new IntOption("instanceRandomSeed", 'i',
       "Seed for random generation of instances.", 1, 1, Integer.MAX_VALUE)
 
-  val numClassesOption: IntOption = new IntOption("numClasses", 'c',
+  val numClassesOption: IntOption = new IntOption("numClasses", 'n',
     "The number of classes to generate.", 2, 2, Integer.MAX_VALUE)
 
-  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'a',
+  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
     "The number of features to generate.", 4, 0, Integer.MAX_VALUE)
 
-  val numCentroidsOption: IntOption = new IntOption("numCentroids", 'n',
+  val numCentroidsOption: IntOption = new IntOption("numCentroids", 'c',
     "The number of centroids in the model.", 50, 1, Integer.MAX_VALUE)
 
   val instanceTypeOption: StringOption = new StringOption("instanceType", 't',
     "Type of the instance to use", "dense")
 
-  class Centroid(center: Array[Double], classLab: Int, stdev: Double) extends Serializable {
+  class Centroid(center: Array[Double], classLab: Int, stdev: Double) 
+  extends Serializable {
     val centre = center
     val classLabel = classLab
     val stdDev = stdev
@@ -92,11 +93,10 @@ class RandomRBFGenerator extends Generator {
     val centroid: Centroid = centroids(index)
     val numFeatures = numFeaturesOption.getValue()
 
-    val initFeatureVals:Array[Double] = Array.fill[Double](numFeatures)(instanceRandom.nextDouble()*2.0-1.0)
+    val initFeatureVals:Array[Double] = Array.fill[Double](numFeatures)(
+        instanceRandom.nextDouble()*2.0-1.0)
     val magnitude = Math.sqrt(initFeatureVals.foldLeft(0.0){(a,x) => a + x*x})
     
-    println("magnitude " + magnitude)
-
     val desiredMag = instanceRandom.nextGaussian() * centroid.stdDev
     val scale = desiredMag / magnitude
     
@@ -130,8 +130,10 @@ class RandomRBFGenerator extends Generator {
     val modelRand: Random = new Random(modelRandomSeedOption.getValue());
 
     for (i <- 0 until centroids.length) {
-      val randCentre: Array[Double] = Array.fill[Double](numFeaturesOption.getValue)(modelRand.nextDouble())
-      centroids.update(i, new Centroid(randCentre, modelRand.nextInt(numClassesOption.getValue), modelRand.nextDouble()))
+      val randCentre: Array[Double] = Array.fill[Double](
+          numFeaturesOption.getValue)(modelRand.nextDouble())
+      centroids.update(i, new Centroid(randCentre, modelRand.nextInt(
+          numClassesOption.getValue), modelRand.nextDouble()))
       centroidWeights.update(i, modelRand.nextDouble())
     }
   }

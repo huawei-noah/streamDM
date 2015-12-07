@@ -28,8 +28,32 @@ import scala.util.Random
 import scala.math._
 
 /**
- *   Stream generator for  Clustream  with a random radial basis function.
+ * RandomRBFEventsGenerator generates data stream for Clustream  via a random radial basis function.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Chunk size (<b>-k</b>)
+ *  <li> Type of the instance (<b>-t</b>)
+ *  <li> Slide duration (<b>-d</b>)
+ *  <li> Seed for random generation of model (<b>-m</b>)
+ *  <li> Seed for random generation of instances (<b>-i</b>)
+ *  <li> The average number of centroids in the model (<b>-C</b>)
+ *  <li> Deviation of the number of centroids in the model (<b>-c</b>)
+ *  <li> The average radii of the centroids in the model (<b>-R</b>)
+ *  <li> Deviation of average radii of the centroids in the model (<b>-r</b>)
+ *  <li> Offset of the average weight a cluster has(<b>-D</b>)
+ *  <li> Kernels move a predefined distance of 0.01 every X points (<b>-V</b>)
+ *  <li> Speed/Velocity point offset (<b>-v</b>)
+ *  <li> Noise level (<b>-N</b>)
+ *  <li> Allow noise to be placed within a cluster(<b>-n</b>)
+ *  <li> Event frequency (<b>-E</b>)
+ *  <li> Enable merging and splitting of clusters(<b>-M</b>)
+ *  <li> Enable emering and disapperaing of clusters (<b>-e</b>)
+ *  <li> The number of features to generate (<b>-f</b>)
+ *  <li> Decay horizon (<b>-h</b>)
+ * </ul>
  */
+
 class RandomRBFEventsGenerator extends Generator {
 
   val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
@@ -38,7 +62,7 @@ class RandomRBFEventsGenerator extends Generator {
   val instanceOption: StringOption = new StringOption("instanceType", 't',
     "Type of the instance to use", "dense");
 
-  val slideDurationOption: IntOption = new IntOption("slideDuration", 'D',
+  val slideDurationOption: IntOption = new IntOption("slideDuration", 'd',
     "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
 
   val modelRandomSeedOption: IntOption = new IntOption("modelRandomSeed",
@@ -59,7 +83,7 @@ class RandomRBFEventsGenerator extends Generator {
   val kernelRadiiRangeOption: FloatOption = new FloatOption("kernelRadiusRange", 'r',
     "Deviation of average radii of the centroids in the model.", 0, 0, 1);
 
-  val densityRangeOption: FloatOption = new FloatOption("densityRange", 'd',
+  val densityRangeOption: FloatOption = new FloatOption("densityRange", 'D',
     "Offset of the average weight a cluster has. Value of 0 means all cluster " +
       "contain the same amount of points.", 0, 0, 1);
 
@@ -84,7 +108,8 @@ class RandomRBFEventsGenerator extends Generator {
   val eventDeleteCreateOption: FlagOption = new FlagOption("eventDeleteCreate", 'e',
     "Enable emering and disapperaing of clusters. Set eventFrequency and numClusterRange!");
 
-  val numAttsOption: IntOption = new IntOption("numAtts", 'a', "The number of attributes to generate.", 2, 0, Integer.MAX_VALUE);
+  val numAttsOption: IntOption = new IntOption("numAtts", 'f', 
+      "The number of attributes to generate.", 2, 0, Integer.MAX_VALUE);
 
   val decayHorizonOption: IntOption = new IntOption("decayHorizon", 'h',
     "Decay horizon", 1000, 0, Integer.MAX_VALUE);
@@ -130,9 +155,11 @@ class RandomRBFEventsGenerator extends Generator {
         tryCounter = tryCounter + 1;
         outofbounds = false;
         val center = new Array[Double](numAttsOption.getValue());
-        var radius = kernelRadiiOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) * kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble();
+        var radius = kernelRadiiOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) *
+        kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble();
         while (radius <= 0) {
-          radius = kernelRadiiOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) * kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble();
+          radius = kernelRadiiOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) * 
+          kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble();
         }
         for (j <- 0 until numAttsOption.getValue() if !outofbounds) {
           center(j) = instanceRandom.nextDouble();
@@ -145,7 +172,8 @@ class RandomRBFEventsGenerator extends Generator {
       if (tryCounter < maxOverlapFitRuns) {
         generator.setId(label);
         val avgWeight = 1.0 / numClusterOption.getValue();
-        val weight = avgWeight + (if (instanceRandom.nextBoolean()) -1 else 1) * avgWeight * densityRangeOption.getValue() * instanceRandom.nextDouble();
+        val weight = avgWeight + (if (instanceRandom.nextBoolean()) -1 else 1) * avgWeight * 
+        densityRangeOption.getValue() * instanceRandom.nextDouble();
         generator.setWeight(weight);
         setDesitnation(null);
       } else {
@@ -190,7 +218,7 @@ class RandomRBFEventsGenerator extends Generator {
       }
     }
 
-  /* *
+    /* *
    * set the move-path for the cluster 
    *
    * @param destination_t move-destination Array
@@ -211,7 +239,8 @@ class RandomRBFEventsGenerator extends Generator {
       }
       var speedInPoints = speedOption.getValue();
       if (speedRangeOption.getValue() > 0)
-        speedInPoints = speedInPoints + (if (instanceRandom.nextBoolean()) -1 else 1) * instanceRandom.nextInt(speedRangeOption.getValue());
+        speedInPoints = speedInPoints + (if (instanceRandom.nextBoolean()) -1 else 1) *
+        instanceRandom.nextInt(speedRangeOption.getValue());
       if (speedInPoints < 1) speedInPoints = speedOption.getValue();
 
       var length: Double = moveVector.foldLeft(0.0)((sum, i) => sum + pow(i, 2));
@@ -222,7 +251,7 @@ class RandomRBFEventsGenerator extends Generator {
       currentMovementSteps = 0;
     }
 
-   /* *
+    /* *
     * try to merge two cluster.
     * 
     * @param merge the Cluster want to be merged
@@ -259,7 +288,7 @@ class RandomRBFEventsGenerator extends Generator {
       message;
     }
 
-   /* *
+    /* *
     * split a cluster from the cluster
     * 
     * @return message for splitting
@@ -401,7 +430,7 @@ class RandomRBFEventsGenerator extends Generator {
     })
   }
 
- /* *
+  /* *
   * init the clusters.
   */
   def initKernels(): Unit = {
@@ -649,7 +678,8 @@ class RandomRBFEventsGenerator extends Generator {
 
     }
     if (eventFinished) {
-      nextEventCounter = (eventFrequencyOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) * eventFrequencyOption.getValue() * eventFrequencyRange * instanceRandom.nextDouble()).toInt;
+      nextEventCounter = (eventFrequencyOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) * 
+          eventFrequencyOption.getValue() * eventFrequencyRange * instanceRandom.nextDouble()).toInt;
       nextEventChoice = getNextEvent();
     }
     if (!message.isEmpty()) {
