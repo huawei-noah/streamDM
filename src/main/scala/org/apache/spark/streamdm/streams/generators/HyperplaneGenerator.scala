@@ -92,7 +92,7 @@ class HyperplaneGenerator extends Generator {
    *
    * @return an ExampleSpecification of the examples
    */
-  def getExampleSpecification(): ExampleSpecification = {
+  override def getExampleSpecification(): ExampleSpecification = {
 
     //Prepare specification of class attributes
     val outputIS = new InstanceSpecification()

@@ -50,7 +50,6 @@ class SphereCluster extends Cluster {
     this.weight = 0.0
   }
 
-
   /**
    * Checks whether two <code>SphereCluster</code> overlap based on radius
    * NOTE: overlapRadiusDegree only calculates the overlap based
@@ -184,8 +183,8 @@ class SphereCluster extends Cluster {
   def getInclusionProbability(instance: Instance): Double = {
     if (getCenterDistance(instance) <= getRadius()) {
       1.0
-    }else
-    0.0
+    } else
+      0.0
   }
 
   def getCenterDistance(instance: Instance): Double = {
@@ -251,12 +250,17 @@ class SphereCluster extends Cluster {
     Math.sqrt(distance)
   }
 
-
-  def getDistanceVector(instance: Instance): Array[Double] = { 
-    val vec:Array[Double] = instance.getFeatureValues()
-    if(vec != null)
-      distanceVector(getCenter(), instance.getFeatureValues())
-    else null
+  def getDistanceVector(instance: Instance): Array[Double] = {
+    val vec: Array[Double] = instance match {
+      case d: DenseInstance  => d.features
+      case s: SparseInstance => null //todo
+    }
+    if (vec != null) {
+      distanceVector(getCenter(), instance match {
+        case d: DenseInstance  => d.features
+        case s: SparseInstance => null //todo
+      })
+    } else null
   }
 
   def getDistanceVector(other: SphereCluster): Array[Double] = {

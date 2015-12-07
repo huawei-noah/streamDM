@@ -138,7 +138,7 @@ class RandomTreeGenerator extends Generator {
    * Obtains the specification of the examples in the stream
    * @return an specification of the examples
    */
-  def getExampleSpecification(): ExampleSpecification = {
+  override def getExampleSpecification(): ExampleSpecification = {
 
     //Prepare specification of class feature
     val outputIS = new InstanceSpecification()

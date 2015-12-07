@@ -738,7 +738,11 @@ class RandomRBFEventsGenerator extends Generator {
 
     if (instanceRandom.nextDouble() > noiseLevelOption.getValue()) {
       clusterChoice = chooseWeightedElement();
-      values = kernels(clusterChoice).generator.sample(instanceRandom).getFeatureValues();
+      val ins:Instance = kernels(clusterChoice).generator.sample(instanceRandom)
+      values = ins match {
+        case d :DenseInstance =>d.features
+        case s:SparseInstance => null//todo
+      }
     } else {
       //get ranodm noise point
       values = getNoisePoint();
@@ -761,7 +765,7 @@ class RandomRBFEventsGenerator extends Generator {
    *  
    *  @return an ExampleSpecification of the features
    */
-  def getExampleSpecification(): ExampleSpecification = {
+  override def getExampleSpecification(): ExampleSpecification = {
     //Prepare specification of class attributes
     val outputIS = new InstanceSpecification()
     val classFeature = new NominalFeatureSpecification(Array("+", "-"))

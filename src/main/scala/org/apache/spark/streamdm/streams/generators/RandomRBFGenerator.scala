@@ -143,7 +143,7 @@ class RandomRBFGenerator extends Generator {
    *
    * @return an ExampleSpecification of the features
    */
-  def getExampleSpecification(): ExampleSpecification = {
+  override def getExampleSpecification(): ExampleSpecification = {
 
     //Prepare specification of class attributes
     val outputIS = new InstanceSpecification()
