@@ -29,6 +29,19 @@ import scala.util.Random
 /**
  * Stream generator for generating data from a randomly generated tree.
  *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Chunk size (<b>-k</b>)
+ *  <li> Slid duration (<b>-d</b>)
+ *  <li> The number of features to generate (<b>-f</b>)
+ *  <li> The number of classes to generate (<b>-n</b>)
+ *  <li> The number of nominal attributes to generate (<b>-o</b>)
+ *  <li> The number of numeric attributes to generate (<b>-u</b>)
+ *  <li> The number of values to generate per nominal attribute (<b>-v</b>)
+ *  <li> The maximum depth of the tree concept (<b>-x</b>)
+ *  <li> The first level of the tree above maxTreeDepth that can have leaves (<b>-l</b>)
+ *  <li> The fraction of leaves per level from firstLeafLevel onwards (<b>-r</b>)
+ * </ul>
  */
 
 class RandomTreeGenerator extends Generator {
@@ -40,7 +53,7 @@ class RandomTreeGenerator extends Generator {
     "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
 
   val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
-    "Number of Features", 10, 1, Integer.MAX_VALUE)
+    "Number of Features", 3, 1, Integer.MAX_VALUE)
 
   //  val treeRandomSeedOption: IntOption = new IntOption("treeRandomSeed",
   //    'r', "Seed for random generation of tree.", 1);
@@ -91,7 +104,7 @@ class RandomTreeGenerator extends Generator {
     slideDurationOption.getValue
   }
 
-  override def init(): Unit = { generateRandomTree() }
+  def init(): Unit = { generateRandomTree() }
 
   def getExample(): Example = {
     if (treeRoot == null)
@@ -106,7 +119,7 @@ class RandomTreeGenerator extends Generator {
         else Random.nextDouble()
     }
     val inputInstance = new DenseInstance(featureVals)
-    //    val noiseInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getNoise()))
+    //val noiseInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getNoise()))
     new Example(inputInstance, new DenseInstance(Array[Double](getLabel(treeRoot, featureVals))))
   }
 
@@ -125,7 +138,7 @@ class RandomTreeGenerator extends Generator {
    * Obtains the specification of the examples in the stream
    * @return an specification of the examples
    */
-  override def getExampleSpecification(): ExampleSpecification = {
+  def getExampleSpecification(): ExampleSpecification = {
 
     //Prepare specification of class feature
     val outputIS = new InstanceSpecification()
@@ -135,7 +148,8 @@ class RandomTreeGenerator extends Generator {
 
     //Prepare specification of input Nominal features for 
     val inputIS = new InstanceSpecification()
-    val nominal = new NominalFeatureSpecification(Array.range(0, numValsPerNominalOption.getValue).map { _.toString() })
+    val nominal = new NominalFeatureSpecification(Array.range(0,
+        numValsPerNominalOption.getValue).map { _.toString() })
     for (i <- 0 until numNominalsOption.getValue) {
       inputIS.setFeatureSpecification(i, nominal)
       inputIS.setName(i, "Feature" + i)
@@ -155,10 +169,11 @@ class RandomTreeGenerator extends Generator {
       minNumericVals, maxNumericVals);
   }
 
-  def generateRandomTreeNode(currentDepth: Int, nominalFeatureCandidates: List[Int], minNumericVals: Array[Double],
-                             maxNumericVals: Array[Double]): Node = {
+  def generateRandomTreeNode(currentDepth: Int, nominalFeatureCandidates: List[Int], 
+        minNumericVals: Array[Double], maxNumericVals: Array[Double]): Node = {
     if ((currentDepth >= this.maxTreeDepthOption.getValue())
-      || ((currentDepth >= this.firstLeafLevelOption.getValue()) && (this.leafFractionOption.getValue() >= (1.0 - Random.nextDouble())))) {
+      || ((currentDepth >= this.firstLeafLevelOption.getValue()) &&
+          (this.leafFractionOption.getValue() >= (1.0 - Random.nextDouble())))) {
       val label = Random.nextInt(this.numClassesOption.getValue())
       new LeafNode(label)
     } else {
@@ -198,7 +213,8 @@ class RandomTreeGenerator extends Generator {
 
 sealed abstract class Node
 
-case class BranchNode(val fIndex: Int, numChild: Int, val fValue: Double = 0) extends Node with Serializable {
+case class BranchNode(val fIndex: Int, numChild: Int, val fValue: Double = 0) 
+extends Node with Serializable {
   val children = if (numChild <= 0) null else new Array[Node](numChild)
 }
 
