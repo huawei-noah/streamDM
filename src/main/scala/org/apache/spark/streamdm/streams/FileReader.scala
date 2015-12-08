@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (C) 2015 Holmes Team at HUAWEI Noah's Ark Lab.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
+
 package org.apache.spark.streamdm.streams
 
 import org.apache.spark.streamdm.streams.generators.Generator
@@ -14,19 +28,31 @@ import scala.util.Random
 import scala.io._
 import java.io._
 
+/**
+ * FileReader is used to read data from one file of full data to simulate a stream data.
+ *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Chunk size (<b>-k</b>)
+ *  <li> Slide duration in milliseconds (<b>-d</b>)
+ *  <li> Type of the instance to use (<b>-t</b>)
+ *  <li> File to use (<b>-f</b>)
+ * </ul>
+ */
+
 class FileReader extends StreamReader {
 
   val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
     "Chunk Size", 10000, 1, Integer.MAX_VALUE)
 
-  val slideDurationOption: IntOption = new IntOption("slideDuration", 'w',
+  val slideDurationOption: IntOption = new IntOption("slideDuration", 'd',
     "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
 
   val instanceOption: StringOption = new StringOption("instanceType", 't',
     "Type of the instance to use", "dense")
 
   val fileNameOption: FileOption = new FileOption("fileName", 'f',
-    "file to be loaded", null, "txt", false)
+    "File to use", null, "txt", false)
 
   def read(ssc: StreamingContext): DStream[Example] = {
     val file: File = new File(fileNameOption.getValue)
@@ -68,7 +94,7 @@ class FileReader extends StreamReader {
    *
    * @return an ExampleSpecification of the features
    */
-  def getExampleSpecification(): ExampleSpecification = {
+  override def getExampleSpecification(): ExampleSpecification = {
 
     //Prepare specification of class attributes
     val outputIS = new InstanceSpecification()
@@ -80,6 +106,12 @@ class FileReader extends StreamReader {
       outputIS)
   }
 
+  /**
+   * Obtains a stream of examples.
+   *
+   * @param ssc a Spark Streaming context
+   * @return a stream of Examples
+   */
   override def getExamples(ssc: StreamingContext): DStream[Example] = {
     read(ssc)
   }
