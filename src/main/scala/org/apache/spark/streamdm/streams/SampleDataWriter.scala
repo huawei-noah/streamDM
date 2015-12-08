@@ -75,30 +75,31 @@ class FileWriter extends Configurable with Serializable {
    */
   private def writeToFile(fileName: String, chunkNumber: Int): Unit = {
     val file: File = new File(fileName + ".txt")
-    val fileArrf: File = new File(fileName + ".arrf")
+    //    val fileArrf: File = new File(fileName + ".arrf")
     val writer = new PrintWriter(file)
-    val writerArrf = new PrintWriter(fileArrf)
+    //    val writerArrf = new PrintWriter(fileArrf)
     for (i <- 0 until chunkNumber) {
-      println(i)
+      //      println(i)
       val examples: Array[Example] = generatorOption.getValue[Generator].getExamples()
       val length: Int = examples.length
       var str: String = new String
       for (i <- 0 until length) {
         str = examples(i).toString()
         writer.append(str + "\n")
-        val tokens = str.split("\\s+")
-        val length = tokens.length
-        if (length == 1) writerArrf.append(str + "\n")
-        else {
-          val strArrf = tokens.tail.mkString(",") + "," + tokens.head
-          writerArrf.append(strArrf + "\n")
-        }
         writer.flush()
-        writerArrf.flush()
+        //        val tokens = str.split("\\s+")
+        //        val length = tokens.length
+        //        if (length == 1) writerArrf.append(str + "\n")
+        //        else {
+        //          val strArrf = tokens.tail.mkString(",") + "," + tokens.head
+        //          writerArrf.append(strArrf + "\n")
+        //        }
+
+        //        writerArrf.flush()
       }
     }
     writer.close()
-    writerArrf.close()
+//    writerArrf.close()
 
   }
 

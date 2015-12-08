@@ -16,6 +16,9 @@
  */
 
 package org.apache.spark.streamdm.streams
+import org.apache.spark.streamdm.core.{ ExampleSpecification, Example }
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
 
 /**
  * trait OneFileRW provides functions to save examples to one file and generate DStream from one file.
