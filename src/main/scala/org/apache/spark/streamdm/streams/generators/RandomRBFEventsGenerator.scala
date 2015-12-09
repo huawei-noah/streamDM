@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015 Holmes Team at HUAWEI Noah's Ark Lab.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -48,7 +48,7 @@ import scala.math._
  *  <li> Allow noise to be placed within a cluster(<b>-n</b>)
  *  <li> Event frequency (<b>-E</b>)
  *  <li> Enable merging and splitting of clusters(<b>-M</b>)
- *  <li> Enable emering and disapperaing of clusters (<b>-e</b>)
+ *  <li> Enable emerging and disappearing of clusters (<b>-e</b>)
  *  <li> The number of features to generate (<b>-f</b>)
  *  <li> Decay horizon (<b>-h</b>)
  * </ul>
@@ -57,137 +57,137 @@ import scala.math._
 class RandomRBFEventsGenerator extends Generator {
 
   val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
-    "Chunk Size", 50, 1, Integer.MAX_VALUE);
+    "Chunk Size", 50, 1, Integer.MAX_VALUE)
 
   val instanceOption: StringOption = new StringOption("instanceType", 't',
-    "Type of the instance to use", "dense");
+    "Type of the instance to use", "dense")
 
   val slideDurationOption: IntOption = new IntOption("slideDuration", 'd',
     "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
 
   val modelRandomSeedOption: IntOption = new IntOption("modelRandomSeed",
-    'm', "Seed for random generation of model.", 1);
+    'm', "Seed for random generation of model.", 1)
 
   val instanceRandomSeedOption: IntOption = new IntOption("instanceRandomSeed", 'i',
-    "Seed for random generation of instances.", 5);
+    "Seed for random generation of instances.", 5)
 
   val numClusterOption: IntOption = new IntOption("numCluster", 'C',
-    "The average number of centroids in the model.", 5, 1, Integer.MAX_VALUE);
+    "The average number of centroids in the model.", 5, 1, Integer.MAX_VALUE)
 
   val numClusterRangeOption: IntOption = new IntOption("numClusterRange", 'c',
-    "Deviation of the number of centroids in the model.", 3, 0, Integer.MAX_VALUE);
+    "Deviation of the number of centroids in the model.", 3, 0, Integer.MAX_VALUE)
 
   val kernelRadiiOption: FloatOption = new FloatOption("kernelRadius", 'R',
-    "The average radii of the centroids in the model.", 0.07, 0, 1);
+    "The average radii of the centroids in the model.", 0.07, 0, 1)
 
   val kernelRadiiRangeOption: FloatOption = new FloatOption("kernelRadiusRange", 'r',
-    "Deviation of average radii of the centroids in the model.", 0, 0, 1);
+    "Deviation of average radii of the centroids in the model.", 0, 0, 1)
 
   val densityRangeOption: FloatOption = new FloatOption("densityRange", 'D',
     "Offset of the average weight a cluster has. Value of 0 means all cluster " +
-      "contain the same amount of points.", 0, 0, 1);
+      "contain the same amount of points.", 0, 0, 1)
 
   val speedOption: IntOption = new IntOption("speed", 'V',
-    "Kernels move a predefined distance of 0.01 every X points", 500, 1, Integer.MAX_VALUE);
+    "Kernels move a predefined distance of 0.01 every X points", 500, 1, Integer.MAX_VALUE)
 
   val speedRangeOption: IntOption = new IntOption("speedRange", 'v',
-    "Speed/Velocity point offset", 0, 0, Integer.MAX_VALUE);
+    "Speed/Velocity point offset", 0, 0, Integer.MAX_VALUE)
 
   val noiseLevelOption: FloatOption = new FloatOption("noiseLevel", 'N',
-    "Noise level", 0.1, 0, 1);
+    "Noise level", 0.1, 0, 1)
 
   val noiseInClusterOption: FlagOption = new FlagOption("noiseInCluster", 'n',
-    "Allow noise to be placed within a cluster");
+    "Allow noise to be placed within a cluster")
 
   val eventFrequencyOption: IntOption = new IntOption("eventFrequency", 'E',
-    "Event frequency. Enable at least one of the events below and set numClusterRange!", 30000, 0, Integer.MAX_VALUE);
+    "Event frequency. Enable at least one of the events below and set numClusterRange!", 30000, 0, Integer.MAX_VALUE)
 
   val eventMergeSplitOption: FlagOption = new FlagOption("eventMergeSplitOption", 'M',
-    "Enable merging and splitting of clusters. Set eventFrequency and numClusterRange!");
+    "Enable merging and splitting of clusters. Set eventFrequency and numClusterRange!")
 
   val eventDeleteCreateOption: FlagOption = new FlagOption("eventDeleteCreate", 'e',
-    "Enable emering and disapperaing of clusters. Set eventFrequency and numClusterRange!");
+    "Enable emering and disapperaing of clusters. Set eventFrequency and numClusterRange!")
 
   val numAttsOption: IntOption = new IntOption("numAtts", 'f', 
-      "The number of attributes to generate.", 2, 0, Integer.MAX_VALUE);
+      "The number of attributes to generate.", 2, 0, Integer.MAX_VALUE)
 
   val decayHorizonOption: IntOption = new IntOption("decayHorizon", 'h',
-    "Decay horizon", 1000, 0, Integer.MAX_VALUE);
+    "Decay horizon", 1000, 0, Integer.MAX_VALUE)
 
-  val merge_threshold = 0.7;
-  val kernelMovePointFrequency = 10;
-  val maxDistanceMoveThresholdByStep = 0.01;
-  val maxOverlapFitRuns = 50;
-  val eventFrequencyRange = 0;
-  var kernels: ArrayBuffer[GeneratorCluster] = null;
-  var instanceRandom: Random = null;
-  var numGeneratedInstances: Int = 0;
-  var numActiveKernels: Int = 0;
-  var nextEventCounter: Int = 0;
-  var nextEventChoice = -1;
-  var clusterIdCounter: Int = 0;
-  var mergeClusterA: GeneratorCluster = null;
-  var mergeClusterB: GeneratorCluster = null;
-  var mergeKernelsOverlapping = false;
+  val merge_threshold = 0.7
+  val kernelMovePointFrequency = 10
+  val maxDistanceMoveThresholdByStep = 0.01
+  val maxOverlapFitRuns = 50
+  val eventFrequencyRange = 0
+  var kernels: ArrayBuffer[GeneratorCluster] = null
+  var instanceRandom: Random = null
+  var numGeneratedInstances: Int = 0
+  var numActiveKernels: Int = 0
+  var nextEventCounter: Int = 0
+  var nextEventChoice = -1
+  var clusterIdCounter: Int = 0
+  var mergeClusterA: GeneratorCluster = null
+  var mergeClusterB: GeneratorCluster = null
+  var mergeKernelsOverlapping = false
 
   /**
    * A GeneratorCluster represents the cluster which contains
    *  some MicroCluster(represented by SphereCluster) in Clustream
-   *  Alogrithm.
+   *  Algorithm.
    */
   class GeneratorCluster {
 
-    var generator: SphereCluster = null;
-    var kill: Int = -1;
-    var merging = false;
-    var moveVector = new Array[Double](numAttsOption.getValue());
-    var totalMovementSteps: Int = 0;
-    var currentMovementSteps: Int = 0;
-    var isSplitting = false;
-    val microClusters = new ArrayBuffer[SphereCluster]();
-    val microClustersDecay = new ArrayBuffer[Int]();
+    var generator: SphereCluster = null
+    var kill: Int = -1
+    var merging = false
+    var moveVector = new Array[Double](numAttsOption.getValue())
+    var totalMovementSteps: Int = 0
+    var currentMovementSteps: Int = 0
+    var isSplitting = false
+    val microClusters = new ArrayBuffer[SphereCluster]()
+    val microClustersDecay = new ArrayBuffer[Int]()
 
     def this(label: Int) {
-      this();
-      var outofbounds = true;
-      var tryCounter = 0;
+      this()
+      var outofbounds = true
+      var tryCounter = 0
       while (outofbounds && tryCounter < maxOverlapFitRuns) {
-        tryCounter = tryCounter + 1;
-        outofbounds = false;
-        val center = new Array[Double](numAttsOption.getValue());
+        tryCounter = tryCounter + 1
+        outofbounds = false
+        val center = new Array[Double](numAttsOption.getValue())
         var radius = kernelRadiiOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) *
-        kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble();
+        kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble()
         while (radius <= 0) {
           radius = kernelRadiiOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) * 
-          kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble();
+          kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble()
         }
         for (j <- 0 until numAttsOption.getValue() if !outofbounds) {
-          center(j) = instanceRandom.nextDouble();
+          center(j) = instanceRandom.nextDouble()
           if (center(j) - radius < 0 || center(j) + radius > 1) {
-            outofbounds = true;
+            outofbounds = true
           }
         }
-        generator = new SphereCluster(center, radius);
+        generator = new SphereCluster(center, radius)
       }
       if (tryCounter < maxOverlapFitRuns) {
-        generator.setId(label);
-        val avgWeight = 1.0 / numClusterOption.getValue();
+        generator.setId(label)
+        val avgWeight = 1.0 / numClusterOption.getValue()
         val weight = avgWeight + (if (instanceRandom.nextBoolean()) -1 else 1) * avgWeight * 
-        densityRangeOption.getValue() * instanceRandom.nextDouble();
-        generator.setWeight(weight);
-        setDesitnation(null);
+        densityRangeOption.getValue() * instanceRandom.nextDouble()
+        generator.setWeight(weight)
+        setDesitnation(null)
       } else {
-        generator = null;
-        kill = 0;
-        println("Tried " + maxOverlapFitRuns + " times to create kernel. Reduce average radii.");
+        generator = null
+        kill = 0
+        //println("Tried " + maxOverlapFitRuns + " times to create kernel. Reduce average radii.")
       }
     }
 
     def this(label: Int, cluster: SphereCluster) {
-      this();
-      this.generator = cluster;
-      this.generator.setId(label);
-      setDesitnation(null);
+      this()
+      this.generator = cluster
+      this.generator.setId(label)
+      setDesitnation(null)
     }
 
     /* *
@@ -195,16 +195,16 @@ class RandomRBFEventsGenerator extends Generator {
      */
     def updateKernel(): Unit = {
       if (kill == 0) {
-        var flag = true;
+        var flag = true
         for (i <- 0 until kernels.length if flag) {
           if (kernels(i) == this) {
-            kernels.remove(i);
-            flag = false;
+            kernels.remove(i)
+            flag = false
           }
         }
       }
       if (kill > 0) {
-        kill = kill - 1;
+        kill = kill - 1
       }
       //we could be lot more precise if we would keep track of timestamps of points
       //then we could remove all old points and rebuild the cluster on up to date point base
@@ -212,8 +212,8 @@ class RandomRBFEventsGenerator extends Generator {
       //konservative as needed. Only needs to change when we need a thighter representation
       for (m <- 0 until microClusters.length) {
         if (numGeneratedInstances - microClustersDecay(m) > decayHorizonOption.getValue()) {
-          microClusters.remove(m);
-          microClustersDecay.remove(m);
+          microClusters.remove(m)
+          microClustersDecay.remove(m)
         }
       }
     }
@@ -225,30 +225,30 @@ class RandomRBFEventsGenerator extends Generator {
    */
     def setDesitnation(destination_t: Array[Double]): Unit = {
 
-      var destination: Array[Double] = null;
+      var destination: Array[Double] = null
       if (destination_t == null) {
-        destination = Array.fill[Double](numAttsOption.getValue())(instanceRandom.nextDouble());
+        destination = Array.fill[Double](numAttsOption.getValue())(instanceRandom.nextDouble())
       } else {
-        destination = destination_t;
+        destination = destination_t
       }
-      val center = generator.getCenter();
-      val dim = center.length;
+      val center = generator.getCenter()
+      val dim = center.length
 
       for (d <- 0 until dim) {
-        moveVector(d) = destination(d) - center(d);
+        moveVector(d) = destination(d) - center(d)
       }
-      var speedInPoints = speedOption.getValue();
+      var speedInPoints = speedOption.getValue()
       if (speedRangeOption.getValue() > 0)
         speedInPoints = speedInPoints + (if (instanceRandom.nextBoolean()) -1 else 1) *
-        instanceRandom.nextInt(speedRangeOption.getValue());
-      if (speedInPoints < 1) speedInPoints = speedOption.getValue();
+        instanceRandom.nextInt(speedRangeOption.getValue())
+      if (speedInPoints < 1) speedInPoints = speedOption.getValue()
 
-      var length: Double = moveVector.foldLeft(0.0)((sum, i) => sum + pow(i, 2));
-      length = Math.sqrt(length);
+      var length: Double = moveVector.foldLeft(0.0)((sum, i) => sum + pow(i, 2))
+      length = Math.sqrt(length)
 
-      totalMovementSteps = (length / (maxDistanceMoveThresholdByStep * kernelMovePointFrequency) * speedInPoints).toInt;
+      totalMovementSteps = (length / (maxDistanceMoveThresholdByStep * kernelMovePointFrequency) * speedInPoints).toInt
       moveVector = moveVector.map { v => v / totalMovementSteps.toDouble }
-      currentMovementSteps = 0;
+      currentMovementSteps = 0
     }
 
     /* *
@@ -258,34 +258,34 @@ class RandomRBFEventsGenerator extends Generator {
     * @return info string for merging
     */
     def tryMerging(merge: GeneratorCluster): String = {
-      var message = "";
-      val overlapDegree: Double = generator.overlapRadiusDegree(merge.generator);
+      var message = ""
+      val overlapDegree: Double = generator.overlapRadiusDegree(merge.generator)
       if (overlapDegree > merge_threshold) {
-        val mcluster = merge.generator;
-        val radius = Math.max(generator.getRadius(), mcluster.getRadius());
-        generator.combine(mcluster);
+        val mcluster = merge.generator
+        val radius = Math.max(generator.getRadius(), mcluster.getRadius())
+        generator.combine(mcluster)
         //adjust radius, get bigger and bigger with high dim data
-        generator.setRadius(radius);
-        message = "Clusters merging: " + mergeClusterB.generator.getId() + " into " + mergeClusterA.generator.getId();
+        generator.setRadius(radius)
+        message = "Clusters merging: " + mergeClusterB.generator.getId() + " into " + mergeClusterA.generator.getId()
 
         //clean up and restet merging stuff
         //mark kernel so it gets killed when it doesn't contain any more instances
-        merge.kill = decayHorizonOption.getValue();
+        merge.kill = decayHorizonOption.getValue()
         //set weight to 0 so no new instances will be created in the cluster
-        mcluster.setWeight(0.0);
-        normalizeWeights();
-        numActiveKernels = numActiveKernels - 1;
-        mergeClusterB = null;
-        mergeClusterA = null;
-        merging = false;
-        mergeKernelsOverlapping = false;
+        mcluster.setWeight(0.0)
+        normalizeWeights()
+        numActiveKernels = numActiveKernels - 1
+        mergeClusterB = null
+        mergeClusterA = null
+        merging = false
+        mergeKernelsOverlapping = false
       } else {
         if (overlapDegree > 0 && !mergeKernelsOverlapping) {
-          mergeKernelsOverlapping = true;
-          message = "Merge overlapping started";
+          mergeKernelsOverlapping = true
+          message = "Merge overlapping started"
         }
       }
-      message;
+      message
     }
 
     /* *
@@ -294,27 +294,27 @@ class RandomRBFEventsGenerator extends Generator {
     * @return message for splitting
     */
     def splitKernel(): String = {
-      isSplitting = true;
+      isSplitting = true
       //todo radius range
-      val radius: Double = kernelRadiiOption.getValue();
-      val avgWeight: Double = 1.0 / numClusterOption.getValue();
-      val weight: Double = avgWeight + avgWeight * densityRangeOption.getValue() * instanceRandom.nextDouble();
+      val radius: Double = kernelRadiiOption.getValue()
+      val avgWeight: Double = 1.0 / numClusterOption.getValue()
+      val weight: Double = avgWeight + avgWeight * densityRangeOption.getValue() * instanceRandom.nextDouble()
 
-      val center = generator.getCenter();
-      var spcluster: SphereCluster = new SphereCluster(center, radius, weight);
+      val center = generator.getCenter()
+      var spcluster: SphereCluster = new SphereCluster(center, radius, weight)
 
       if (spcluster != null) {
-        val gc: GeneratorCluster = new GeneratorCluster(clusterIdCounter + 1, spcluster);
-        clusterIdCounter = clusterIdCounter + 1;
-        gc.isSplitting = true;
-        kernels += gc;
-        normalizeWeights();
-        numActiveKernels = numActiveKernels + 1;
-        "Split from Kernel " + generator.getId();
+        val gc: GeneratorCluster = new GeneratorCluster(clusterIdCounter + 1, spcluster)
+        clusterIdCounter = clusterIdCounter + 1
+        gc.isSplitting = true
+        kernels += gc
+        normalizeWeights()
+        numActiveKernels = numActiveKernels + 1
+        "Split from Kernel " + generator.getId()
       } else {
-        System.out.println("Tried to split new kernel from C" + generator.getId() +
-          ". Not enough room for new cluster, decrease average radii, number of clusters or enable overlap.");
-        return "";
+        //System.out.println("Tried to split new kernel from C" + generator.getId() +
+        //  ". Not enough room for new cluster, decrease average radii, number of clusters or enable overlap.")
+        ""
       }
     }
 
@@ -324,11 +324,11 @@ class RandomRBFEventsGenerator extends Generator {
      * @return message for fading out
      */
     def fadeOut(): String = {
-      kill = decayHorizonOption.getValue();
-      generator.setWeight(0.0);
-      numActiveKernels = numActiveKernels - 1;
-      normalizeWeights();
-      "Fading out C" + generator.getId();
+      kill = decayHorizonOption.getValue()
+      generator.setWeight(0.0)
+      numActiveKernels = numActiveKernels - 1
+      normalizeWeights()
+      "Fading out C" + generator.getId()
     }
 
     /* *
@@ -337,48 +337,48 @@ class RandomRBFEventsGenerator extends Generator {
      * @param instance the instance want to be added
      */
     def addInstance(instance: Instance): Unit = {
-      var minMicroIndex = -1;
-      var minHullDist = Double.MaxValue;
-      var inserted = false;
+      var minMicroIndex = -1
+      var minHullDist = Double.MaxValue
+      var inserted = false
       //we favour more recently build clusters so we can remove earlier cluster sooner
-      var m = microClusters.length - 1;
+      var m = microClusters.length - 1
 
       while (m >= 0 && !inserted) {
-        val micro = microClusters(m);
-        val hulldist = micro.getCenterDistance(instance) - micro.getRadius();
+        val micro = microClusters(m)
+        val hulldist = micro.getCenterDistance(instance) - micro.getRadius()
         //point fits into existing cluster
         if (hulldist <= 0) {
-          //  microClustersPoints.get(m).add(point);
-          microClustersDecay.insert(m, numGeneratedInstances);
-          inserted = true;
+          //  microClustersPoints.get(m).add(point)
+          microClustersDecay.insert(m, numGeneratedInstances)
+          inserted = true
 
         } //if not, check if its at least the closest cluster
         else {
           if (hulldist < minHullDist) {
-            minMicroIndex = m;
-            minHullDist = hulldist;
+            minMicroIndex = m
+            minHullDist = hulldist
           }
         }
-        m = m - 1;
+        m = m - 1
       }
       //Reseting index choice for alternative cluster building
-      val alt = 1;
+      val alt = 1
       if (alt == 1)
-        minMicroIndex = -1;
+        minMicroIndex = -1
       if (!inserted) {
         if (minMicroIndex == -1) {
-          var s: SphereCluster = null;
-          s = new SphereCluster(generator.getCenter(), generator.getRadius(), 1);
-          microClusters += s;
-          microClustersDecay += numGeneratedInstances;
-          var id = 0;
-          var exit_flag = false;
+          var s: SphereCluster = null
+          s = new SphereCluster(generator.getCenter(), generator.getRadius(), 1)
+          microClusters += s
+          microClustersDecay += numGeneratedInstances
+          var id = 0
+          var exit_flag = false
           while (id < kernels.size && !exit_flag) {
             if (kernels(id) == this)
-              exit_flag = true;
-            id = id + 1;
+              exit_flag = true
+            id = id + 1
           }
-          s.setGroundTruth(id);
+          s.setGroundTruth(id)
         }
       }
 
@@ -389,30 +389,30 @@ class RandomRBFEventsGenerator extends Generator {
      */
     def move(): Unit = {
       if (currentMovementSteps < totalMovementSteps) {
-        currentMovementSteps = currentMovementSteps + 1;
+        currentMovementSteps = currentMovementSteps + 1
         if (moveVector == null) {
-          return ;
+          return 
         } else {
-          var center = generator.getCenter();
-          var outofbounds = true;
+          var center = generator.getCenter()
+          var outofbounds = true
           while (outofbounds) {
-            val radius = generator.getRadius();
-            outofbounds = false;
-            center = generator.getCenter();
+            val radius = generator.getRadius()
+            outofbounds = false
+            center = generator.getCenter()
             for (d <- 0 until center.length if !outofbounds) {
-              center(d) = center(d) + moveVector(d);
+              center(d) = center(d) + moveVector(d)
               if (center(d) - radius < 0 || center(d) + radius > 1) {
-                outofbounds = true;
-                setDesitnation(null);
+                outofbounds = true
+                setDesitnation(null)
               }
             }
           }
-          generator.setCenter(center);
+          generator.setCenter(center)
         }
       } else {
         if (!merging) {
-          setDesitnation(null);
-          isSplitting = false;
+          setDesitnation(null)
+          isSplitting = false
         }
       }
     }
@@ -424,9 +424,9 @@ class RandomRBFEventsGenerator extends Generator {
    */
   def normalizeWeights(): Unit = {
 
-    val sumWeights = kernels.foldLeft(0.0)((sum, k) => sum + k.generator.getWeight());
+    val sumWeights = kernels.foldLeft(0.0)((sum, k) => sum + k.generator.getWeight())
     kernels.foreach(k => {
-      k.generator.setWeight(k.generator.getWeight() / sumWeights);
+      k.generator.setWeight(k.generator.getWeight() / sumWeights)
     })
   }
 
@@ -435,11 +435,11 @@ class RandomRBFEventsGenerator extends Generator {
   */
   def initKernels(): Unit = {
     for (i <- 0 until numClusterOption.getValue()) {
-      kernels += (new GeneratorCluster(clusterIdCounter));
-      numActiveKernels = numActiveKernels + 1;
-      clusterIdCounter = clusterIdCounter + 1;
+      kernels += (new GeneratorCluster(clusterIdCounter))
+      numActiveKernels = numActiveKernels + 1
+      clusterIdCounter = clusterIdCounter + 1
     }
-    normalizeWeights();
+    normalizeWeights()
   }
 
   /* *
@@ -448,41 +448,41 @@ class RandomRBFEventsGenerator extends Generator {
    * @return the code for next event.
    */
   def getNextEvent(): Int = {
-    var choice: Int = -1;
-    var lowerLimit = numActiveKernels <= numClusterOption.getValue() - numClusterRangeOption.getValue();
-    var upperLimit = numActiveKernels >= numClusterOption.getValue() + numClusterRangeOption.getValue();
+    var choice: Int = -1
+    var lowerLimit = numActiveKernels <= numClusterOption.getValue() - numClusterRangeOption.getValue()
+    var upperLimit = numActiveKernels >= numClusterOption.getValue() + numClusterRangeOption.getValue()
 
     if (!lowerLimit || !upperLimit) {
-      var mode = -1;
+      var mode = -1
       if (eventDeleteCreateOption.isSet() && eventMergeSplitOption.isSet()) {
-        mode = instanceRandom.nextInt(2);
+        mode = instanceRandom.nextInt(2)
       }
 
       if (mode == 0 || (mode == -1 && eventMergeSplitOption.isSet())) {
         //have we reached a limit? if not free choice
         if (!lowerLimit && !upperLimit)
-          choice = instanceRandom.nextInt(2);
+          choice = instanceRandom.nextInt(2)
         else //we have a limit. if lower limit, choose split
         if (lowerLimit)
-          choice = 1;
+          choice = 1
         //otherwise we reached upper level, choose merge
         else
-          choice = 0;
+          choice = 0
       }
 
       if (mode == 1 || (mode == -1 && eventDeleteCreateOption.isSet())) {
         //have we reached a limit? if not free choice
         if (!lowerLimit && !upperLimit)
-          choice = instanceRandom.nextInt(2) + 2;
+          choice = instanceRandom.nextInt(2) + 2
         else //we have a limit. if lower limit, choose create
         if (lowerLimit)
-          choice = 3;
+          choice = 3
         //otherwise we reached upper level, choose delete
         else
-          choice = 2;
+          choice = 2
       }
     }
-    choice;
+    choice
   }
 
   /* *
@@ -491,16 +491,16 @@ class RandomRBFEventsGenerator extends Generator {
    * @return index of the choosen element
    */
   def chooseWeightedElement(): Int = {
-    var r = instanceRandom.nextDouble();
+    var r = instanceRandom.nextDouble()
 
     // Determine index of choosen element
-    var i = 0; // 0 or 1 kenny?
+    var i = 0 // 0 or 1 kenny?
     while (r > 0.0) {
-      r = r - kernels(i).generator.getWeight();
-      i = i + 1;
+      r = r - kernels(i).generator.getWeight()
+      i = i + 1
     }
-    i = i - 1; // Overcounted once
-    i;
+    i = i - 1 // Overcounted once
+    i
   }
 
   /* *
@@ -509,25 +509,25 @@ class RandomRBFEventsGenerator extends Generator {
    * @return the noise vector
    */
   def getNoisePoint(): Array[Double] = {
-    var sample = new Array[Double](numAttsOption.getValue());
-    var incluster = true;
-    var counter = 20;
+    var sample = new Array[Double](numAttsOption.getValue())
+    var incluster = true
+    var counter = 20
     while (incluster) {
-      sample = Array.fill(numAttsOption.getValue())(instanceRandom.nextDouble());
-      incluster = false;
+      sample = Array.fill(numAttsOption.getValue())(instanceRandom.nextDouble())
+      incluster = false
       if (!noiseInClusterOption.isSet() && counter > 0) {
-        counter = counter - 1;
+        counter = counter - 1
         for (c <- 0 until kernels.length if !incluster) {
           for (m <- 0 until kernels(c).microClusters.length if !incluster) {
-            val inst = new DenseInstance(sample);
+            val inst = new DenseInstance(sample)
             if (kernels(c).microClusters(m).getInclusionProbability(inst) > 0) {
-              incluster = true;
+              incluster = true
             }
           }
         }
       }
     }
-    sample;
+    sample
   }
 
   /* *
@@ -539,46 +539,44 @@ class RandomRBFEventsGenerator extends Generator {
   def mergeKernels(steps: Int): String = {
 
     if (numActiveKernels > 1 && ((mergeClusterA == null && mergeClusterB == null))) {
-
       //choose clusters to merge
-      val diseredDist = steps / speedOption.getValue() * maxDistanceMoveThresholdByStep;
-      var minDist = Double.MaxValue;
+      val diseredDist = steps / speedOption.getValue() * maxDistanceMoveThresholdByStep
+      var minDist = Double.MaxValue
       for (i <- 0 until kernels.length) {
         for (j <- 0 until i) {
           if (kernels(i).kill != -1 || kernels(j).kill != -1) {
-            //    continue;
+            //    continue
           } else {
-            val kernelDist = kernels(i).generator.getCenterDistance(kernels(j).generator);
-            val d = kernelDist - 2 * diseredDist;
+            val kernelDist = kernels(i).generator.getCenterDistance(kernels(j).generator)
+            val d = kernelDist - 2 * diseredDist
             if (Math.abs(d) < minDist &&
               (minDist != Double.MaxValue || d > 0 || Math.abs(d) < 0.001)) {
-              minDist = Math.abs(d);
-              mergeClusterA = kernels(i);
-              mergeClusterB = kernels(j);
+              minDist = Math.abs(d)
+              mergeClusterA = kernels(i)
+              mergeClusterB = kernels(j)
             }
           }
         }
       }
 
       if (mergeClusterA != null && mergeClusterB != null) {
-        val merge_point = mergeClusterA.generator.getCenter();
-        val v = mergeClusterA.generator.getDistanceVector(mergeClusterB.generator);
+        val merge_point = mergeClusterA.generator.getCenter()
+        val v = mergeClusterA.generator.getDistanceVector(mergeClusterB.generator)
         for (i <- 0 until v.length) {
-          merge_point(i) = merge_point(i) + v(i) * 0.5;
+          merge_point(i) = merge_point(i) + v(i) * 0.5
         }
 
-        mergeClusterA.merging = true;
-        mergeClusterB.merging = true;
-        mergeClusterA.setDesitnation(merge_point);
-        mergeClusterB.setDesitnation(merge_point);
-        "Init merge";
+        mergeClusterA.merging = true
+        mergeClusterB.merging = true
+        mergeClusterA.setDesitnation(merge_point)
+        mergeClusterB.setDesitnation(merge_point)
+        "Init merge"
       } else ""
     } else if (mergeClusterA != null && mergeClusterB != null) {
-
       //movekernels will move the kernels close to each other,
       //we just need to check and merge here if they are close enough
-      mergeClusterA.tryMerging(mergeClusterB);
-    } else "";
+      mergeClusterA.tryMerging(mergeClusterB)
+    } else ""
   }
 
   /* *
@@ -588,13 +586,12 @@ class RandomRBFEventsGenerator extends Generator {
    */
   def splitKernel(): String = {
 
-    var id: Int = instanceRandom.nextInt(kernels.size);
+    var id: Int = instanceRandom.nextInt(kernels.size)
     while (kernels(id).kill != -1)
-      id = instanceRandom.nextInt(kernels.size);
+      id = instanceRandom.nextInt(kernels.size)
 
-    val message: String = kernels(id).splitKernel();
-
-    message;
+    val message: String = kernels(id).splitKernel()
+    message
   }
 
   /* *
@@ -603,12 +600,12 @@ class RandomRBFEventsGenerator extends Generator {
    * @return message for fading out
    */
   def fadeOut(): String = {
-    var id = instanceRandom.nextInt(kernels.size);
+    var id = instanceRandom.nextInt(kernels.size)
     while (kernels(id).kill != -1)
-      id = instanceRandom.nextInt(kernels.size);
+      id = instanceRandom.nextInt(kernels.size)
 
-    val message = kernels(id).fadeOut();
-    message;
+    val message = kernels(id).fadeOut()
+    message
   }
 
   /* *
@@ -617,12 +614,12 @@ class RandomRBFEventsGenerator extends Generator {
    * @return message for fading in
    */
   def fadeIn(): String = {
-    val gc = new GeneratorCluster(clusterIdCounter + 1);
-    clusterIdCounter = clusterIdCounter + 1;
-    kernels += (gc);
-    numActiveKernels = numActiveKernels + 1;
-    normalizeWeights();
-    "Creating new cluster";
+    val gc = new GeneratorCluster(clusterIdCounter + 1)
+    clusterIdCounter = clusterIdCounter + 1
+    kernels += (gc)
+    numActiveKernels = numActiveKernels + 1
+    normalizeWeights()
+    "Creating new cluster"
   }
 
   /* *
@@ -631,59 +628,59 @@ class RandomRBFEventsGenerator extends Generator {
   def eventScheduler(): Unit = {
 
     kernels.foreach { k => k.updateKernel() }
-    nextEventCounter = nextEventCounter - 1;
+    nextEventCounter = nextEventCounter - 1
     if (nextEventCounter % kernelMovePointFrequency == 0) {
       kernels.foreach { k => k.move() }
     }
     if (eventFrequencyOption.getValue() == 0) {
-      return ;
+      return 
     }
-    var type_s = "";
-    var message = "";
-    var eventFinished = false;
+    var type_s = ""
+    var message = ""
+    var eventFinished = false
     nextEventChoice match {
       case 0 =>
         if (numActiveKernels > 1 && numActiveKernels > numClusterOption.getValue() - numClusterRangeOption.getValue()) {
-          message = mergeKernels(nextEventCounter);
-          type_s = "Merge";
+          message = mergeKernels(nextEventCounter)
+          type_s = "Merge"
         }
         if (mergeClusterA == null && mergeClusterB == null && message.startsWith("Clusters merging")) {
-          eventFinished = true;
+          eventFinished = true
         }
       case 1 =>
         if (nextEventCounter <= 0) {
           if (numActiveKernels < numClusterOption.getValue() + numClusterRangeOption.getValue()) {
-            type_s = "Split";
-            message = splitKernel();
+            type_s = "Split"
+            message = splitKernel()
           }
-          eventFinished = true;
+          eventFinished = true
         }
       case 2 =>
         if (nextEventCounter <= 0) {
           if (numActiveKernels > 1 && numActiveKernels > numClusterOption.getValue() - numClusterRangeOption.getValue()) {
-            message = fadeOut();
-            type_s = "Delete";
+            message = fadeOut()
+            type_s = "Delete"
           }
-          eventFinished = true;
+          eventFinished = true
         }
       case 3 =>
         if (nextEventCounter <= 0) {
           if (numActiveKernels < numClusterOption.getValue() + numClusterRangeOption.getValue()) {
-            message = fadeIn();
-            type_s = "Create";
+            message = fadeIn()
+            type_s = "Create"
           }
-          eventFinished = true;
+          eventFinished = true
         }
       case _ => ()
 
     }
     if (eventFinished) {
       nextEventCounter = (eventFrequencyOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) * 
-          eventFrequencyOption.getValue() * eventFrequencyRange * instanceRandom.nextDouble()).toInt;
-      nextEventChoice = getNextEvent();
+          eventFrequencyOption.getValue() * eventFrequencyRange * instanceRandom.nextDouble()).toInt
+      nextEventChoice = getNextEvent()
     }
     if (!message.isEmpty()) {
-      message += " (numKernels = " + numActiveKernels + " at " + numGeneratedInstances + ")";
+      message += " (numKernels = " + numActiveKernels + " at " + numGeneratedInstances + ")"
       if (type_s != "Merge" || message.startsWith("Clusters merging")) {
 
       }
@@ -694,17 +691,17 @@ class RandomRBFEventsGenerator extends Generator {
    *  initializes the generator
    */
   def init(): Unit = {
-    noiseInClusterOption.set();
-    instanceRandom = new Random(instanceRandomSeedOption.getValue());
-    nextEventCounter = eventFrequencyOption.getValue();
-    nextEventChoice = getNextEvent();
-    numActiveKernels = 0;
-    numGeneratedInstances = 0;
-    clusterIdCounter = 0;
-    mergeClusterA = null;
-    mergeClusterB = null;
-    kernels = new ArrayBuffer[GeneratorCluster]();
-    initKernels();
+    noiseInClusterOption.set()
+    instanceRandom = new Random(instanceRandomSeedOption.getValue())
+    nextEventCounter = eventFrequencyOption.getValue()
+    nextEventChoice = getNextEvent()
+    numActiveKernels = 0
+    numGeneratedInstances = 0
+    clusterIdCounter = 0
+    mergeClusterA = null
+    mergeClusterB = null
+    kernels = new ArrayBuffer[GeneratorCluster]()
+    initKernels()
   }
 
   /* *
@@ -728,16 +725,16 @@ class RandomRBFEventsGenerator extends Generator {
    */
   def getExample(): Example = {
 
-    numGeneratedInstances = numGeneratedInstances + 1;
-    eventScheduler();
+    numGeneratedInstances = numGeneratedInstances + 1
+    eventScheduler()
 
     //make room for the classlabel
-    val values_new = new Array[Double](numAttsOption.getValue());
-    var values: Array[Double] = null;
-    var clusterChoice = -1;
+    val values_new = new Array[Double](numAttsOption.getValue())
+    var values: Array[Double] = null
+    var clusterChoice = -1
 
     if (instanceRandom.nextDouble() > noiseLevelOption.getValue()) {
-      clusterChoice = chooseWeightedElement();
+      clusterChoice = chooseWeightedElement()
       val ins:Instance = kernels(clusterChoice).generator.sample(instanceRandom)
       values = ins match {
         case d :DenseInstance =>d.features
@@ -745,18 +742,16 @@ class RandomRBFEventsGenerator extends Generator {
       }
     } else {
       //get ranodm noise point
-      values = getNoisePoint();
+      values = getNoisePoint()
     }
-    System.arraycopy(values, 0, values_new, 0, values.length);
+    Array.copy(values, 0, values_new, 0, values.length)
 
-    val inputInstance: Instance = new DenseInstance(values_new);
+    val inputInstance: Instance = new DenseInstance(values_new)
 
     if (clusterChoice == -1) {
-
       new Example(inputInstance, new DenseInstance(Array.fill[Double](1)(numClusterOption.getValue().toDouble)))
     } else {
       new Example(inputInstance, new DenseInstance(Array.fill[Double](1)(kernels(clusterChoice).generator.getId())))
-
     }
   }
 
@@ -775,6 +770,5 @@ class RandomRBFEventsGenerator extends Generator {
     val inputIS = new InstanceSpecification()
     for (i <- 1 to numAttsOption.getValue) inputIS.setName(i, "Feature" + i)
     new ExampleSpecification(inputIS, outputIS)
-
   }
 }
