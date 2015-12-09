@@ -45,9 +45,6 @@ class SphereCluster extends Cluster {
 
     // Position randomly but keep hypersphere inside the boundaries
     val interval: Double = 1.0 - 2 * radius
-    //this.center = new Array[Double](dimensions)
-    //for (i <- 0 until center.length)
-    //  this.center(i) = (random.nextDouble() * interval) + radius
     this.center = Array.fill[Double](dimensions)(random.nextDouble()*interval + radius)
     this.weight = 0.0
   }
@@ -74,13 +71,6 @@ class SphereCluster extends Cluster {
       radiusBig = radius0
       radiusSmall = radius1
     }
-
-    /*var dist: Double = 0.0
-    for (i <- 0 until center0.length) {
-      var delta: Double = center0(i) - center1(i)
-      dist += delta * delta
-    }
-    dist = Math.sqrt(dist)*/
 
     val dist:Double = Math.sqrt((center0 zip center1 map {case(a,b)=>a-b}).foldLeft(0.0)((a,x)=>a+x*x))
     if (dist > radiusSmall + radiusBig)
@@ -119,18 +109,6 @@ class SphereCluster extends Cluster {
     var w1 = cluster.getWeight()
     var r1 = cluster.getRadius()
 
-/*    //vector
-    var v: Array[Double] = new Array[Double](c0.length)
-    //center distance
-    var d: Double = 0
-
-    for (i <- 0 until c0.length) {
-      v(i) = c0(i) - c1(i)
-      d += v(i) * v(i)
-    }
-    
-    d = Math.sqrt(d)
-*/
     val v:Array[Double] = c0 zip c1 map{case (a,b)=>a-b}
     val d:Double = Math.sqrt(v.foldLeft(0.0){(a,x)=> a + x*x})
     
@@ -212,6 +190,9 @@ class SphereCluster extends Cluster {
   /*
    * the minimal distance between the surface of two clusters.
    * is negative if the two clusters overlap
+   * 
+   * @param sphereCluster
+   * @return the minimal distance
    */
   def getHullDistance(other: SphereCluster): Double = {
     var dist: Double = 0
@@ -219,13 +200,11 @@ class SphereCluster extends Cluster {
     val center0: Array[Double] = getCenter()
     val center1: Array[Double] = other.getCenter()
     dist = distance(center0, center1)
-    //dist -= (this.getRadius() + other.getRadius())
     dist = distance(center0, center1) - (this.getRadius() + other.getRadius())
     dist
   }
 
-  /*
-   */
+
   /**
    * When a clusters looses points the new minimal bounding sphere can be
    * partly outside of the originating cluster. If a another cluster is
@@ -249,13 +228,6 @@ class SphereCluster extends Cluster {
   }
 
   def distance(v1: Array[Double], v2: Array[Double]): Double = {
-/*    var distance: Double = 0.0
-    var center: Array[Double] = getCenter()
-    for (i <- 0 until center.length) {
-      var d: Double = v1(i) - v2(i)
-      distance += d * d
-    }
-    Math.sqrt(distance)*/
     val distance:Double = Math.sqrt((v1 zip v2 map{case (a,b)=>a-b}).foldLeft(0.0)((a,x)=>a+x*x))
     distance
   }
@@ -278,12 +250,6 @@ class SphereCluster extends Cluster {
   }
 
   def distanceVector(v1: Array[Double], v2: Array[Double]): Array[Double] = {
-    /*
-    var v: Array[Double] = new Array[Double](v1.length)
-    for (i <- 0 until v1.length) {
-      v(i) = v2(i) - v1(i)
-    }
-    v*/
     v1 zip v2 map{case (a,b)=> a-b}   
   }
 
