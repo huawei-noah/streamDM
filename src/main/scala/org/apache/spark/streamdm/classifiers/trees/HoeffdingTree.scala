@@ -158,7 +158,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
                          var growthAllowed: Boolean = true, val binaryOnly: Boolean = true,
                          val graceNum: Int = 200, val tieThreshold: Double = 0.05,
                          val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
-                         val nbThreshold: Int = 0, val noPrePrune: Boolean = true,
+                         val nbThreshold: Int = 0, val noPrePrune: Boolean = false,
                          val removePoorFeatures: Boolean = false, val splitAll: Boolean = false)
   extends Model with Serializable with Logging {
 
@@ -317,6 +317,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
           case activeNode: ActiveLearningNode => {
             attemptToSplit(activeNode, foundNode.parent, foundNode.index)
           }
+          case node: Node => {}
         }
       } else {
         //try to split all leaf nodes
@@ -332,13 +333,14 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
             case activeNode: ActiveLearningNode => {
               attemptToSplit(activeNode, foundNode.parent, foundNode.index)
             }
+            case node: Node => {}
           }
         }
       }
-      logInfo("{tree size (nodes),tree size (leaves),active learning leaves,tree depth}")
-      val tree_size_nodes = activeNodeCount + decisionNodeCount + inactiveNodeCount
-      val tree_size_leaves = activeNodeCount + inactiveNodeCount
-      logInfo("{" + tree_size_nodes + "," + tree_size_leaves + "," + activeNodeCount + "," + treeHeight() + "}")
+      //    logInfo("{tree size (nodes),tree size (leaves),active learning leaves,tree depth}")
+      //    val tree_size_nodes = activeNodeCount + decisionNodeCount + inactiveNodeCount
+      //    val tree_size_leaves = activeNodeCount + inactiveNodeCount
+      //    logInfo("{" + tree_size_nodes + "," + tree_size_leaves + "," + activeNodeCount + "," + treeHeight() + "}")
     }
     this
   }
