@@ -65,7 +65,7 @@ import org.apache.spark.streamdm.classifiers._
  * controls whether to split at leaf of the last Example of the RDD, or at every leaf.
  * </ul>
  */
-class HoeffdingTree extends Classifier {
+class HoeffdingTree extends Classifier with Logging {
 
   type T = HoeffdingTreeModel
 
@@ -90,10 +90,10 @@ class HoeffdingTree extends Classifier {
 
   val splitConfidenceOption: FloatOption = new FloatOption("splitConfidence", 'c',
     "The allowable error in split decision, values closer to 0 will take longer to decide.",
-    0.0000001, 0.0, 1.0)
+    0.001, 0.0, 1.0)
 
   val learningNodeOption: IntOption = new IntOption("learningNodeType", 'l',
-    "Learning node type of leaf", 2, 0, 2)
+    "Learning node type of leaf", 0, 0, 2)
 
   val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'q',
     "The number of examples a leaf should observe between permitting Naive Bayes", 0, 0, Int.MaxValue)
@@ -111,6 +111,7 @@ class HoeffdingTree extends Classifier {
   /* Init the model used for the Learner*/
   override def init(exampleSpecification: ExampleSpecification): Unit = {
     espec = exampleSpecification
+    logInfo("iiiiiint" + espec.in.size())
     val numFeatures = espec.numberInputFeatures()
     val outputSpec = espec.outputFeatureSpecification(0)
     val numClasses = outputSpec.range()
@@ -139,6 +140,7 @@ class HoeffdingTree extends Classifier {
         val tmodel = rdd.aggregate(
           new HoeffdingTreeModel(model))(
             (mod, example) => { mod.update(example) }, (mod1, mod2) => mod1.merge(mod2, false))
+        logInfo("HT,before before" + model.root.toString())
         model = model.merge(tmodel, true)
     }
   }
@@ -158,7 +160,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
                          var growthAllowed: Boolean = true, val binaryOnly: Boolean = true,
                          val graceNum: Int = 200, val tieThreshold: Double = 0.05,
                          val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
-                         val nbThreshold: Int = 0, val noPrePrune: Boolean = true,
+                         val nbThreshold: Int = 0, val noPrePrune: Boolean = false,
                          val removePoorFeatures: Boolean = false, val splitAll: Boolean = false)
   extends Model with Serializable with Logging {
 
@@ -239,6 +241,11 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
         if (!isPure) {
           // one best suggestion for each feature
           var bestSuggestions: Array[FeatureSplit] = activeNode.getBestSplitSuggestions(splitCriterion, this)
+          logInfo("xxxxx:" + activeNode.addOnWeight() + "," + bestSuggestions.length)
+          for (i <- 0 until bestSuggestions.length) {
+            logInfo("suggestion:" + bestSuggestions(i).merit + "," + bestSuggestions(i).conditionalTest)
+          }
+          //         bestSuggestions.foreach { x => logInfo("suggestion:" + x.merit + "," + x.conditionalTest) }
           //sort the suggestion based on the merit
           bestSuggestions = bestSuggestions.sorted
           if (shouldSplit(activeNode, bestSuggestions)) {
@@ -304,7 +311,8 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
    * merge with another model's FeatureObservers and root, and try to split
    */
   def merge(that: HoeffdingTreeModel, trySplit: Boolean): HoeffdingTreeModel = {
-
+    logInfo("this:" + this.description())
+    logInfo("that:" + that.description())
     this.blockNumExamples += that.blockNumExamples
     this.lastExample = that.lastExample
     // merge root with another root
@@ -316,6 +324,9 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
         foundNode.node match {
           case activeNode: ActiveLearningNode => {
             attemptToSplit(activeNode, foundNode.parent, foundNode.index)
+          }
+          case other: Node => {
+            // "line320"+logInfo(other.toString())
           }
         }
       } else {
@@ -332,13 +343,15 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
             case activeNode: ActiveLearningNode => {
               attemptToSplit(activeNode, foundNode.parent, foundNode.index)
             }
+            case other: Node => {}
           }
         }
       }
-      logInfo("{tree size (nodes),tree size (leaves),active learning leaves,tree depth}")
+      //      logInfo("{tree size (nodes),tree size (leaves),active learning leaves,tree depth}")
       val tree_size_nodes = activeNodeCount + decisionNodeCount + inactiveNodeCount
       val tree_size_leaves = activeNodeCount + inactiveNodeCount
       logInfo("{" + tree_size_nodes + "," + tree_size_leaves + "," + activeNodeCount + "," + treeHeight() + "}")
+      logInfo("merged:" + description())
     }
     this
   }

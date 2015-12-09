@@ -33,7 +33,7 @@ object streamDMJob {
 
     //configuration and initialization of model
     val conf = new SparkConf().setAppName("streamDM")
-    conf.setMaster("local[2]")
+    conf.setMaster("local[4]")
 
     val ssc = new StreamingContext(conf, Seconds(10))
 
