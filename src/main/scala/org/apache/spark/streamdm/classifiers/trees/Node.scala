@@ -20,6 +20,8 @@ package org.apache.spark.streamdm.classifiers.trees
 import scala.collection.mutable.ArrayBuffer
 import scala.math.{ max }
 
+import org.apache.spark.Logging
+
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.bayes._
 import org.apache.spark.streamdm.util.Util
@@ -27,7 +29,7 @@ import org.apache.spark.streamdm.util.Util
 /**
  * Abstract class containing the node information for the Hoeffding trees.
  */
-abstract class Node(val classDistribution: Array[Double]) extends Serializable {
+abstract class Node(val classDistribution: Array[Double]) extends Serializable with Logging {
 
   var dep: Int = 0
   // stores class distribution of a block of RDD
@@ -104,7 +106,7 @@ abstract class Node(val classDistribution: Array[Double]) extends Serializable {
    * @return String containing the description
    */
   def description(): String = {
-    "  " * dep + "Leaf" + " weight = " +
+    "  " * dep + "Leaf" + getClass().getName() + " weight = " +
       Util.arraytoString(classDistribution) + "\n"
   }
 
@@ -280,8 +282,9 @@ class ActiveLearningNode(classDistribution: Array[Double])
   }
   def init(): Unit = {
     if (featureObservers == null) {
-      featureObservers = new Array(instanceSpecification.size())
-      for (i <- 0 until instanceSpecification.size()) {
+      //featureObservers = new Array(instanceSpecification.size())
+      featureObservers = new Array(7)
+      for (i <- 0 until featureObservers.length) {
         val featureSpec: FeatureSpecification = instanceSpecification(i)
         featureObservers(i) = FeatureClassObserver.createFeatureClassObserver(
           classDistribution.length, i, featureSpec)
@@ -344,20 +347,24 @@ class ActiveLearningNode(classDistribution: Array[Double])
   override def merge(that: Node, trySplit: Boolean): Node = {
     if (that.isInstanceOf[ActiveLearningNode]) {
       val node = that.asInstanceOf[ActiveLearningNode]
+      logInfo("before: split?" + trySplit)
+      logInfo("this:" + this.classDistribution.sum + "," + this.blockClassDistribution.sum)
+      logInfo("that:" + node.classDistribution.sum + "," + node.blockClassDistribution.sum)
       //merge addonWeight and class distribution
       if (!trySplit) {
-        this.blockAddonWeight += that.blockClassDistribution.sum
+        this.blockAddonWeight += node.blockClassDistribution.sum
         for (i <- 0 until blockClassDistribution.length)
           this.blockClassDistribution(i) += that.blockClassDistribution(i)
       } else {
         this.addonWeight += node.blockAddonWeight
         for (i <- 0 until classDistribution.length)
-          this.classDistribution(i) += that.blockClassDistribution(i)
+          this.classDistribution(i) += node.blockClassDistribution(i)
       }
       //merge feature class observers
       for (i <- 0 until featureObservers.length)
         featureObservers(i) = featureObservers(i).merge(node.featureObservers(i), trySplit)
     }
+    logInfo("merged:" + this.classDistribution.sum + "," + this.blockClassDistribution.sum)
     this
   }
   /**
@@ -369,9 +376,16 @@ class ActiveLearningNode(classDistribution: Array[Double])
    */
   def getBestSplitSuggestions(splitCriterion: SplitCriterion, ht: HoeffdingTreeModel): Array[FeatureSplit] = {
     val bestSplits = new ArrayBuffer[FeatureSplit]()
-    featureObservers.zipWithIndex.foreach(x =>
-      bestSplits.append(x._1.bestSplit(splitCriterion, classDistribution, x._2, ht.binaryOnly)))
+    logInfo("fffsize:" + featureObservers.length)
+    featureObservers.zipWithIndex.foreach(x => {
+      val bestSplit = x._1.bestSplit(splitCriterion, classDistribution, x._2, ht.binaryOnly)
+      if (bestSplit != null) {
+        bestSplits.append(bestSplit)
+      }
+    })
+
     if (!ht.noPrePrune) {
+      logInfo("ht.noPrePrune" + ht.noPrePrune)
       bestSplits.append(new FeatureSplit(null, splitCriterion.merit(classDistribution,
         Array.fill(1)(classDistribution)), new Array[Array[Double]](0)))
     }
