@@ -22,7 +22,7 @@ import scala.math.{ max }
 
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.bayes._
-import org.apache.spark.streamdm.util.Util
+import org.apache.spark.streamdm.utils.Utils.{argmax}
 
 /**
  * Abstract class containing the node information for the Hoeffding trees.
@@ -105,7 +105,7 @@ abstract class Node(val classDistribution: Array[Double]) extends Serializable {
    */
   def description(): String = {
     "  " * dep + "Leaf" + " weight = " +
-      Util.arraytoString(classDistribution) + "\n"
+      Utils.arraytoString(classDistribution) + "\n"
   }
 
 }
@@ -126,7 +126,7 @@ class SplitNode(classDistribution: Array[Double], val conditionalTest: Condition
   val children: ArrayBuffer[Node] = new ArrayBuffer[Node]()
 
   def this(that: SplitNode) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution),
+    this(Utils.addArrays(that.classDistribution, that.blockClassDistribution),
       that.conditionalTest)
   }
 
@@ -274,7 +274,7 @@ class ActiveLearningNode(classDistribution: Array[Double])
   }
 
   def this(that: ActiveLearningNode) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution),
+    this(Utils.addArrays(that.classDistribution, that.blockClassDistribution),
       that.instanceSpecification)
     this.addonWeight = that.addonWeight
   }
@@ -387,7 +387,7 @@ class InactiveLearningNode(classDistribution: Array[Double])
   extends LearningNode(classDistribution) with Serializable {
 
   def this(that: InactiveLearningNode) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution))
+    this(Utils.addArrays(that.classDistribution, that.blockClassDistribution))
   }
 
   /**
@@ -421,7 +421,7 @@ class LearningNodeNB(classDistribution: Array[Double], instanceSpecification: In
   extends ActiveLearningNode(classDistribution, instanceSpecification) with Serializable {
 
   def this(that: LearningNodeNB) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution),
+    this(Utils.addArrays(that.classDistribution, that.blockClassDistribution),
       that.instanceSpecification)
     //init()
   }
@@ -464,7 +464,7 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double],
   var nbBlockCorrectWeight: Double = 0
 
   def this(that: LearningNodeNBAdaptive) {
-    this(Util.mergeArray(that.classDistribution, that.blockClassDistribution),
+    this(Utils.addArrays(that.classDistribution, that.blockClassDistribution),
       that.instanceSpecification)
     addonWeight = that.addonWeight
     mcCorrectWeight = that.mcCorrectWeight
@@ -480,9 +480,9 @@ class LearningNodeNBAdaptive(classDistribution: Array[Double],
    */
   override def learn(ht: HoeffdingTreeModel, example: Example): Unit = {
     super.learn(ht, example)
-    if (Util.argmax(classDistribution) == example.labelAt(0))
+    if (argmax(classDistribution) == example.labelAt(0))
       mcBlockCorrectWeight += example.weight
-    if (Util.argmax(NaiveBayes.predict(example, classDistribution, featureObservers)) ==
+    if (argmax(NaiveBayes.predict(example, classDistribution, featureObservers)) ==
       example.labelAt(0))
       nbBlockCorrectWeight += example.weight
   }

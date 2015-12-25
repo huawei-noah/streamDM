@@ -19,6 +19,7 @@ package org.apache.spark.streamdm.utils
 
 import java.io._
 import java.util.Random
+import scala.math.{ min, max, log }
 
 import org.apache.spark.streamdm.classifiers.Classifier
 
@@ -90,15 +91,63 @@ object Utils {
  * @param array the Array of numeric values
  * @return the argument of the minimum value
  */
-  def argmax(array: Array[Double]): Double = {
-    var max = 0.0
-    var arg = 0
-    for (i <- 0 until array.length) {
-      if (array(i) > max) {
-        max = array(i)
-        arg = i
-      }
+  def argmax(array: Array[Double]): Double = array.zipWithIndex.maxBy(_._1)._2
+  /*
+   * Get the log2 of input
+   * 
+   * @param v double value
+   * @return the log2 of v
+   */
+  def log2(v: Double): Double = log(v) / log(2)
+
+  /* Transpose a matrix
+   * 
+   * @param input matrix in form of 2-D array
+   * @return the transpose of input matrix
+   */
+  def transpose(input: Array[Array[Double]]): Array[Array[Double]] = {
+    val output: Array[Array[Double]] = Array.fill(input(0).length)(new Array[Double](input.length))
+    input.zipWithIndex.map {
+      row =>
+        row._1.zipWithIndex.map {
+          col => output(col._2)(row._2) = input(row._2)(col._2)
+        }
     }
-    arg
+    output
   }
+  def splitTranspose(input: Array[Array[Double]], fIndex: Int): Array[Array[Double]] = {
+    val output: Array[Array[Double]] = Array.fill(2)(new Array[Double](input.length))
+    input.zipWithIndex.map {
+      row =>
+        row._1.zipWithIndex.map {
+          col =>
+            if (col._2 == fIndex) output(0)(row._2) = input(row._2)(col._2)
+            else output(1)(row._2) += input(row._2)(col._2)
+        }
+    }
+    output
+  }
+
+  /*
+   * Normalize input matrix
+   * 
+   * @param input matrix in form of 2-D array
+   * @return normalized matrix
+   */
+  def normal(input: Array[Array[Double]]): Array[Array[Double]] = {
+    val total = input.map(_.sum).sum
+    input.map { row => row.map { _ / total } }
+  }
+  
+    /*
+   * Normalize input array
+   * 
+   * @param input double array
+   * @return normalized array
+   */
+  def normal(input: Array[Double]): Array[Double] = {
+    val total = input.sum
+    input.map { { _ / total } }
+  }
+
 }

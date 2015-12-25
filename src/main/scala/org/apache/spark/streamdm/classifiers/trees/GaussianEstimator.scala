@@ -18,7 +18,7 @@
 package org.apache.spark.streamdm.classifiers.trees
 
 import scala.math.{ sqrt, Pi, pow, exp, max }
-import org.apache.spark.streamdm.util.Statistics
+import org.apache.spark.streamdm.utils.Statistics
 
 /**
  * Gaussian incremental estimator that uses incremental method, more resilient
