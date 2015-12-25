@@ -41,10 +41,10 @@ import org.apache.spark.streamdm.classifiers._
  * exists, a decision based on the distribution-independent Hoeffding bound. The
  * model learned by the Hoeffding tree is asymptotically nearly identical to the
  * one built by a non-incremental learner, if the number of training instances
- * is large enough. 
+ * is large enough.
  *
  * <p>It is controlled by the following options:
- *<ul>
+ * <ul>
  * <li> numeric observer to use (<b>-n</b>); for the moment, only Gaussian
  * approximation is supported; class of type FeatureClassObserver;
  * <li> number of examples a leaf should observe before a split attempt
@@ -62,8 +62,8 @@ import org.apache.spark.streamdm.classifiers._
  * (1) or adaptive NaiveBayes (2, default);
  * <li> enable splitting at all leaves (<b>-a</b>); the original algorithm can
  * split at any time, but in Spark Streaming one can only split once per RDD; the option
- * controls whether to split at leaf of the last Example of the RDD, or at every leaf. 
- *</ul>
+ * controls whether to split at leaf of the last Example of the RDD, or at every leaf.
+ * </ul>
  */
 class HoeffdingTree extends Classifier {
 
@@ -93,7 +93,7 @@ class HoeffdingTree extends Classifier {
     0.0000001, 0.0, 1.0)
 
   val learningNodeOption: IntOption = new IntOption("learningNodeType", 'l',
-    "Learning node type of leaf", 0, 0, 2)
+    "Learning node type of leaf", 2, 0, 2)
 
   val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'q',
     "The number of examples a leaf should observe between permitting Naive Bayes", 0, 0, Int.MaxValue)
@@ -108,8 +108,7 @@ class HoeffdingTree extends Classifier {
 
   var espec: ExampleSpecification = null
 
-  /* Init the model used for the Learner
-   */
+  /* Init the model used for the Learner*/
   override def init(exampleSpecification: ExampleSpecification): Unit = {
     espec = exampleSpecification
     val numFeatures = espec.numberInputFeatures()
@@ -225,6 +224,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   }
 
   /* try to split the learning node
+   * 
    * @param learnNode the node which may be splitted
    * @param parent parent of the learnNode
    * @param pIndex learnNode's index of the parent
@@ -336,6 +336,10 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
           }
         }
       }
+      logInfo("{tree size (nodes),tree size (leaves),active learning leaves,tree depth}")
+      val tree_size_nodes = activeNodeCount + decisionNodeCount + inactiveNodeCount
+      val tree_size_leaves = activeNodeCount + inactiveNodeCount
+      logInfo("{" + tree_size_nodes + "," + tree_size_leaves + "," + activeNodeCount + "," + treeHeight() + "}")
     }
     this
   }
@@ -393,11 +397,12 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   }
 
   /* repalce an InactiveLearningNode with an ActiveLearningNode
- * @paren inactiveNode which will be repalced
- * @param parent parent of the node which will be replaced
- * @param pIndex the index of node
- * @return Unit 
- */
+  * 
+  * @paren inactiveNode which will be repalced
+  * @param parent parent of the node which will be replaced
+  * @param pIndex the index of node
+  * @return Unit 
+  */
   def activeLearningNode(inactiveNode: InactiveLearningNode, parent: SplitNode, pIndex: Int): Unit = {
     val activeNode = createLearningNode(learningNodeType, inactiveNode.classDistribution)
     if (parent == null) {
@@ -442,7 +447,8 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
     activeNodeCount += splitNode.numChildren() - 1
     decisionNodeCount -= 1
   }
-  /* compute Heoffding Bound withe activeNode's class distribution
+
+  /* Computes Heoffding Bound withe activeNode's class distribution
    * @param activeNode 
    * @return double value
    */
@@ -452,7 +458,16 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
       / (activeNode.weight() * 2))
     heoffdingBound
   }
-  /* description of the Hoeffding Tree Model
+  /*
+   * Returns the height of Hoeffding Tree
+   */
+  def treeHeight(): Int = {
+    if (root == null) -1
+    else root.height()
+  }
+
+  /* Description of the Hoeffding Tree Model
+   * 
    * @return a multi-line String
    */
   def description(): String = {

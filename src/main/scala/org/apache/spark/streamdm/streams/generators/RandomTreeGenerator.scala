@@ -29,11 +29,24 @@ import scala.util.Random
 /**
  * Stream generator for generating data from a randomly generated tree.
  *
+ * <p>It uses the following options:
+ * <ul>
+ *  <li> Chunk size (<b>-k</b>)
+ *  <li> Slid duration (<b>-d</b>)
+ *  <li> The number of features to generate (<b>-f</b>)
+ *  <li> The number of classes to generate (<b>-n</b>)
+ *  <li> The number of nominal attributes to generate (<b>-o</b>)
+ *  <li> The number of numeric attributes to generate (<b>-u</b>)
+ *  <li> The number of values to generate per nominal attribute (<b>-v</b>)
+ *  <li> The maximum depth of the tree concept (<b>-x</b>)
+ *  <li> The first level of the tree above maxTreeDepth that can have leaves (<b>-l</b>)
+ *  <li> The fraction of leaves per level from firstLeafLevel onwards (<b>-r</b>)
+ * </ul>
  */
 
-class RandomTreeGenerator extends StreamReader {
+class RandomTreeGenerator extends Generator {
 
-  val chunkSizeOption: IntOption = new IntOption("chunkSize", 'c',
+  val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
     "Chunk Size", 1000, 1, Integer.MAX_VALUE)
 
   val slideDurationOption: IntOption = new IntOption("slideDuration", 'd',
@@ -78,84 +91,54 @@ class RandomTreeGenerator extends StreamReader {
   var treeRoot: Node = null
 
   /**
-   * Obtains a stream of Examples
-   * @param ssc a Spark Streaming Context
-   * @return a stream of Examples
+   * returns chunk size
    */
-  def getExamples(ssc: StreamingContext): DStream[Example] = {
-    if (treeRoot == null) {
-      init()
-    }
-    new InputDStream[Example](ssc) {
+  override def getChunkSize(): Int = {
+    chunkSizeOption.getValue
+  }
 
-      override def start(): Unit = {}
-
-      override def stop(): Unit = {}
-
-      override def compute(validTime: Time): Option[RDD[Example]] = {
-        val examples: Array[Example] = Array.fill[Example](chunkSizeOption.getValue)(getExample())
-        Some(ssc.sparkContext.parallelize(examples))
-      }
-
-      override def slideDuration = {
-        new Duration(slideDurationOption.getValue)
-      }
-
-      def getExample(): Example = {
-        val featureVals = new Array[Double](numNominalsOption.getValue()
-          + numNumericsOption.getValue())
-
-        for (i <- 0 until featureVals.length) {
-          featureVals(i) =
-            if (i < numNominalsOption.getValue())
-              Random.nextInt(numValsPerNominalOption.getValue())
-            else Random.nextDouble()
-        }
-        val inputInstance = new DenseInstance(featureVals)
-        //    val noiseInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getNoise()))
-        new Example(inputInstance, new DenseInstance(Array[Double](getLabel(treeRoot, featureVals))))
-      }
-
-      def getLabel(node: Node, featureVals: Array[Double]): Int = node match {
-        case leaf: LeafNode => leaf.label
-        case branch: BranchNode => {
-          if (branch.fIndex < numNominalsOption.getValue()) {
-            getLabel(
-              branch.children(featureVals(branch.fIndex).toInt), featureVals); ;
-          } else getLabel(
-            branch.children(if (featureVals(branch.fIndex) < branch.fValue) 0 else 1), featureVals)
-        }
-      }
-
-      //      def getExample(): Example = {
-      //        val inputInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(5.0 * getRandomNumber()))
-      //        val noiseInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getNoise()))
-      //        new Example(inputInstance.add(noiseInstance), new DenseInstance(Array.fill[Double](1)(label(inputInstance))))
-      //      }
-
-      //      def getRandomNumber(): Double = 2.0 * Random.nextDouble() - 1.0 // Uniform number between -1 and 1
-      //
-      //      def getNoise(): Double = 0.5 * Random.nextGaussian()
-      //
-      //      val weight = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getRandomNumber()))
-      //
-      //      val bias: Double = getRandomNumber()
-      //
-      //      def label(inputInstance: Instance): Double = {
-      //        val sum = weight.dot(inputInstance)
-      //        if (sum > bias) 1
-      //        else 0
-      //      }
-    }
+  /**
+   * returns slide duration
+   */
+  override def getslideDuration(): Int = {
+    slideDurationOption.getValue
   }
 
   def init(): Unit = { generateRandomTree() }
+
+  def getExample(): Example = {
+    if (treeRoot == null)
+      init()
+    val featureVals = new Array[Double](numNominalsOption.getValue()
+      + numNumericsOption.getValue())
+
+    for (i <- 0 until featureVals.length) {
+      featureVals(i) =
+        if (i < numNominalsOption.getValue())
+          Random.nextInt(numValsPerNominalOption.getValue())
+        else Random.nextDouble()
+    }
+    val inputInstance = new DenseInstance(featureVals)
+    //val noiseInstance = new DenseInstance(Array.fill[Double](numFeaturesOption.getValue)(getNoise()))
+    new Example(inputInstance, new DenseInstance(Array[Double](getLabel(treeRoot, featureVals))))
+  }
+
+  def getLabel(node: Node, featureVals: Array[Double]): Int = node match {
+    case leaf: LeafNode => leaf.label
+    case branch: BranchNode => {
+      if (branch.fIndex < numNominalsOption.getValue()) {
+        getLabel(
+          branch.children(featureVals(branch.fIndex).toInt), featureVals); ;
+      } else getLabel(
+        branch.children(if (featureVals(branch.fIndex) < branch.fValue) 0 else 1), featureVals)
+    }
+  }
 
   /**
    * Obtains the specification of the examples in the stream
    * @return an specification of the examples
    */
-  def getExampleSpecification(): ExampleSpecification = {
+  override def getExampleSpecification(): ExampleSpecification = {
 
     //Prepare specification of class feature
     val outputIS = new InstanceSpecification()
@@ -165,12 +148,13 @@ class RandomTreeGenerator extends StreamReader {
 
     //Prepare specification of input Nominal features for 
     val inputIS = new InstanceSpecification()
-    val nominal = new NominalFeatureSpecification(Array.range(0, numValsPerNominalOption.getValue).map { _.toString() })
+    val nominal = new NominalFeatureSpecification(Array.range(0,
+        numValsPerNominalOption.getValue).map { _.toString() })
     for (i <- 0 until numNominalsOption.getValue) {
       inputIS.setFeatureSpecification(i, nominal)
       inputIS.setName(i, "Feature" + i)
     }
-    
+
     for (i <- numNominalsOption.getValue until numNominalsOption.getValue + numNumericsOption.getValue) {
       inputIS.setName(i, "Feature" + i)
     }
@@ -185,10 +169,11 @@ class RandomTreeGenerator extends StreamReader {
       minNumericVals, maxNumericVals);
   }
 
-  def generateRandomTreeNode(currentDepth: Int, nominalFeatureCandidates: List[Int], minNumericVals: Array[Double],
-                             maxNumericVals: Array[Double]): Node = {
+  def generateRandomTreeNode(currentDepth: Int, nominalFeatureCandidates: List[Int], 
+        minNumericVals: Array[Double], maxNumericVals: Array[Double]): Node = {
     if ((currentDepth >= this.maxTreeDepthOption.getValue())
-      || ((currentDepth >= this.firstLeafLevelOption.getValue()) && (this.leafFractionOption.getValue() >= (1.0 - Random.nextDouble())))) {
+      || ((currentDepth >= this.firstLeafLevelOption.getValue()) &&
+          (this.leafFractionOption.getValue() >= (1.0 - Random.nextDouble())))) {
       val label = Random.nextInt(this.numClassesOption.getValue())
       new LeafNode(label)
     } else {
@@ -228,7 +213,8 @@ class RandomTreeGenerator extends StreamReader {
 
 sealed abstract class Node
 
-case class BranchNode(val fIndex: Int, numChild: Int, val fValue: Double = 0) extends Node with Serializable {
+case class BranchNode(val fIndex: Int, numChild: Int, val fValue: Double = 0) 
+extends Node with Serializable {
   val children = if (numChild <= 0) null else new Array[Node](numChild)
 }
 

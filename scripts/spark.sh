@@ -3,5 +3,3 @@ $SPARK_HOME/bin/spark-submit \
   --master local[2] \
   ../target/scala-2.10/streamdm-spark-streaming-_2.10-0.1.jar \
   $1
-
-
