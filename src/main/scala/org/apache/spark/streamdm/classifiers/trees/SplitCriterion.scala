@@ -19,7 +19,7 @@ package org.apache.spark.streamdm.classifiers.trees
 
 import scala.math.{ max }
 
-import org.apache.spark.streamdm.util.Util
+import org.apache.spark.streamdm.utils.Utils.{log2}
 
 trait SplitCriterionType
 
@@ -91,7 +91,7 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
    * @param pre the class distribution before the split
    * @return value of the range of splitting merit
    */
-  override def rangeMerit(pre: Array[Double]): Double = Util.log2(max(pre.length, 2))
+  override def rangeMerit(pre: Array[Double]): Double = log2(max(pre.length, 2))
 
   /**
    * Returns the entropy of a distribution
@@ -101,7 +101,7 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
    */
   def entropy(pre: Array[Double]): Double = {
     if (pre == null || pre.sum <= 0 || hasNegative(pre)) 0.0
-    Util.log2(pre.sum) - pre.filter(_ > 0).map(x => x * Util.log2(x)).sum / pre.sum
+    log2(pre.sum) - pre.filter(_ > 0).map(x => x * log2(x)).sum / pre.sum
   }
 
   /**

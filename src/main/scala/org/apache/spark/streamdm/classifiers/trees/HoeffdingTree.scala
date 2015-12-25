@@ -27,7 +27,7 @@ import org.apache.spark.Logging
 import com.github.javacliparser._
 
 import org.apache.spark.streaming.dstream._
-import org.apache.spark.streamdm.util.Util.{ argmax, arraytoString }
+import org.apache.spark.streamdm.utils.Utils.{ argmax }
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 
@@ -162,7 +162,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
                          val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
                          val nbThreshold: Int = 0, val noPrePrune: Boolean = false,
                          val removePoorFeatures: Boolean = false, val splitAll: Boolean = false)
-  extends Model with Serializable with Logging {
+    extends Model with Serializable with Logging {
 
   type T = HoeffdingTreeModel
 

@@ -21,7 +21,7 @@ import scala.collection.mutable.TreeSet
 import scala.math.{ min, max }
 
 import org.apache.spark.streamdm.core._
-import org.apache.spark.streamdm.util.Util
+import org.apache.spark.streamdm.utils.Utils.{normal,transpose,splitTranspose}
 /**
  * Trait FeatureClassObserver for observing the class distribution of one feature.
  * The observer monitors the class distribution of a given feature.
@@ -187,7 +187,7 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
     var fSplit: FeatureSplit = null
     for (i <- 0 until pre.length) {
       val post: Array[Array[Double]] = binarySplit(i)
-      val merit = criterion.merit(Util.normal(pre), Util.normal(post))
+      val merit = criterion.merit(normal(pre), normal(post))
       if (fSplit == null || fSplit.merit < merit) {
         fSplit = new FeatureSplit(new NominalBinaryTest(fIndex, i), merit, post)
       }
@@ -239,13 +239,13 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
    * @return an Array encoding the split
    */
   private[trees] def binarySplit(fValue: Double): Array[Array[Double]] =
-    { Util.splitTranspose(classFeatureStatistics, fValue.toInt) }
+    { splitTranspose(classFeatureStatistics, fValue.toInt) }
   /**
    * Split the data globally.
    * @return an Array encoding the split
    */
   private[trees] def multiwaySplit(): Array[Array[Double]] =
-    { Util.transpose(classFeatureStatistics) }
+    { transpose(classFeatureStatistics) }
 }
 /**
  * Trait for the numeric feature observers.
@@ -318,7 +318,7 @@ extends NumericFeatureClassObserver with Serializable {
     val points: Array[Double] = splitPoints()
     for (splitValue: Double <- points) {
       val post: Array[Array[Double]] = binarySplit(splitValue)
-      val merit = criterion.merit(Util.normal(pre), Util.normal(post))
+      val merit = criterion.merit(normal(pre), normal(post))
       if (fSplit == null || fSplit.merit < merit)
         fSplit = new FeatureSplit(new NumericBinaryTest(fIndex, splitValue, false), merit, post)
     }
