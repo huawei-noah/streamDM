@@ -1,4 +1,20 @@
-package org.apache.spark.streamdm.util
+/*
+ * Copyright (C) 2015 Holmes Team at HUAWEI Noah's Ark Lab.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+package org.apache.spark.streamdm.utils
 
 import scala.math.{ log, sqrt, Pi, sin, exp, floor, abs, pow }
 
@@ -128,10 +144,10 @@ object Statistics {
    * @param v the number of degrees of freedom
    * @return the chi-squared probability
    */
-    def chiSquaredProbability(x:Double,v:Double) :Double = { 
-        if( x < 0.0 || v < 1.0 )0.0
-        else incompleteGammaComplement( v/2.0, x/2.0 )
-      }
+  def chiSquaredProbability(x: Double, v: Double): Double = {
+    if (x < 0.0 || v < 1.0) 0.0
+    else incompleteGammaComplement(v / 2.0, x / 2.0)
+  }
 
   /**
    * Computes probability of F-ratio.
@@ -1031,18 +1047,4 @@ object Statistics {
     s
   }
 }
-  /**
-   * Main method for testing this class.
-   */
-  //  public static void main(String[] ops) {
-  //
-  //    System.out.println("Binomial standard error (0.5, 100): " + 
-  //           Statistics.binomialStandardError(0.5, 100));
-  //    System.out.println("Chi-squared probability (2.558, 10): " +
-  //           Statistics.chiSquaredProbability(2.558, 10));
-  //    System.out.println("Normal probability (0.2): " +
-  //           Statistics.normalProbability(0.2));
-  //    System.out.println("F probability (5.1922, 4, 5): " +
-  //           Statistics.FProbability(5.1922, 4, 5));
-  //    System.out.println("lnGamma(6): "+ Statistics.lnGamma(6));
-  //  }
+
