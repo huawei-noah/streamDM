@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.tasks
 
-import com.github.javacliparser.{ StringOption, ClassOption }
+import com.github.javacliparser.{StringOption, ClassOption}
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.streams._
@@ -38,38 +38,32 @@ import org.apache.spark.streamdm.evaluation.Evaluator
  */
 class EvaluatePrequential extends Task {
 
-  val learnerOption: ClassOption = new ClassOption("learner", 'l',
+  val learnerOption:ClassOption = new ClassOption("learner", 'l',
     "Learner to use", classOf[Classifier], "SGDLearner")
 
-  val evaluatorOption: ClassOption = new ClassOption("evaluator", 'e',
+  val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
     "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")
 
-  //  val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
-  //    "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
+  val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
+    "Stream reader to use", classOf[StreamReader], "SocketTextStreamReader")
 
-  val streamReaderOption: ClassOption = new ClassOption("streamReader", 's',
-    "Stream reader to use", classOf[StreamReader], "FileReader")
-
-  //  val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
-  //    "Stream reader to use", classOf[StreamReader], "OneFileSimulator")
-
-  val resultsWriterOption: ClassOption = new ClassOption("resultsWriter", 'w',
+  val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
     "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
 
   /**
    * Run the task.
    * @param ssc The Spark Streaming context in which the task is run.
    */
-  def run(ssc: StreamingContext): Unit = {
+  def run(ssc:StreamingContext): Unit = {
 
-    val reader: StreamReader = this.streamReaderOption.getValue()
+    val reader:StreamReader = this.streamReaderOption.getValue()
 
-    val learner: Classifier = this.learnerOption.getValue()
+    val learner:Classifier = this.learnerOption.getValue()
     learner.init(reader.getExampleSpecification())
 
-    val evaluator: Evaluator = this.evaluatorOption.getValue()
+    val evaluator:Evaluator = this.evaluatorOption.getValue()
 
-    val writer: StreamWriter = this.resultsWriterOption.getValue()
+    val writer:StreamWriter = this.resultsWriterOption.getValue()
 
     val instances = reader.getExamples(ssc)
 
@@ -81,7 +75,6 @@ class EvaluatePrequential extends Task {
 
     //Evaluate
     writer.output(evaluator.addResult(predPairs))
-//    val predString = predPairs.map(x => x._1.labelAt(0) + "," + x._2)
-//    writer.output(predString)
+
   }
 }
