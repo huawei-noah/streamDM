@@ -19,14 +19,15 @@ package org.apache.spark.streamdm.core
 
 /**
  * An Instance represents the input or output of any learning algorithm. It is
- * normally composed of a feature vector (having various implementations). 
+ * normally composed of a feature vector (having various implementations).
  */
 
 trait Instance extends Serializable {
-  
+
   type T <: Instance
 
-  /** Get the value present at position index
+  /**
+   * Get the value present at position index
    *
    * @param index the index of the features
    * @return a Double representing the feature value, or 0 if the index is not
@@ -34,35 +35,47 @@ trait Instance extends Serializable {
    */
   def apply(index: Int): Double
 
-  /** Perform a dot product between two instances
+  /**
+   * Return an array of features and indexes
+   *
+   * @return an array of turple2(value,index)
+   */
+  def featureWithIndex(): Array[(Double, Int)]
+
+  /**
+   * Perform a dot product between two instances
    *
    * @param input an Instance with which the dot product is performed
-   * @return a Double representing the dot product 
+   * @return a Double representing the dot product
    */
   def dot(input: Instance): Double
 
-  /** Compute the Euclidean distance to another Instance 
+  /**
+   * Compute the Euclidean distance to another Instance
    *
    * @param input the Instance to which the distance is computed
    * @return a Double representing the distance value
    */
   def distanceTo(input: Instance): Double
 
-  /** Perform an element by element addition between two instances
+  /**
+   * Perform an element by element addition between two instances
    *
    * @param input an Instance which is added up
    * @return an Instance representing the added Instances
    */
   def add(input: Instance): T
 
-  /** Perform an element by element multiplication between two instances
+  /**
+   * Perform an element by element multiplication between two instances
    *
    * @param input an Instance which is multiplied
    * @return an Instance representing the Hadamard product
    */
   def hadamard(input: Instance): T
 
-  /** Add a feature to the instance
+  /**
+   * Add a feature to the instance
    *
    * @param index the index at which the value is added
    * @param input the feature value which is added up
@@ -70,17 +83,19 @@ trait Instance extends Serializable {
    */
   def set(index: Int, input: Double): T
 
-  /** Apply an operation to every feature of the Instance
+  /**
+   * Apply an operation to every feature of the Instance
    *
    * @param func the function for the transformation
    * @return a new Instance with the transformed features
    */
-  def map(func: Double=>Double): T
+  def map(func: Double => Double): T
 
-  /** Aggregate the values of an instance 
+  /**
+   * Aggregate the values of an instance
    *
    * @param func the function for the transformation
    * @return the reduced value
    */
-  def reduce(func: (Double,Double)=>Double): Double
+  def reduce(func: (Double, Double) => Double): Double
 }
