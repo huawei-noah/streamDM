@@ -27,7 +27,7 @@ import org.apache.spark.Logging
 import com.github.javacliparser._
 
 import org.apache.spark.streaming.dstream._
-import org.apache.spark.streamdm.util.Util.{ argmax, arraytoString }
+import org.apache.spark.streamdm.utils.Utils.{ argmax}
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 
