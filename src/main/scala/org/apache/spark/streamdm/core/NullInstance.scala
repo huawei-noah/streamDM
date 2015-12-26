@@ -26,7 +26,7 @@ package org.apache.spark.streamdm.core
  */
 
 case class NullInstance extends Instance with Serializable {
-  
+
   type T = NullInstance
 
   /* Get the feature value present at position index
@@ -34,7 +34,14 @@ case class NullInstance extends Instance with Serializable {
   * @param index the index of the desired value 
   * @return a value of 0 
   */
-  override def apply(index: Int): Double = 0.0 
+  override def apply(index: Int): Double = 0.0
+
+  /*
+   * Return an array of features and indexes
+   *
+   * @return an array of turple2(value,index)
+   */
+  def featureWithIndex(): Array[(Double, Int)] = new Array[(Double, Int)](0)
 
   /* Perform a dot product between two instances
   *
@@ -44,28 +51,32 @@ case class NullInstance extends Instance with Serializable {
   */
   override def dot(input: Instance): Double = 0.0
 
-  /** Compute the Euclidean distance to another Instance 
+  /**
+   * Compute the Euclidean distance to another Instance
    *
    * @param input the Instance to which the distance is computed
-   * @return an infinite distance (implemented as Double.MaxValue) 
+   * @return an infinite distance (implemented as Double.MaxValue)
    */
   def distanceTo(input: Instance): Double = Double.MaxValue
 
-  /** Perform an element by element addition between two instances
+  /**
+   * Perform an element by element addition between two instances
    *
    * @param input an Instance which is added up
    * @return a NullInstance
    */
-  override def add(input: Instance): NullInstance = this 
+  override def add(input: Instance): NullInstance = this
 
-  /** Perform an element by element multiplication between two instances
+  /**
+   * Perform an element by element multiplication between two instances
    *
    * @param input an Instance which is multiplied
    * @return a NullInstance
    */
   override def hadamard(input: Instance): NullInstance = this
 
-  /** Add a feature to the instance
+  /**
+   * Add a feature to the instance
    *
    * @param index the index at which the value is added
    * @param input the feature value which is added up
@@ -73,18 +84,20 @@ case class NullInstance extends Instance with Serializable {
    */
   override def set(index: Int, input: Double): NullInstance = this
 
-  /** Apply an operation to every feature of a NullInstance 
+  /**
+   * Apply an operation to every feature of a NullInstance
    * @param func the function for the transformation
    * @return a NullInstance
    */
-  override def map(func: Double=>Double): NullInstance = this
+  override def map(func: Double => Double): NullInstance = this
 
-  /** Aggregate the values of a NullInstance
+  /**
+   * Aggregate the values of a NullInstance
    *
    * @param func the function for the transformation
    * @return a value of 0
    */
-  override def reduce(func: (Double,Double)=>Double): Double = 0.0
+  override def reduce(func: (Double, Double) => Double): Double = 0.0
 
-  override def toString = "" 
+  override def toString = ""
 }
