@@ -26,18 +26,31 @@ internally as a sequence of RDDs.
 
 ### <a name="methods"></a>Included Methods
 
-In this first pre-release of StreamDM, we have implemented:
+In this first release of StreamDM, we have implemented:
 
 * [SGD Learner](http://huawei-noah.github.io/streamDM/docs/SGD.html) and [Perceptron](http://huawei-noah.github.io/streamDM/docs/SGD.html#perceptron)
 * [Naive Bayes](http://huawei-noah.github.io/streamDM/docs/NB.html)
 * [CluStream](http://huawei-noah.github.io/streamDM/docs/CluStream.html)
 * [Hoeffding Decision Trees](http://huawei-noah.github.io/streamDM/docs/HDT.html)
+* [Bagging](http://huawei-noah.github.io/streamDM/docs/Bagging.html)
 * [Stream KM++](http://huawei-noah.github.io/streamDM/docs/StreamKM.html)
+
+we also implemented following [data generators](http://huawei-noah.github.io/streamDM/docs/generators.html):
+
+* HyperplaneGenerator
+* RandomTreeGenerator
+* RandomRBFGenerator
+* RandomRBFEventsGenerator
+
+We have also implemented [SampleDataWriter](http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html), which can call data generators 
+to create sample data for simulation or test.
 
 In the next releases we plan to add: 
 
-* Random Forests
-* Frequent Itemset Miner: IncMine
+* Classification: Random Forests
+* Regression: Hoeffding Regression Tree, Bagging, Random Forests
+* Clustering: Clustree, DenStream
+* Frequent Itemset Miner: IncMine, IncSecMine
 
 ## Going Further
 
