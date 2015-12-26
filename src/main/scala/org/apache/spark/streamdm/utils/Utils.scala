@@ -115,6 +115,13 @@ object Utils {
     }
     output
   }
+  /*
+   * Split a matrix with the input index, merge other columns into one column and transpose
+   * 
+   * @param input matrix in form of 2-D array
+   * @param fIndex index of columns
+   * @return a matrix of 2 rows
+   */
   def splitTranspose(input: Array[Array[Double]], fIndex: Int): Array[Array[Double]] = {
     val output: Array[Array[Double]] = Array.fill(2)(new Array[Double](input.length))
     input.zipWithIndex.map {
@@ -138,8 +145,8 @@ object Utils {
     val total = input.map(_.sum).sum
     input.map { row => row.map { _ / total } }
   }
-  
-    /*
+
+  /*
    * Normalize input array
    * 
    * @param input double array
