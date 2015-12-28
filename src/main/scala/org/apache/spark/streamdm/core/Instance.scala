@@ -40,7 +40,7 @@ trait Instance extends Serializable {
    *
    * @return an array of turple2(value,index)
    */
-  def featureWithIndex(): Array[(Double, Int)]
+  def getFeatureIndexArray(): Array[(Double, Int)]
 
   /**
    * Perform a dot product between two instances

@@ -42,7 +42,7 @@ case class TextInstance(inFeatures: Map[String, Double])
    *
    * @return an array of turple2(value,index)
    */
-  def featureWithIndex(): Array[(Double, Int)] = features.toArray.map{x =>(x._2,x._1.toInt)}
+  def getFeatureIndexArray(): Array[(Double, Int)] = features.toArray.map{x =>(x._2,x._1.toInt)}
 
   /* Get the feature value for a given key
   *

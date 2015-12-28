@@ -59,7 +59,7 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
    *
    * @return an array of turple2(value,index)
    */
-  def featureWithIndex(): Array[(Double, Int)] = inValues.zip(inIndexes)
+  def getFeatureIndexArray(): Array[(Double, Int)] = inValues.zip(inIndexes)
   
   /* Perform a dot product between two instances
   *

@@ -41,7 +41,7 @@ case class NullInstance extends Instance with Serializable {
    *
    * @return an array of turple2(value,index)
    */
-  def featureWithIndex(): Array[(Double, Int)] = new Array[(Double, Int)](0)
+  def getFeatureIndexArray(): Array[(Double, Int)] = new Array[(Double, Int)](0)
 
   /* Perform a dot product between two instances
   *

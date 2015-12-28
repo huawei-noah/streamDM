@@ -45,7 +45,7 @@ case class DenseInstance(inVector: Array[Double])
    *
    * @return an array of turple2(value,index)
    */
-  def featureWithIndex(): Array[(Double, Int)] = features.zipWithIndex
+  def getFeatureIndexArray(): Array[(Double, Int)] = features.zipWithIndex
 
   /* Perform a dot product between two instances
   *
