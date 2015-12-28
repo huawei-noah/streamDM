@@ -54,6 +54,13 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
     value
   }
 
+    /*
+   * Return an array of features and indexes
+   *
+   * @return an array of turple2(value,index)
+   */
+  def getFeatureIndexArray(): Array[(Double, Int)] = inValues.zip(inIndexes)
+  
   /* Perform a dot product between two instances
   *
   * @param input an Instance with which the dot
