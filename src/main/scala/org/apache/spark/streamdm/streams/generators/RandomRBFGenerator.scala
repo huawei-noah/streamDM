@@ -22,11 +22,13 @@ import org.apache.spark.streaming.dstream.{ DStream, InputDStream }
 import org.apache.spark.streaming.{ Time, Duration, StreamingContext }
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.streams.StreamReader
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import scala.io._
 import java.io._
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * RandomRBFGenerator generates via radial basis function.
@@ -40,7 +42,6 @@ import java.io._
  *  <li> The number of classes to generate (<b>-n</b>)
  *  <li> The number of features to generate (<b>-f</b>)
  *  <li> The number of centroids in the model (<b>-c</b>)
- *  <li> Type of the instance to use (<b>-t</b>)
  * </ul>
  */
 
@@ -67,8 +68,6 @@ class RandomRBFGenerator extends Generator {
   val numCentroidsOption: IntOption = new IntOption("numCentroids", 'c',
     "The number of centroids in the model.", 50, 1, Integer.MAX_VALUE)
 
-  val instanceTypeOption: StringOption = new StringOption("instanceType", 't',
-    "Type of the instance to use", "dense")
 
   class Centroid(center: Array[Double], classLab: Int, stdev: Double) 
   extends Serializable {
@@ -167,7 +166,7 @@ class RandomRBFGenerator extends Generator {
 
     //Prepare specification of input attributes
     val inputIS = new InstanceSpecification()
-    for (i <- 1 to numFeaturesOption.getValue) inputIS.setName(i, "Feature" + i)
+    for (i <- 0 until numFeaturesOption.getValue) inputIS.setName(i, "NumericFeature" + i)
 
     new ExampleSpecification(inputIS, outputIS)
 

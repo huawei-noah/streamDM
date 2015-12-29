@@ -22,6 +22,7 @@ import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.model._
 import org.apache.spark.streaming.dstream._
 import com.github.javacliparser.{ClassOption, FloatOption, IntOption}
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * The SGDLearner trains a LinearModel using the stochastic gradient descent

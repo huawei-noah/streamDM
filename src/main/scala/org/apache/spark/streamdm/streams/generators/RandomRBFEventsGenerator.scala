@@ -20,12 +20,14 @@ import org.apache.spark.streamdm.streams.StreamReader
 import com.github.javacliparser.{ IntOption, FloatOption, FlagOption, StringOption }
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.streams.StreamReader
 import org.apache.spark.streaming.{ Duration, Time, StreamingContext }
 import org.apache.spark.streaming.dstream.{ InputDStream, DStream }
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import scala.math._
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * RandomRBFEventsGenerator generates data stream for Clustream  via a random radial basis function.
@@ -33,7 +35,6 @@ import scala.math._
  * <p>It uses the following options:
  * <ul>
  *  <li> Chunk size (<b>-k</b>)
- *  <li> Type of the instance (<b>-t</b>)
  *  <li> Slide duration (<b>-d</b>)
  *  <li> Seed for random generation of model (<b>-m</b>)
  *  <li> Seed for random generation of instances (<b>-i</b>)
@@ -58,9 +59,6 @@ class RandomRBFEventsGenerator extends Generator {
 
   val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
     "Chunk Size", 50, 1, Integer.MAX_VALUE)
-
-  val instanceOption: StringOption = new StringOption("instanceType", 't',
-    "Type of the instance to use", "dense")
 
   val slideDurationOption: IntOption = new IntOption("slideDuration", 'd',
     "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
@@ -108,8 +106,8 @@ class RandomRBFEventsGenerator extends Generator {
   val eventDeleteCreateOption: FlagOption = new FlagOption("eventDeleteCreate", 'e',
     "Enable emering and disapperaing of clusters. Set eventFrequency and numClusterRange!")
 
-  val numAttsOption: IntOption = new IntOption("numAtts", 'f', 
-      "The number of attributes to generate.", 2, 0, Integer.MAX_VALUE)
+  val numFeaturesOption: IntOption = new IntOption("numFeatures", 'f',
+    "The number of attributes to generate.", 2, 0, Integer.MAX_VALUE)
 
   val decayHorizonOption: IntOption = new IntOption("decayHorizon", 'h',
     "Decay horizon", 1000, 0, Integer.MAX_VALUE)
@@ -140,7 +138,7 @@ class RandomRBFEventsGenerator extends Generator {
     var generator: SphereCluster = null
     var kill: Int = -1
     var merging = false
-    var moveVector = new Array[Double](numAttsOption.getValue())
+    var moveVector = new Array[Double](numFeaturesOption.getValue())
     var totalMovementSteps: Int = 0
     var currentMovementSteps: Int = 0
     var isSplitting = false
@@ -154,14 +152,14 @@ class RandomRBFEventsGenerator extends Generator {
       while (outofbounds && tryCounter < maxOverlapFitRuns) {
         tryCounter = tryCounter + 1
         outofbounds = false
-        val center = new Array[Double](numAttsOption.getValue())
+        val center = new Array[Double](numFeaturesOption.getValue())
         var radius = kernelRadiiOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) *
-        kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble()
-        while (radius <= 0) {
-          radius = kernelRadiiOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) * 
           kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble()
+        while (radius <= 0) {
+          radius = kernelRadiiOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) *
+            kernelRadiiRangeOption.getValue() * instanceRandom.nextDouble()
         }
-        for (j <- 0 until numAttsOption.getValue() if !outofbounds) {
+        for (j <- 0 until numFeaturesOption.getValue() if !outofbounds) {
           center(j) = instanceRandom.nextDouble()
           if (center(j) - radius < 0 || center(j) + radius > 1) {
             outofbounds = true
@@ -172,8 +170,8 @@ class RandomRBFEventsGenerator extends Generator {
       if (tryCounter < maxOverlapFitRuns) {
         generator.setId(label)
         val avgWeight = 1.0 / numClusterOption.getValue()
-        val weight = avgWeight + (if (instanceRandom.nextBoolean()) -1 else 1) * avgWeight * 
-        densityRangeOption.getValue() * instanceRandom.nextDouble()
+        val weight = avgWeight + (if (instanceRandom.nextBoolean()) -1 else 1) * avgWeight *
+          densityRangeOption.getValue() * instanceRandom.nextDouble()
         generator.setWeight(weight)
         setDesitnation(null)
       } else {
@@ -227,7 +225,7 @@ class RandomRBFEventsGenerator extends Generator {
 
       var destination: Array[Double] = null
       if (destination_t == null) {
-        destination = Array.fill[Double](numAttsOption.getValue())(instanceRandom.nextDouble())
+        destination = Array.fill[Double](numFeaturesOption.getValue())(instanceRandom.nextDouble())
       } else {
         destination = destination_t
       }
@@ -240,7 +238,7 @@ class RandomRBFEventsGenerator extends Generator {
       var speedInPoints = speedOption.getValue()
       if (speedRangeOption.getValue() > 0)
         speedInPoints = speedInPoints + (if (instanceRandom.nextBoolean()) -1 else 1) *
-        instanceRandom.nextInt(speedRangeOption.getValue())
+          instanceRandom.nextInt(speedRangeOption.getValue())
       if (speedInPoints < 1) speedInPoints = speedOption.getValue()
 
       var length: Double = moveVector.foldLeft(0.0)((sum, i) => sum + pow(i, 2))
@@ -391,7 +389,7 @@ class RandomRBFEventsGenerator extends Generator {
       if (currentMovementSteps < totalMovementSteps) {
         currentMovementSteps = currentMovementSteps + 1
         if (moveVector == null) {
-          return 
+          return
         } else {
           var center = generator.getCenter()
           var outofbounds = true
@@ -509,11 +507,11 @@ class RandomRBFEventsGenerator extends Generator {
    * @return the noise vector
    */
   def getNoisePoint(): Array[Double] = {
-    var sample = new Array[Double](numAttsOption.getValue())
+    var sample = new Array[Double](numFeaturesOption.getValue())
     var incluster = true
     var counter = 20
     while (incluster) {
-      sample = Array.fill(numAttsOption.getValue())(instanceRandom.nextDouble())
+      sample = Array.fill(numFeaturesOption.getValue())(instanceRandom.nextDouble())
       incluster = false
       if (!noiseInClusterOption.isSet() && counter > 0) {
         counter = counter - 1
@@ -633,7 +631,7 @@ class RandomRBFEventsGenerator extends Generator {
       kernels.foreach { k => k.move() }
     }
     if (eventFrequencyOption.getValue() == 0) {
-      return 
+      return
     }
     var type_s = ""
     var message = ""
@@ -675,8 +673,8 @@ class RandomRBFEventsGenerator extends Generator {
 
     }
     if (eventFinished) {
-      nextEventCounter = (eventFrequencyOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) * 
-          eventFrequencyOption.getValue() * eventFrequencyRange * instanceRandom.nextDouble()).toInt
+      nextEventCounter = (eventFrequencyOption.getValue() + (if (instanceRandom.nextBoolean()) -1 else 1) *
+        eventFrequencyOption.getValue() * eventFrequencyRange * instanceRandom.nextDouble()).toInt
       nextEventChoice = getNextEvent()
     }
     if (!message.isEmpty()) {
@@ -729,16 +727,16 @@ class RandomRBFEventsGenerator extends Generator {
     eventScheduler()
 
     //make room for the classlabel
-    val values_new = new Array[Double](numAttsOption.getValue())
+    val values_new = new Array[Double](numFeaturesOption.getValue())
     var values: Array[Double] = null
     var clusterChoice = -1
 
     if (instanceRandom.nextDouble() > noiseLevelOption.getValue()) {
       clusterChoice = chooseWeightedElement()
-      val ins:Instance = kernels(clusterChoice).generator.sample(instanceRandom)
+      val ins: Instance = kernels(clusterChoice).generator.sample(instanceRandom)
       values = ins match {
-        case d :DenseInstance =>d.features
-        case s:SparseInstance => null//todo
+        case d: DenseInstance => d.features
+        case s: SparseInstance => null //todo
       }
     } else {
       //get ranodm noise point
@@ -768,7 +766,7 @@ class RandomRBFEventsGenerator extends Generator {
     outputIS.setName(0, "class")
     //Prepare specification of input attributes
     val inputIS = new InstanceSpecification()
-    for (i <- 1 to numAttsOption.getValue) inputIS.setName(i, "Feature" + i)
+    for (i <- 0 until numFeaturesOption.getValue) inputIS.setName(i, "Feature" + i)
     new ExampleSpecification(inputIS, outputIS)
   }
 }

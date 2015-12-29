@@ -20,11 +20,12 @@ import scala.collection.immutable.List
 import com.github.javacliparser.{ IntOption, FloatOption }
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.streams.StreamReader
 import org.apache.spark.streaming.{ Duration, Time, StreamingContext }
 import org.apache.spark.streaming.dstream.{ InputDStream, DStream }
-
 import scala.util.Random
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * Stream generator for generating data from a randomly generated tree.
@@ -152,11 +153,11 @@ class RandomTreeGenerator extends Generator {
         numValsPerNominalOption.getValue).map { _.toString() })
     for (i <- 0 until numNominalsOption.getValue) {
       inputIS.setFeatureSpecification(i, nominal)
-      inputIS.setName(i, "Feature" + i)
+      inputIS.setName(i, "NominalFeature" + i)
     }
 
     for (i <- numNominalsOption.getValue until numNominalsOption.getValue + numNumericsOption.getValue) {
-      inputIS.setName(i, "Feature" + i)
+      inputIS.setName(i, "NumericFeature" + i)
     }
 
     new ExampleSpecification(inputIS, outputIS)

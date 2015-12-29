@@ -21,6 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.math.{ max }
 
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.classifiers.bayes._
 import org.apache.spark.streamdm.utils.Utils.{argmax}
 

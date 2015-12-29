@@ -23,10 +23,12 @@ import org.apache.spark.streaming.dstream.{ DStream, InputDStream }
 import org.apache.spark.streaming.{ Time, Duration, StreamingContext }
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import scala.io._
 import java.io._
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * FileReader is used to read data from one file of full data to simulate a stream data.
@@ -35,7 +37,7 @@ import java.io._
  * <ul>
  *  <li> Chunk size (<b>-k</b>)
  *  <li> Slide duration in milliseconds (<b>-d</b>)
- *  <li> Type of the instance to use (<b>-t</b>)
+ *  <li> Type of the instance to use, it should be "dense" or "sparse" (<b>-t</b>)
  *  <li> File to use (<b>-f</b>)
  * </ul>
  */

@@ -21,6 +21,7 @@ import scala.collection.mutable.TreeSet
 import scala.math.{ min, max }
 
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.utils.Utils.{ normal, transpose, splitTranspose }
 /**
  * Trait FeatureClassObserver for observing the class distribution of one feature.

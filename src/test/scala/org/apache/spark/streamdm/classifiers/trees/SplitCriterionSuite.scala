@@ -3,7 +3,7 @@ package org.apache.spark.streamdm.classifiers.trees
 import org.scalatest.FunSuite
 import org.apache.spark.streamdm.classifiers.trees._
 import scala.math.{ log, abs }
-import org.apache.spark.streamdm.util.Util.{ log2 }
+import org.apache.spark.streamdm.utils.Utils.{ log2 }
 class SplitCriterionSuite extends FunSuite {
 
   test("InfoGainSplitCriterion, test negtive function") {

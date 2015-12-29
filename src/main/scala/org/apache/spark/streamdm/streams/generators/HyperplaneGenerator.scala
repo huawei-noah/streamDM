@@ -19,11 +19,12 @@ package org.apache.spark.streamdm.streams.generators
 import com.github.javacliparser.IntOption
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.streams.StreamReader
 import org.apache.spark.streaming.{ Duration, Time, StreamingContext }
 import org.apache.spark.streaming.dstream.{ InputDStream, DStream }
-
 import scala.util.Random
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * Stream generator for generating data from a hyperplane.
@@ -102,7 +103,7 @@ class HyperplaneGenerator extends Generator {
 
     //Prepare specification of input attributes
     val inputIS = new InstanceSpecification()
-    for (i <- 1 to numFeaturesOption.getValue) inputIS.setName(i, "Feature" + i)
+    for (i <- 0 until numFeaturesOption.getValue) inputIS.setName(i, "NumericFeature" + i)
 
     new ExampleSpecification(inputIS, outputIS)
   }

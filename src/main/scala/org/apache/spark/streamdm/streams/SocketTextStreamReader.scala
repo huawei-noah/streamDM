@@ -19,10 +19,12 @@ package org.apache.spark.streamdm.streams
 
 import com.github.javacliparser.{StringOption, IntOption, ClassOption}
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streamdm.core.Instance
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * Stream reader that gets instances from a socket stream.
