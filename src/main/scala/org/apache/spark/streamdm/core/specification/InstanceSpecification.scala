@@ -15,7 +15,7 @@
  *
  */
 
-package org.apache.spark.streamdm.core
+package org.apache.spark.streamdm.core.specification
 
 import scala.collection.mutable.Map
 
@@ -27,7 +27,7 @@ import scala.collection.mutable.Map
 
 class InstanceSpecification extends Serializable {
   val nominalFeatureSpecificationMap = Map[Int, FeatureSpecification]()
-  val nameMap = Map[Int, String]()
+  val featureNameMap = Map[Int, String]()
   val numericFeatureSpecification: NumericFeatureSpecification = new NumericFeatureSpecification
 
   /** Gets the FeatureSpecification value present at position index
@@ -72,7 +72,7 @@ class InstanceSpecification extends Serializable {
    * @param index the index of the class
    * @return a string representing the name of the feature
    */
-  def name(index: Int): String = nameMap(index)
+  def name(index: Int): String = featureNameMap(index)
 
   /**
    * Adds a name for the instance feature
@@ -81,101 +81,12 @@ class InstanceSpecification extends Serializable {
    * @param input the feature name which is added up
    */
   def setName(index: Int, input: String): Unit =
-    nameMap += (index -> input)
+    featureNameMap += (index -> input)
 
   /**
    * Gets the number of features
    *
    * @return the number of features
    */
-  def size(): Int = nameMap.size
-}
-
-/**
- * trait FeatureSpecification.
- *
- */
-trait FeatureSpecification {
-
-  /**
-   * whether the feature is nominal
-   *
-   * @return true if the feature is nominal
-   */
-  def isNominal(): Boolean
-
-  /**
-   * whether the feature is numeric
-   *
-   * @return true if the feature is discrete
-   */
-  def isNumeric(): Boolean
-  /**
-   * if a feature is numeric, return -1, else return the nominal values size
-   */
-  def range(): Int
-}
-
-/**
- * class NumericFeatureSpecification.
- *
- */
-class NumericFeatureSpecification extends FeatureSpecification with Serializable {
-  /**
-   * whether the feature is nominal
-   *
-   * @return true if the feature is nominal
-   */
-  override def isNominal(): Boolean = false
-  /**
-   * whether the feature is numeric
-   *
-   * @return true if the feature is discrete
-   */
-  override def isNumeric(): Boolean = !isNominal()
-  override def range(): Int = -1
-}
-
-/**
- * A NominalFeatureSpecification contains information about its nominal values.
- *
- */
-
-class NominalFeatureSpecification(nominalValues: Array[String]) extends FeatureSpecification with Serializable {
-  val values = nominalValues
-
-  val nameMap = Map[String,Int]()
-  values.zipWithIndex.map{ case (element, index) => 
-                            (nameMap += (element -> index)) }
-
-  /** Get the nominal string value present at position index
-    *
-    * @param index the index of the feature value
-    * @return a string containing the nominal value of the feature
-    */
-  def apply(index: Int): String =  values(index)
-
-  /** Get the position index given the nominal string value
-    *
-    * @param string a string containing the nominal value of the feature
-    * @return the index of the feature value
-    */
-  def apply(string: String): Int = nameMap(string)
-
-  /**
-   * whether the feature is nominal
-   *
-   * @return true if the feature is nominal
-   */
-  override def isNominal(): Boolean = true
-  /**
-   * whether the feature is numeric
-   *
-   * @return true if the feature is discrete
-   */
-  override def isNumeric(): Boolean = !isNominal()
-  /**
-   * return the nominal values size
-   */
-  override def range(): Int = values.length
+  def size(): Int = featureNameMap.size
 }
