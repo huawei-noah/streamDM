@@ -8,7 +8,7 @@ image:
 ## Hyper Plan Generator
 Generates a problem of predicting class of a rotating hyperplane.
 
-Parameters:
+###Parameters:
 * Chunk size (-k)
 * Slide duration in milliseconds (-d)
 * Number of features (-f)
