@@ -17,18 +17,21 @@
 
 package org.apache.spark.streamdm.streams
 
-import org.apache.spark.streamdm.streams.generators.Generator
-import com.github.javacliparser.{ IntOption, FloatOption, StringOption, FileOption }
+import java.io._
+import scala.io._
+import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
+
 import org.apache.spark.streaming.dstream.{ DStream, InputDStream }
 import org.apache.spark.streaming.{ Time, Duration, StreamingContext }
 import org.apache.spark.rdd.RDD
+
+import com.github.javacliparser.{ IntOption, FloatOption, StringOption, FileOption }
+
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
-import scala.collection.mutable.ArrayBuffer
-import scala.util.Random
-import scala.io._
-import java.io._
-import org.apache.spark.streamdm.core.specification.ExampleSpecification
+import org.apache.spark.streamdm.streams.generators.Generator
+//import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * FileReader is used to read data from one file of full data to simulate a stream data.
@@ -38,7 +41,8 @@ import org.apache.spark.streamdm.core.specification.ExampleSpecification
  *  <li> Chunk size (<b>-k</b>)
  *  <li> Slide duration in milliseconds (<b>-d</b>)
  *  <li> Type of the instance to use, it should be "dense" or "sparse" (<b>-t</b>)
- *  <li> File to use (<b>-f</b>)
+ *  <li> Data File Name (<b>-f</b>)
+ *  <li> Data Header Format,uses weka's arff as default.(<b>-h</b>)
  * </ul>
  */
 
@@ -53,40 +57,33 @@ class FileReader extends StreamReader {
   val instanceOption: StringOption = new StringOption("instanceType", 't',
     "Type of the instance to use", "dense")
 
-  val fileNameOption: FileOption = new FileOption("fileName", 'f',
-    "File to use", null, "txt", false)
+  val fileNameOption: StringOption = new StringOption("fileName", 'f',
+    "File Name", "./sampleData")
 
-  def read(ssc: StreamingContext): DStream[Example] = {
-    val file: File = new File(fileNameOption.getValue)
-    if (!file.exists()) {
-      println("file does not exists, input a new file name")
-      exit()
-    } else {
-      var lines = Source.fromFile(fileNameOption.getValue).getLines()
-      new InputDStream[Example](ssc) {
-        override def start(): Unit = {}
+  val dataHeadTypeOption: StringOption = new StringOption("dataHeadType", 'h',
+    "Data Head Format", "arff")
+  var fileName: String = null
+  var headFileName: String = null
+  var isInited: Boolean = false
+  var hasHeadFile: Boolean = false
+  var lines: Iterator[String] = null
 
-        override def stop(): Unit = {}
-
-        override def compute(validTime: Time): Option[RDD[Example]] = {
-          val examples: Array[Example] = Array.fill[Example](chunkSizeOption.getValue)(getExampleFromFile())
-          Some(ssc.sparkContext.parallelize(examples))
+  def init() {
+    if (!isInited) {
+      try {
+        fileName = fileNameOption.getValue
+        val file = new File(fileName)
+        if (!file.exists()) {
+          println("file does not exists, input a new file name")
+          exit()
         }
-
-        override def slideDuration = {
-          new Duration(slideDurationOption.getValue)
+        headFileName = fileNameOption.getValue() + "." + dataHeadTypeOption.getValue + ".head"
+        val hfile: File = new File(headFileName)
+        if (hfile.exists()) {
+          // has a head file 
+          hasHeadFile = true
         }
-
-        def getExampleFromFile(): Example = {
-          var exp: Example = null
-          if (lines.hasNext) {
-            exp = Example.parse(lines.next(), instanceOption.getValue, "dense")
-          } else {
-            lines = Source.fromFile(fileNameOption.getValue).getLines()
-            exp = Example.parse(lines.next(), instanceOption.getValue, "dense")
-          }
-          exp
-        }
+        isInited = true
       }
     }
   }
@@ -97,15 +94,45 @@ class FileReader extends StreamReader {
    * @return an ExampleSpecification of the features
    */
   override def getExampleSpecification(): ExampleSpecification = {
-
-    //Prepare specification of class attributes
-    val outputIS = new InstanceSpecification()
-    val classFeature = new NominalFeatureSpecification(Array("+", "-"))
-    outputIS.setFeatureSpecification(0, classFeature)
-    outputIS.setName(0, "class")
-
-    new ExampleSpecification(new InstanceSpecification(),
-      outputIS)
+    init()
+    SpecificationHead.getSpecification(if (hasHeadFile) headFileName else fileName, dataHeadTypeOption.getValue)
+  }
+  /**
+   * Get one Exmaple from file
+   *
+   * @return an Exmaple
+   */
+  def getExampleFromFile(): Example = {
+    var exp: Example = null
+    if (lines == null) {
+      lines = Source.fromFile(fileName).getLines()
+    }
+    // if reach the end of file, will go to the head again
+    if (!lines.hasNext) {
+      lines = Source.fromFile(fileName).getLines()
+    }
+    var line = lines.next()
+    while (!hasHeadFile && (line.startsWith(" ") || line.startsWith("%") || line.startsWith("@"))) {
+      line = lines.next()
+    }
+    if (!hasHeadFile) {
+      //if it doesn't have a head file, it means the data in other format
+      line = dataHeadTypeOption.getValue() match {
+        case "arff" => {
+          val index: Int = line.lastIndexOf(",")
+          line.substring(index + 1) + " " + line.substring(0, index)
+        }
+        case "csv" => {
+          // we assume the first column is the label
+          val index: Int = line.indexOf(",")
+          line.substring(0, index) + " " + line.substring(index + 1)
+        }
+        // other formats are not supported yet, may throw exception
+        case _ => line
+      }
+    }
+    exp = Example.parse(line, instanceOption.getValue, "dense")
+    exp
   }
 
   /**
@@ -115,6 +142,20 @@ class FileReader extends StreamReader {
    * @return a stream of Examples
    */
   override def getExamples(ssc: StreamingContext): DStream[Example] = {
-    read(ssc)
+    init()
+    new InputDStream[Example](ssc) {
+      override def start(): Unit = {}
+
+      override def stop(): Unit = {}
+
+      override def compute(validTime: Time): Option[RDD[Example]] = {
+        val examples: Array[Example] = Array.fill[Example](chunkSizeOption.getValue)(getExampleFromFile())
+        Some(ssc.sparkContext.parallelize(examples))
+      }
+
+      override def slideDuration = {
+        new Duration(slideDurationOption.getValue)
+      }
+    }
   }
 }

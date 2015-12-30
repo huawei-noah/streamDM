@@ -14,12 +14,9 @@
  * limitations under the License.
  *
  */
-package org.apache.spark.streamdm.core.specification
 
-//import org.apache.spark.streamdm.core.FeatureSpecification
-//import org.apache.spark.streamdm.core.InstanceSpecification
-//import org.apache.spark.streamdm.core.FeatureSpecification
-//import org.apache.spark.streamdm.core.InstanceSpecification
+
+package org.apache.spark.streamdm.core.specification
 
 /**
  * An ExampleSpecification contains information about the input and output
