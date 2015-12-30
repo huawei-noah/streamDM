@@ -30,39 +30,58 @@ class InstanceSpecification extends Serializable {
   val featureNameMap = Map[Int, String]()
   val numericFeatureSpecification: NumericFeatureSpecification = new NumericFeatureSpecification
 
-  /** Gets the FeatureSpecification value present at position index
-    *
-    * @param index the index of the position
-    * @return a FeatureSpecification representing the specification for the
-    * feature
-    */
+  /**
+   * Gets the FeatureSpecification value present at position index
+   *
+   * @param index the index of the position
+   * @return a FeatureSpecification representing the specification for the
+   * feature
+   */
   def apply(index: Int): FeatureSpecification = {
     if (nominalFeatureSpecificationMap.contains(index))
       nominalFeatureSpecificationMap(index)
     else numericFeatureSpecification
   }
 
-  /** Adds a specification for the instance feature
-    *
-    * @param index the index at which the value is added
-    * @param input the feature specification which is added up
-    */
-  def setFeatureSpecification(index: Int, input: FeatureSpecification): Unit =
-    nominalFeatureSpecificationMap += (index -> input)
+  /**
+   * Removes the FeatureSpecification value present at position index
+   *
+   * @param index the index of the position
+   * @return Unit
+   */
+  def removeFeatureSpecification(index: Int): Unit = {
+    if (nominalFeatureSpecificationMap.contains(index))
+      nominalFeatureSpecificationMap.remove(index)
+    featureNameMap.remove(index)
+  }
 
-  /** Evaluates whether a feature is nominal or discrete
-    *
-    * @param index the index of the feature
-    * @return true if the feature is discrete
-    */
+  /**
+   * Adds a specification for the instance feature
+   *
+   * @param index the index at which the value is added
+   * @param input the feature specification which is added up
+   */
+  def addFeatureSpecification(index: Int, name: String, fSpecification: FeatureSpecification = null): Unit = {
+    if (fSpecification != null && fSpecification.isInstanceOf[NominalFeatureSpecification]) {
+      nominalFeatureSpecificationMap += (index -> fSpecification)
+    }
+    featureNameMap += (index -> name)
+  }
+  /**
+   * Evaluates whether a feature is nominal or discrete
+   *
+   * @param index the index of the feature
+   * @return true if the feature is discrete
+   */
   def isNominal(index: Int): Boolean =
     this(index).isNominal()
 
-  /** Evaluates whether a feature is numeric
-    *
-    * @param index the index of the feature
-    * @return true if the feature is numeric
-    */
+  /**
+   * Evaluates whether a feature is numeric
+   *
+   * @param index the index of the feature
+   * @return true if the feature is numeric
+   */
   def isNumeric(index: Int): Boolean =
     !isNominal(index)
 
@@ -73,15 +92,6 @@ class InstanceSpecification extends Serializable {
    * @return a string representing the name of the feature
    */
   def name(index: Int): String = featureNameMap(index)
-
-  /**
-   * Adds a name for the instance feature
-   *
-   * @param index the index at which the value is added
-   * @param input the feature name which is added up
-   */
-  def setName(index: Int, input: String): Unit =
-    featureNameMap += (index -> input)
 
   /**
    * Gets the number of features
