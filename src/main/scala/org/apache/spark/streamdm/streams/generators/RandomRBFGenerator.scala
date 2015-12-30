@@ -161,12 +161,12 @@ class RandomRBFGenerator extends Generator {
     //Prepare specification of class attributes
     val outputIS = new InstanceSpecification()
     val classFeature = new NominalFeatureSpecification(Array("+", "-"))
-    outputIS.setFeatureSpecification(0, classFeature)
-    outputIS.setName(0, "class")
+    outputIS.addFeatureSpecification(0,"class", classFeature)
 
     //Prepare specification of input attributes
     val inputIS = new InstanceSpecification()
-    for (i <- 0 until numFeaturesOption.getValue) inputIS.setName(i, "NumericFeature" + i)
+    for (i <- 0 until numFeaturesOption.getValue)
+      inputIS.addFeatureSpecification(i, "NumericFeature" + i)
 
     new ExampleSpecification(inputIS, outputIS)
 

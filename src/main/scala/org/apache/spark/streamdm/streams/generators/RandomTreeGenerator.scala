@@ -144,20 +144,18 @@ class RandomTreeGenerator extends Generator {
     //Prepare specification of class feature
     val outputIS = new InstanceSpecification()
     val classFeature = new NominalFeatureSpecification(Array("+", "-"))
-    outputIS.setFeatureSpecification(0, classFeature)
-    outputIS.setName(0, "class")
+    outputIS.addFeatureSpecification(0, "class", classFeature)
 
     //Prepare specification of input Nominal features for 
     val inputIS = new InstanceSpecification()
     val nominal = new NominalFeatureSpecification(Array.range(0,
-        numValsPerNominalOption.getValue).map { _.toString() })
+      numValsPerNominalOption.getValue).map { _.toString() })
     for (i <- 0 until numNominalsOption.getValue) {
-      inputIS.setFeatureSpecification(i, nominal)
-      inputIS.setName(i, "NominalFeature" + i)
+      inputIS.addFeatureSpecification(i, "NominalFeature" + i, nominal)
     }
 
     for (i <- numNominalsOption.getValue until numNominalsOption.getValue + numNumericsOption.getValue) {
-      inputIS.setName(i, "NumericFeature" + i)
+      inputIS.addFeatureSpecification(i, "NumericFeature" + i)
     }
 
     new ExampleSpecification(inputIS, outputIS)
@@ -170,11 +168,11 @@ class RandomTreeGenerator extends Generator {
       minNumericVals, maxNumericVals);
   }
 
-  def generateRandomTreeNode(currentDepth: Int, nominalFeatureCandidates: List[Int], 
-        minNumericVals: Array[Double], maxNumericVals: Array[Double]): Node = {
+  def generateRandomTreeNode(currentDepth: Int, nominalFeatureCandidates: List[Int],
+    minNumericVals: Array[Double], maxNumericVals: Array[Double]): Node = {
     if ((currentDepth >= this.maxTreeDepthOption.getValue())
       || ((currentDepth >= this.firstLeafLevelOption.getValue()) &&
-          (this.leafFractionOption.getValue() >= (1.0 - Random.nextDouble())))) {
+        (this.leafFractionOption.getValue() >= (1.0 - Random.nextDouble())))) {
       val label = Random.nextInt(this.numClassesOption.getValue())
       new LeafNode(label)
     } else {
@@ -214,8 +212,8 @@ class RandomTreeGenerator extends Generator {
 
 sealed abstract class Node
 
-case class BranchNode(val fIndex: Int, numChild: Int, val fValue: Double = 0) 
-extends Node with Serializable {
+case class BranchNode(val fIndex: Int, numChild: Int, val fValue: Double = 0)
+    extends Node with Serializable {
   val children = if (numChild <= 0) null else new Array[Node](numChild)
 }
 

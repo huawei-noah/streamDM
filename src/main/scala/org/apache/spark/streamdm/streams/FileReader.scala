@@ -17,8 +17,8 @@
 
 package org.apache.spark.streamdm.streams
 
-import java.io._
-import scala.io._
+import java.io.File
+import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
