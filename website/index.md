@@ -33,7 +33,7 @@ internally as a sequence of RDDs.
 
 ### <a name="methods"></a>Included Methods
 
-In this first pre-release of StreamDM, we have implemented:
+In this first release of StreamDM, we have implemented:
 
 * [SGD Learner](docs/SGD.html) and [Perceptron](docs/SGD.html#perceptron)
 * [Naive Bayes](docs/NB.html)
@@ -42,10 +42,22 @@ In this first pre-release of StreamDM, we have implemented:
 * [Bagging](docs/Bagging.html)
 * [Stream KM++](docs/StreamKM.html)
 
-In the next releases we plan to add: 
+We have implemented following [data generators](docs/generators.html):
 
-* Random Forests
-* Frequent Itemset Miner: IncMine
+* HyperplaneGenerator
+* RandomTreeGenerator
+* RandomRBFGenerator
+* RandomRBFEventsGenerator
+
+We have also implemented [SampleDataWriter](docs/SampleDataWriter.html), which can call data generators 
+to create sample data for simulation or test.
+
+In the next releases we plan to add:
+
+* Classification: Random Forests
+* Regression: Hoeffding Regression Tree, Bagging, Random Forests
+* Clustering: Clustree, DenStream
+* Frequent Itemset Miner: IncMine, IncSecMine
 
 ## Going Further
 
