@@ -18,12 +18,13 @@
 package org.apache.spark.streamdm.core.specification
 
 import scala.io.Source
+import org.apache.spark.Logging
 import org.apache.spark.streamdm.classifiers.trees.Utils.{ arraytoString }
 
 /*
- * object SpecificationHead helps to generate head for data
+ * class SpecificationParser helps to generate head for data
  */
-object SpecificationParser {
+class SpecificationParser extends Logging {
 
   /*
    * Get string head from ExampleSpecification by head type, which will be saved to head file.
@@ -63,7 +64,7 @@ object SpecificationParser {
     sb.append("@relation sample-data\n")
     val inputIS = spec.in
     val outputIs = spec.out
-    val atr = "@attribute "
+    val atr = "@attribute"
     val nu = "numeric"
     // add arff attributes of input
     for (index <- 0 until inputIS.size()) {
@@ -74,10 +75,10 @@ object SpecificationParser {
         case numeric: NumericFeatureSpecification => { nu }
         case nominal: NominalFeatureSpecification => { arraytoString(nominal.values) }
       }
-      sb.append(atr + featureName + " " + line + "\n")
+      sb.append(atr + " " + featureName + " " + line + "\n")
     }
     // add arff attributes of outnput
-    sb.append(atr + outputIs.name(0) + " " +
+    sb.append(atr + " " + outputIs.name(0) + " " +
       arraytoString(outputIs(0).asInstanceOf[NominalFeatureSpecification].values))
     sb.toString()
   }
@@ -86,7 +87,7 @@ object SpecificationParser {
     val lines = Source.fromFile(fileName).getLines()
     var line: String = lines.next()
     while (line == null || line.length() == 0 || line.startsWith(" ") ||
-      line.startsWith("%")) {
+      line.startsWith("%") || "@relation".equalsIgnoreCase(line.substring(0, 9))) {
       line = lines.next()
     }
     var finished: Boolean = false
@@ -97,7 +98,8 @@ object SpecificationParser {
       if ("@data".equalsIgnoreCase(line.substring(0, 5))) {
         finished = true
       } else if ("@attribute".equalsIgnoreCase(line.substring(0, 10))) {
-        val featureInfos: Array[String] = line.split(" ")
+
+        val featureInfos: Array[String] = line.split("\\s+")
         val name: String = featureInfos(1)
         if (!isArffNumeric(featureInfos(2))) {
           val fSpecification = new NominalFeatureSpecification(
@@ -123,7 +125,7 @@ object SpecificationParser {
   def isArffNumeric(t: String): Boolean = {
     if ("numeric".equalsIgnoreCase(t)) true
     else if ("integer".equalsIgnoreCase(t)) true
-    else if ("treal".equalsIgnoreCase(t)) true
+    else if ("real".equalsIgnoreCase(t)) true
     else false
   }
 
