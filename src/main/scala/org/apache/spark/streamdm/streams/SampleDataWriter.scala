@@ -49,6 +49,8 @@ class FileWriter extends Configurable with Serializable {
   val generatorOption: ClassOption = new ClassOption("generator", 'g',
     "generator to use", classOf[Generator], "RandomRBFGenerator")
 
+  val headParser = new SpecificationParser
+
   var generator: Generator = null
 
   var headType: String = "arff"
@@ -91,7 +93,7 @@ class FileWriter extends Configurable with Serializable {
     //   val writerArrf = new PrintWriter(fileArrf)
     try {
       //write to head file
-      val head = SpecificationParser.getHead(generator.getExampleSpecification(), headType)
+      val head = headParser.getHead(generator.getExampleSpecification(), headType)
       headWriter.write(head)
       //write to data file
       for (i <- 0 until chunkNumber) {
@@ -102,23 +104,13 @@ class FileWriter extends Configurable with Serializable {
         for (i <- 0 until length) {
           str = examples(i).toString()
           writer.append(str + "\n")
-          //        val tokens = str.split("\\s+")
-          //        val length = tokens.length
-          //        if (length == 1) writerArrf.append(str + "\n")
-          //        else {
-          //          val strArrf = tokens.tail.mkString(",") + "," + tokens.head
-          //          writerArrf.append(strArrf + "\n")
-          //        }
           writer.flush()
-          //       writerArrf.flush()
         }
       }
     } finally {
       headWriter.close()
       writer.close()
     }
-    //    writerArrf.close()
-    //    }
   }
 
   /**

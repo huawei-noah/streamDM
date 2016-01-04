@@ -63,6 +63,8 @@ class FileReader extends StreamReader with Logging {
 
   val dataHeadTypeOption: StringOption = new StringOption("dataHeadType", 'h',
     "Data Head Format", "arff")
+
+  val headParser = new SpecificationParser
   var fileName: String = null
   var headFileName: String = null
   var isInited: Boolean = false
@@ -85,9 +87,10 @@ class FileReader extends StreamReader with Logging {
         // has a head file 
         hasHeadFile = true
       }
-      spec = SpecificationParser.getSpecification(
+      spec = headParser.getSpecification(
         if (hasHeadFile) headFileName else fileName, dataHeadTypeOption.getValue)
-      logInfo(SpecificationParser.getHead(spec))
+      logInfo("IN:" + spec.in.size() + ",OUT:" + spec.out.size())
+      logInfo(headParser.getHead(spec))
       isInited = true
     }
   }
@@ -101,6 +104,15 @@ class FileReader extends StreamReader with Logging {
     init()
     spec
   }
+  /**
+   * Parse string to Example
+   *
+   */
+  def parse(line: String): Example = {
+    //todo
+    null
+  }
+
   /**
    * Get one Exmaple from file
    *
@@ -116,14 +128,18 @@ class FileReader extends StreamReader with Logging {
       lines = Source.fromFile(fileName).getLines()
     }
     var line = lines.next()
-    while (!hasHeadFile && (line.startsWith(" ") || line.startsWith("%") || line.startsWith("@"))) {
+    while (!hasHeadFile && (line == "" || line.startsWith(" ") ||
+      line.startsWith("%") || line.startsWith("@"))) {
+      logInfo(line)
       line = lines.next()
     }
     if (!hasHeadFile) {
+      logInfo(line)
       //if it doesn't have a head file, it means the data in other format
       line = dataHeadTypeOption.getValue() match {
         case "arff" => {
           val index: Int = line.lastIndexOf(",")
+          logInfo("lastIndexOf():" + index)
           line.substring(index + 1) + " " + line.substring(0, index)
         }
         case "csv" => {
