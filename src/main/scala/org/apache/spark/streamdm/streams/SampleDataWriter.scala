@@ -91,7 +91,7 @@ class FileWriter extends Configurable with Serializable {
     //   val writerArrf = new PrintWriter(fileArrf)
     try {
       //write to head file
-      val head = SpecificationHead.getHead(generator.getExampleSpecification(), headType)
+      val head = SpecificationParser.getHead(generator.getExampleSpecification(), headType)
       headWriter.write(head)
       //write to data file
       for (i <- 0 until chunkNumber) {

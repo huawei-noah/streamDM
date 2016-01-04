@@ -85,8 +85,9 @@ class FileReader extends StreamReader with Logging {
         // has a head file 
         hasHeadFile = true
       }
-      spec = SpecificationHead.getSpecification(
+      spec = SpecificationParser.getSpecification(
         if (hasHeadFile) headFileName else fileName, dataHeadTypeOption.getValue)
+      logInfo(SpecificationParser.getHead(spec))
       isInited = true
     }
   }

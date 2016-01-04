@@ -23,7 +23,7 @@ import org.apache.spark.streamdm.classifiers.trees.Utils.{ arraytoString }
 /*
  * object SpecificationHead helps to generate head for data
  */
-object SpecificationHead {
+object SpecificationParser {
 
   /*
    * Get string head from ExampleSpecification by head type, which will be saved to head file.
@@ -33,10 +33,13 @@ object SpecificationHead {
    * @return string of head
    * 
    */
-  def getHead(spec: ExampleSpecification, t: String = "arff"): String = t match {
-    case "arff" => toArff(spec)
-    case "csv" => toCsv(spec)
-    case _ => toArff(spec)
+  def getHead(spec: ExampleSpecification, t: String = "arff"): String = {
+    if (t.equalsIgnoreCase("arff"))
+      toArff(spec)
+    else if (t.equalsIgnoreCase("csv"))
+      toCsv(spec)
+    else
+      toArff(spec)
   }
 
   /*
@@ -47,10 +50,12 @@ object SpecificationHead {
    * @return ExampleSpecification of data
    * 
    */
-  def getSpecification(fileName: String, t: String = "arff"): ExampleSpecification = t match {
-    case "arff" => fromArff(fileName)
-    case "csv" => fromCsv(fileName)
-    case _ => fromArff(fileName)
+  def getSpecification(fileName: String, t: String = "arff"): ExampleSpecification = {
+    if (t.equalsIgnoreCase("arff"))
+      fromArff(fileName)
+    else if (t.equalsIgnoreCase("csv"))
+      fromCsv(fileName)
+    else fromArff(fileName)
   }
 
   def toArff(spec: ExampleSpecification): String = {
@@ -89,12 +94,12 @@ object SpecificationHead {
     val inputIS = new InstanceSpecification()
     val outputIS = new InstanceSpecification()
     while (!finished && line.startsWith("@")) {
-      if (line.startsWith("@data")) {
+      if ("@data".equalsIgnoreCase(line.substring(0, 5))) {
         finished = true
-      } else if (line.startsWith("@attribute")) {
+      } else if ("@attribute".equalsIgnoreCase(line.substring(0, 10))) {
         val featureInfos: Array[String] = line.split(" ")
         val name: String = featureInfos(1)
-        if (!featureInfos(2).equals("numeric")) {
+        if (!isArffNumeric(featureInfos(2))) {
           val fSpecification = new NominalFeatureSpecification(
             featureInfos(2).substring(0, featureInfos(2).length - 1).split(","))
           inputIS.addFeatureSpecification(index, "Norminal" + index, fSpecification)
@@ -113,6 +118,13 @@ object SpecificationHead {
     inputIS.removeFeatureSpecification(index - 1)
     new ExampleSpecification(inputIS, outputIS)
 
+  }
+
+  def isArffNumeric(t: String): Boolean = {
+    if ("numeric".equalsIgnoreCase(t)) true
+    else if ("integer".equalsIgnoreCase(t)) true
+    else if ("treal".equalsIgnoreCase(t)) true
+    else false
   }
 
   def toCsv(spec: ExampleSpecification): String = {
