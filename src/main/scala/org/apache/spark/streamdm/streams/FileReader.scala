@@ -22,16 +22,17 @@ import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
+import org.apache.spark.Logging
+import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.{ DStream, InputDStream }
 import org.apache.spark.streaming.{ Time, Duration, StreamingContext }
-import org.apache.spark.rdd.RDD
 
 import com.github.javacliparser.{ IntOption, FloatOption, StringOption, FileOption }
 
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.streams.generators.Generator
-//import org.apache.spark.streamdm.core.specification.ExampleSpecification
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * FileReader is used to read data from one file of full data to simulate a stream data.
@@ -46,7 +47,7 @@ import org.apache.spark.streamdm.streams.generators.Generator
  * </ul>
  */
 
-class FileReader extends StreamReader {
+class FileReader extends StreamReader with Logging {
 
   val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
     "Chunk Size", 10000, 1, Integer.MAX_VALUE)
@@ -67,24 +68,26 @@ class FileReader extends StreamReader {
   var isInited: Boolean = false
   var hasHeadFile: Boolean = false
   var lines: Iterator[String] = null
+  var spec: ExampleSpecification = null
 
   def init() {
     if (!isInited) {
-      try {
-        fileName = fileNameOption.getValue
-        val file = new File(fileName)
-        if (!file.exists()) {
-          println("file does not exists, input a new file name")
-          exit()
-        }
-        headFileName = fileNameOption.getValue() + "." + dataHeadTypeOption.getValue + ".head"
-        val hfile: File = new File(headFileName)
-        if (hfile.exists()) {
-          // has a head file 
-          hasHeadFile = true
-        }
-        isInited = true
+      fileName = fileNameOption.getValue
+      val file = new File(fileName)
+      if (!file.exists()) {
+        logError("file does not exists, input a new file name")
+        exit()
       }
+      headFileName = fileNameOption.getValue() + "." +
+        dataHeadTypeOption.getValue + ".head"
+      val hfile: File = new File(headFileName)
+      if (hfile.exists()) {
+        // has a head file 
+        hasHeadFile = true
+      }
+      spec = SpecificationHead.getSpecification(
+        if (hasHeadFile) headFileName else fileName, dataHeadTypeOption.getValue)
+      isInited = true
     }
   }
 
@@ -95,7 +98,7 @@ class FileReader extends StreamReader {
    */
   override def getExampleSpecification(): ExampleSpecification = {
     init()
-    SpecificationHead.getSpecification(if (hasHeadFile) headFileName else fileName, dataHeadTypeOption.getValue)
+    spec
   }
   /**
    * Get one Exmaple from file
