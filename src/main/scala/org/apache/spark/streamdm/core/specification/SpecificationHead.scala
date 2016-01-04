@@ -33,7 +33,7 @@ object SpecificationHead {
    * @return string of head
    * 
    */
-  def getHead(spec: ExampleSpecification, t: String): String = t match {
+  def getHead(spec: ExampleSpecification, t: String = "arff"): String = t match {
     case "arff" => toArff(spec)
     case "csv" => toCsv(spec)
     case _ => toArff(spec)
@@ -47,7 +47,7 @@ object SpecificationHead {
    * @return ExampleSpecification of data
    * 
    */
-  def getSpecification(fileName: String, t: String): ExampleSpecification = t match {
+  def getSpecification(fileName: String, t: String = "arff"): ExampleSpecification = t match {
     case "arff" => fromArff(fileName)
     case "csv" => fromCsv(fileName)
     case _ => fromArff(fileName)
@@ -90,9 +90,6 @@ object SpecificationHead {
     val outputIS = new InstanceSpecification()
     while (!finished && line.startsWith("@")) {
       if (line.startsWith("@data")) {
-        val fSpecification: FeatureSpecification = inputIS(index - 1)
-        outputIS.addFeatureSpecification(0, "class", fSpecification)
-        inputIS.removeFeatureSpecification(index - 1)
         finished = true
       } else if (line.startsWith("@attribute")) {
         val featureInfos: Array[String] = line.split(" ")
@@ -104,11 +101,16 @@ object SpecificationHead {
         } else {
           inputIS.addFeatureSpecification(index, "Numeric" + index)
         }
-
+        index += 1
       }
-      index += 1
+      if (lines.hasNext)
+        line = lines.next()
+      else
+        finished = true
     }
-
+    val fSpecification: FeatureSpecification = inputIS(index - 1)
+    outputIS.addFeatureSpecification(0, "class", fSpecification)
+    inputIS.removeFeatureSpecification(index - 1)
     new ExampleSpecification(inputIS, outputIS)
 
   }
