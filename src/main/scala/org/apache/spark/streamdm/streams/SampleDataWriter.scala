@@ -16,11 +16,13 @@
  */
 package org.apache.spark.streamdm.streams
 
-import com.github.javacliparser.{ IntOption, StringOption, ClassOption }
-import org.apache.spark.streamdm.streams.generators._
-import org.apache.spark.streamdm.core._
-import com.github.javacliparser.Configurable
 import java.io._
+
+import com.github.javacliparser.{ Configurable, IntOption, StringOption, ClassOption }
+import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
+import org.apache.spark.streamdm.streams.generators._
+
 /**
  * FileWriter use generator to generate data and save to file or HDFS for simulation or test.
  *
@@ -81,37 +83,41 @@ class FileWriter extends Configurable with Serializable {
    * @return Unit
    */
   private def writeToFile(fileName: String, chunkNumber: Int): Unit = {
-    val file: File = new File(fileName + ".txt")
-    val fileArrf: File = new File(fileName + ".arrf")
-    //    println(file)
-    //    println(fileArrf)
-    //    if (file.exists() || fileArrf.exists()) {
-    //      println("out put file exists, input a new file name")
-    //      exit()
-    //    } else {
+
+    val headFile: File = new File(fileName + "." + headType + ".head")
+    val headWriter = new PrintWriter(headFile)
+    val file: File = new File(fileName)
     val writer = new PrintWriter(file)
-    val writerArrf = new PrintWriter(fileArrf)
-    for (i <- 0 until chunkNumber) {
-      //println(i)
-      val examples: Array[Example] = generator.getExamples()
-      val length: Int = examples.length
-      var str: String = new String
-      for (i <- 0 until length) {
-        str = examples(i).toString()
-        writer.append(str + "\n")
-        val tokens = str.split("\\s+")
-        val length = tokens.length
-        if (length == 1) writerArrf.append(str + "\n")
-        else {
-          val strArrf = tokens.tail.mkString(",") + "," + tokens.head
-          writerArrf.append(strArrf + "\n")
+    //   val writerArrf = new PrintWriter(fileArrf)
+    try {
+      //write to head file
+      val head = SpecificationHead.getHead(generator.getExampleSpecification(), headType)
+      headWriter.write(head)
+      //write to data file
+      for (i <- 0 until chunkNumber) {
+        //println(i)
+        val examples: Array[Example] = generator.getExamples()
+        val length: Int = examples.length
+        var str: String = new String
+        for (i <- 0 until length) {
+          str = examples(i).toString()
+          writer.append(str + "\n")
+          //        val tokens = str.split("\\s+")
+          //        val length = tokens.length
+          //        if (length == 1) writerArrf.append(str + "\n")
+          //        else {
+          //          val strArrf = tokens.tail.mkString(",") + "," + tokens.head
+          //          writerArrf.append(strArrf + "\n")
+          //        }
+          writer.flush()
+          //       writerArrf.flush()
         }
-        writer.flush()
-        writerArrf.flush()
       }
+    } finally {
+      headWriter.close()
+      writer.close()
     }
-    writer.close()
-    writerArrf.close()
+    //    writerArrf.close()
     //    }
   }
 
