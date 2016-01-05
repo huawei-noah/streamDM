@@ -104,14 +104,6 @@ class FileReader extends StreamReader with Logging {
     init()
     spec
   }
-  /**
-   * Parse string to Example
-   *
-   */
-  def parse(line: String): Example = {
-    //todo
-    null
-  }
 
   /**
    * Get one Exmaple from file
@@ -135,23 +127,19 @@ class FileReader extends StreamReader with Logging {
     }
     if (!hasHeadFile) {
       logInfo(line)
-      //if it doesn't have a head file, it means the data in other format
-      line = dataHeadTypeOption.getValue() match {
-        case "arff" => {
-          val index: Int = line.lastIndexOf(",")
-          logInfo("lastIndexOf():" + index)
-          line.substring(index + 1) + " " + line.substring(0, index)
-        }
-        case "csv" => {
-          // we assume the first column is the label
+      if ("arff".equalsIgnoreCase(dataHeadTypeOption.getValue())) {
+        exp = ExampleParser.fromArff(line, spec)
+      } else {
+        if ("csv".equalsIgnoreCase(dataHeadTypeOption.getValue())) {
+          //for the csv format, we assume the first is the classification
           val index: Int = line.indexOf(",")
-          line.substring(0, index) + " " + line.substring(index + 1)
+          line = line.substring(0, index) + " " + line.substring(index + 1)
+          exp = Example.parse(line, instanceOption.getValue, "dense")
         }
-        // other formats are not supported yet, may throw exception
-        case _ => line
       }
+    } else {
+      exp = Example.parse(line, instanceOption.getValue, "dense")
     }
-    exp = Example.parse(line, instanceOption.getValue, "dense")
     exp
   }
 
