@@ -17,15 +17,18 @@
 package org.apache.spark.streamdm.streams.generators
 
 import scala.collection.immutable.List
-import com.github.javacliparser.{ IntOption, FloatOption }
+import scala.util.Random
+
+import org.apache.spark.Logging
 import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.{ Duration, Time, StreamingContext }
+import org.apache.spark.streaming.dstream.{ InputDStream, DStream }
+
+import com.github.javacliparser.{ IntOption, FloatOption }
+
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.streams.StreamReader
-import org.apache.spark.streaming.{ Duration, Time, StreamingContext }
-import org.apache.spark.streaming.dstream.{ InputDStream, DStream }
-import scala.util.Random
-import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * Stream generator for generating data from a randomly generated tree.
@@ -45,7 +48,7 @@ import org.apache.spark.streamdm.core.specification.ExampleSpecification
  * </ul>
  */
 
-class RandomTreeGenerator extends Generator {
+class RandomTreeGenerator extends Generator with Logging {
 
   val chunkSizeOption: IntOption = new IntOption("chunkSize", 'k',
     "Chunk Size", 1000, 1, Integer.MAX_VALUE)
@@ -143,7 +146,21 @@ class RandomTreeGenerator extends Generator {
 
     //Prepare specification of class feature
     val outputIS = new InstanceSpecification()
-    val classFeature = new NominalFeatureSpecification(Array("+", "-"))
+    val classvalues: Array[String] = new Array[String](numClassesOption.getValue())
+
+    if (numClassesOption.getValue() == 2) {
+      classvalues(0) = "false"
+      classvalues(1) = "true"
+    } else {
+      for (index <- 0 until classvalues.length) {
+        classvalues(index) = "C" + index
+      }
+    }
+    for (i <- 0 until numClassesOption.getValue) {
+      logInfo(classvalues(i))
+    }
+
+    val classFeature = new NominalFeatureSpecification(classvalues)
     outputIS.addFeatureSpecification(0, "class", classFeature)
 
     //Prepare specification of input Nominal features for 

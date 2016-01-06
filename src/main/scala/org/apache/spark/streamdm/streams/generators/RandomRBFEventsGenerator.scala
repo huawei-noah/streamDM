@@ -761,7 +761,7 @@ class RandomRBFEventsGenerator extends Generator {
   override def getExampleSpecification(): ExampleSpecification = {
     //Prepare specification of class attributes
     val outputIS = new InstanceSpecification()
-    val classFeature = new NominalFeatureSpecification(Array("+", "-"))
+    val classFeature = new NominalFeatureSpecification(Array("false", "true"))
     outputIS.addFeatureSpecification(0, "class", classFeature)
     //Prepare specification of input attributes
     val inputIS = new InstanceSpecification()
