@@ -75,7 +75,7 @@ class NominalFeatureSpecification(nominalValues: Array[String]) extends FeatureS
 
   val nominalToNumericMap = Map[String,Int]()
   values.zipWithIndex.map{ case (element, index) => 
-                            (nominalToNumericMap += (element -> (index+1))) }
+                            (nominalToNumericMap += (element -> (index))) }
 
   /** Get the nominal string value present at position index
     *

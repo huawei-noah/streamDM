@@ -17,12 +17,13 @@
 
 package org.apache.spark.streamdm.core
 
+import org.apache.spark.Logging
 import org.apache.spark.streamdm.core.specification._
 
 /*
  * object ExampleParser helps to parse example from/to different data format.
  */
-object ExampleParser {
+object ExampleParser extends Logging {
 
   /*
    * create Example from arff format string
@@ -44,17 +45,17 @@ object ExampleParser {
       output = input.substring(pos + 1).trim()
       input = input.substring(0, pos)
     }
-    new Example(arffToInstace(input, spec, isSparse), arffToInstace(output, spec, isSparse))
+    new Example(arffToInstace(input, spec.in, isSparse), arffToInstace(output, spec.out, isSparse))
   }
 
   /*
    * create Instance from arff format string
    * 
    * @param e arff format string
-   * @spec ExampleSpecification
+   * @spec InstanceSpecification
    * @return Instance
    */
-  private def arffToInstace(data: String, spec: ExampleSpecification, isSparse: Boolean): Instance = {
+  private def arffToInstace(data: String, spec: InstanceSpecification, isSparse: Boolean): Instance = {
     if (data == null || data.length() == 0) null
     else {
       if (isSparse)
@@ -68,17 +69,17 @@ object ExampleParser {
    * create SparseInstance from arff format string
    * 
    * @param e arff format string
-   * @spec ExampleSpecification
+   * @spec InstanceSpecification
    * @return SparseInstance
    */
-  private def arffToSparceInstace(data: String, spec: ExampleSpecification): SparseInstance = {
-    val tokens = data.split(",[\\s]")
+  private def arffToSparceInstace(data: String, spec: InstanceSpecification): SparseInstance = {
+    val tokens = data.split(",[\\s]?")
     val values = Array[Double](tokens.length)
     val features = tokens.map(_.split("\\s+"))
     for (index <- 0 until tokens.length) {
-      values(index) = spec.outputFeatureSpecification(index) match {
-        case nominal: NominalFeatureSpecification => nominal(features(1)(index))
-        case _ => features(1)(index).toDouble
+      values(index) = spec(index) match {
+        case nominal: NominalFeatureSpecification => nominal(features(index)(1))
+        case _ => features(index)(1).toDouble
       }
     }
     new SparseInstance(features.map(_(0).toInt), values)
@@ -88,14 +89,14 @@ object ExampleParser {
    * create DenseInstance from arff format string
    * 
    * @param e arff format string
-   * @spec ExampleSpecification
+   * @spec InstanceSpecification
    * @return DenseInstance
    */
-  private def arffToDenseInstace(data: String, spec: ExampleSpecification): DenseInstance = {
-    val stringValues = data.split(",[\\s]")
-    val values = Array[Double](stringValues.length)
+  private def arffToDenseInstace(data: String, spec: InstanceSpecification): DenseInstance = {
+    val stringValues = data.split(",[\\s]?")
+    val values = new Array[Double](stringValues.length)
     for (index <- 0 until stringValues.length) {
-      values(index) = spec.outputFeatureSpecification(index) match {
+      values(index) = spec(index) match {
         case nominal: NominalFeatureSpecification => nominal(stringValues(index))
         case _ => stringValues(index).toDouble
       }

@@ -24,7 +24,7 @@ import scala.collection.mutable.Queue
 import org.apache.spark.Logging
 import com.github.javacliparser._
 import org.apache.spark.streaming.dstream._
-import org.apache.spark.streamdm.utils.Utils.{ argmax}
+import org.apache.spark.streamdm.utils.Utils.{ argmax }
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.core.specification.ExampleSpecification
@@ -152,20 +152,20 @@ class HoeffdingTree extends Classifier {
 }
 
 class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverType: Int = 0,
-                         val splitCriterion: SplitCriterion = new InfoGainSplitCriterion(),
-                         var growthAllowed: Boolean = true, val binaryOnly: Boolean = true,
-                         val graceNum: Int = 200, val tieThreshold: Double = 0.05,
-                         val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
-                         val nbThreshold: Int = 0, val noPrePrune: Boolean = true,
-                         val removePoorFeatures: Boolean = false, val splitAll: Boolean = false)
-  extends Model with Serializable with Logging {
+  val splitCriterion: SplitCriterion = new InfoGainSplitCriterion(),
+  var growthAllowed: Boolean = true, val binaryOnly: Boolean = true,
+  val graceNum: Int = 200, val tieThreshold: Double = 0.05,
+  val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
+  val nbThreshold: Int = 0, val noPrePrune: Boolean = true,
+  val removePoorFeatures: Boolean = false, val splitAll: Boolean = false)
+    extends Model with Serializable with Logging {
 
   type T = HoeffdingTreeModel
 
   val numFeatures = espec.numberInputFeatures()
   val outputSpec = espec.outputFeatureSpecification(0)
   val numClasses = outputSpec.range()
-
+  logInfo("numClasses" + outputSpec.range())
   var activeNodeCount: Int = 0
   var inactiveNodeCount: Int = 0
   var deactiveNodeCount: Int = 0
@@ -330,7 +330,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
             case activeNode: ActiveLearningNode => {
               attemptToSplit(activeNode, foundNode.parent, foundNode.index)
             }
-            case other: Node=> {}
+            case other: Node => {}
           }
         }
       }

@@ -20,10 +20,12 @@ package org.apache.spark.streamdm.classifiers.trees
 import scala.collection.mutable.ArrayBuffer
 import scala.math.{ max }
 
+import org.apache.spark.Logging
+
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.classifiers.bayes._
-import org.apache.spark.streamdm.utils.Utils.{argmax}
+import org.apache.spark.streamdm.utils.Utils.{ argmax }
 
 /**
  * Abstract class containing the node information for the Hoeffding trees.
@@ -122,7 +124,7 @@ class FoundNode(val node: Node, val parent: SplitNode, val index: Int) extends S
  * Branch node of the Hoeffding tree.
  */
 class SplitNode(classDistribution: Array[Double], val conditionalTest: ConditionalTest)
-  extends Node(classDistribution) with Serializable {
+    extends Node(classDistribution) with Serializable {
 
   val children: ArrayBuffer[Node] = new ArrayBuffer[Node]()
 
@@ -226,7 +228,7 @@ class SplitNode(classDistribution: Array[Double], val conditionalTest: Condition
  * Learning node class type for Hoeffding trees.
  */
 abstract class LearningNode(classDistribution: Array[Double]) extends Node(classDistribution)
-  with Serializable {
+    with Serializable {
 
   /**
    * Learn and update the node
@@ -258,7 +260,7 @@ abstract class LearningNode(classDistribution: Array[Double]) extends Node(class
  * Basic majority class active learning node for Hoeffding tree
  */
 class ActiveLearningNode(classDistribution: Array[Double])
-  extends LearningNode(classDistribution) with Serializable {
+    extends LearningNode(classDistribution) with Serializable {
 
   var addonWeight: Double = 0
 
@@ -279,6 +281,9 @@ class ActiveLearningNode(classDistribution: Array[Double])
       that.instanceSpecification)
     this.addonWeight = that.addonWeight
   }
+  /**
+   * init featureObservers array
+   */
   def init(): Unit = {
     if (featureObservers == null) {
       featureObservers = new Array(instanceSpecification.size())
@@ -309,7 +314,7 @@ class ActiveLearningNode(classDistribution: Array[Double])
    * @param fIndex the index of the feature
    */
   def disableFeature(fIndex: Int): Unit = {
-
+    //not support yet
   }
 
   /**
@@ -385,7 +390,7 @@ class ActiveLearningNode(classDistribution: Array[Double])
  * Inactive learning node for Hoeffding trees
  */
 class InactiveLearningNode(classDistribution: Array[Double])
-  extends LearningNode(classDistribution) with Serializable {
+    extends LearningNode(classDistribution) with Serializable {
 
   def this(that: InactiveLearningNode) {
     this(Utils.addArrays(that.classDistribution, that.blockClassDistribution))
@@ -419,7 +424,7 @@ class InactiveLearningNode(classDistribution: Array[Double])
  * Naive Bayes based learning node.
  */
 class LearningNodeNB(classDistribution: Array[Double], instanceSpecification: InstanceSpecification)
-  extends ActiveLearningNode(classDistribution, instanceSpecification) with Serializable {
+    extends ActiveLearningNode(classDistribution, instanceSpecification) with Serializable {
 
   def this(that: LearningNodeNB) {
     this(Utils.addArrays(that.classDistribution, that.blockClassDistribution),
@@ -455,8 +460,8 @@ class LearningNodeNB(classDistribution: Array[Double], instanceSpecification: In
  */
 
 class LearningNodeNBAdaptive(classDistribution: Array[Double],
-                             instanceSpecification: InstanceSpecification)
-  extends ActiveLearningNode(classDistribution, instanceSpecification) with Serializable {
+  instanceSpecification: InstanceSpecification)
+    extends ActiveLearningNode(classDistribution, instanceSpecification) with Serializable {
 
   var mcCorrectWeight: Double = 0
   var nbCorrectWeight: Double = 0

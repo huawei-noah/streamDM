@@ -102,8 +102,12 @@ class SpecificationParser extends Logging {
         val featureInfos: Array[String] = line.split("\\s+")
         val name: String = featureInfos(1)
         if (!isArffNumeric(featureInfos(2))) {
-          val fSpecification = new NominalFeatureSpecification(
-            featureInfos(2).substring(0, featureInfos(2).length - 1).split(","))
+          val featurevalues: Array[String] = featureInfos(2).substring(
+            featureInfos(2).indexOf("{") + 1, featureInfos(2).indexOf("}")).
+            trim().split(",[\\s]?")
+
+          val fSpecification = new NominalFeatureSpecification(featurevalues)
+
           inputIS.addFeatureSpecification(index, "Norminal" + index, fSpecification)
         } else {
           inputIS.addFeatureSpecification(index, "Numeric" + index)
