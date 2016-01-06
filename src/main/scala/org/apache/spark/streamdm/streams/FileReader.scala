@@ -32,7 +32,7 @@ import com.github.javacliparser.{ IntOption, FloatOption, StringOption, FileOpti
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.streams.generators.Generator
-import org.apache.spark.streamdm.core.specification.ExampleSpecification
+import org.apache.spark.streamdm.core.specification._
 
 /**
  * FileReader is used to read data from one file of full data to simulate a stream data.
@@ -89,8 +89,16 @@ class FileReader extends StreamReader with Logging {
       }
       spec = headParser.getSpecification(
         if (hasHeadFile) headFileName else fileName, dataHeadTypeOption.getValue)
-      logInfo("IN:" + spec.in.size() + ",OUT:" + spec.out.size())
-      logInfo(headParser.getHead(spec))
+      //      logInfo("IN:" + spec.in.size() + ",OUT:" + spec.out.size())
+      //      logInfo(headParser.getHead(spec))
+      //      for (index <- 0 until spec.in.size()) {
+      //        logInfo("" + spec.inputFeatureSpecification(index))
+      //      }
+      //      logInfo("CCC" + spec.out(0) + spec.out(0).range())
+      for (index <- 0 until spec.out(0).range()) {
+        logInfo(spec.out(0).asInstanceOf[NominalFeatureSpecification](index))
+      }
+
       isInited = true
     }
   }
@@ -112,7 +120,7 @@ class FileReader extends StreamReader with Logging {
    */
   def getExampleFromFile(): Example = {
     var exp: Example = null
-    if (lines == null) {
+    if (lines == null || !lines.hasNext) {
       lines = Source.fromFile(fileName).getLines()
     }
     // if reach the end of file, will go to the head again
@@ -122,18 +130,20 @@ class FileReader extends StreamReader with Logging {
     var line = lines.next()
     while (!hasHeadFile && (line == "" || line.startsWith(" ") ||
       line.startsWith("%") || line.startsWith("@"))) {
-      logInfo(line)
+      //logInfo(line)
+      if (!lines.hasNext)
+        lines = Source.fromFile(fileName).getLines()
       line = lines.next()
     }
     if (!hasHeadFile) {
-      logInfo(line)
+      //logInfo("UUUU" + line)
       if ("arff".equalsIgnoreCase(dataHeadTypeOption.getValue())) {
         exp = ExampleParser.fromArff(line, spec)
       } else {
         if ("csv".equalsIgnoreCase(dataHeadTypeOption.getValue())) {
           //for the csv format, we assume the first is the classification
           val index: Int = line.indexOf(",")
-          line = line.substring(0, index) + " " + line.substring(index + 1)
+          line = line.substring(0, index) + " " + line.substring(index + 1).trim()
           exp = Example.parse(line, instanceOption.getValue, "dense")
         }
       }
