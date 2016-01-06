@@ -1,0 +1,12 @@
+@relation sample-data
+@attribute NominalFeature0 {0,1,2,3,4}
+@attribute NominalFeature1 {0,1,2,3,4}
+@attribute NominalFeature2 {0,1,2,3,4}
+@attribute NominalFeature3 {0,1,2,3,4}
+@attribute NominalFeature4 {0,1,2,3,4}
+@attribute NumericFeature5 numeric
+@attribute NumericFeature6 numeric
+@attribute NumericFeature7 numeric
+@attribute NumericFeature8 numeric
+@attribute NumericFeature9 numeric
+@attribute class {false,true}
