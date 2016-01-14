@@ -57,7 +57,7 @@ The standard output will contain a confusion matrix aggregating the prediction
 results for every Spark RDD in the stream.
 
 Four [data generators](http://huawei-noah.github.io/streamDM/docs/generators.html) can generate sample data 
-using  [SampleDataWriter](http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html):
+by  [SampleDataWriter](http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html):
 
 * In the terminal, use the provided sample data generator script to generate sample data (after
   modifying the `SPARK_HOME` variable with the folder of your Spark installation
