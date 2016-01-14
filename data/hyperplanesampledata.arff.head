@@ -1,0 +1,12 @@
+@relation sample-data
+@attribute NumericFeature0 numeric
+@attribute NumericFeature1 numeric
+@attribute NumericFeature2 numeric
+@attribute NumericFeature3 numeric
+@attribute NumericFeature4 numeric
+@attribute NumericFeature5 numeric
+@attribute NumericFeature6 numeric
+@attribute NumericFeature7 numeric
+@attribute NumericFeature8 numeric
+@attribute NumericFeature9 numeric
+@attribute class {false,true}
