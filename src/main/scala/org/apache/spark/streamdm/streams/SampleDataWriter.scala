@@ -16,11 +16,13 @@
  */
 package org.apache.spark.streamdm.streams
 
-import com.github.javacliparser.{ IntOption, StringOption, ClassOption }
-import org.apache.spark.streamdm.streams.generators._
-import org.apache.spark.streamdm.core._
-import com.github.javacliparser.Configurable
 import java.io._
+
+import com.github.javacliparser.{ Configurable, IntOption, StringOption, ClassOption }
+import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
+import org.apache.spark.streamdm.streams.generators._
+
 /**
  * FileWriter use generator to generate data and save to file or HDFS for simulation or test.
  *
@@ -28,6 +30,7 @@ import java.io._
  * <ul>
  *  <li> Chunk number (<b>-n</b>)
  *  <li> File Name (<b>-f</b>)
+ *  <li> Data Head Type, default is "arff" (<b>-f</b>)
  *  <li> Generator (<b>-g</b>)
  * </ul>
  */
@@ -38,17 +41,25 @@ class FileWriter extends Configurable with Serializable {
     "Number of chunks to be generated", 10, 1, Integer.MAX_VALUE)
 
   val fileNameOption: StringOption = new StringOption("fileName", 'f',
-    "File Name", "./sampleDriftData")
+    "File Name", "./sampleData")
+
+  val dataHeadTypeOption: StringOption = new StringOption("dataHeadType", 'h',
+    "Data Head Format", "arff")
 
   val generatorOption: ClassOption = new ClassOption("generator", 'g',
     "generator to use", classOf[Generator], "RandomRBFGenerator")
 
+  val headParser = new SpecificationParser
+
   var generator: Generator = null
+
+  var headType: String = "arff"
   /**
    * writes sample data to file or HDFS file
    */
   def write(): Unit = {
     generator = generatorOption.getValue()
+    headType = dataHeadTypeOption.getValue()
     if (generator != null)
       write(fileNameOption.getValue, chunkNumberOption.getValue)
   }
@@ -74,16 +85,17 @@ class FileWriter extends Configurable with Serializable {
    * @return Unit
    */
   private def writeToFile(fileName: String, chunkNumber: Int): Unit = {
-    val file: File = new File(fileName + ".txt")
-    val fileArrf: File = new File(fileName + ".arrf")
-    println(file)
-    println(fileArrf)
-    if (file.exists() || fileArrf.exists()) {
-      println("out put file exists, input a new file name")
-      exit()
-    } else {
-      val writer = new PrintWriter(file)
-      val writerArrf = new PrintWriter(fileArrf)
+
+    val headFile: File = new File(fileName + "." + headType + ".head")
+    val headWriter = new PrintWriter(headFile)
+    val file: File = new File(fileName)
+    val writer = new PrintWriter(file)
+    //   val writerArrf = new PrintWriter(fileArrf)
+    try {
+      //write to head file
+      val head = headParser.getHead(generator.getExampleSpecification(), headType)
+      headWriter.write(head)
+      //write to data file
       for (i <- 0 until chunkNumber) {
         //println(i)
         val examples: Array[Example] = generator.getExamples()
@@ -92,19 +104,12 @@ class FileWriter extends Configurable with Serializable {
         for (i <- 0 until length) {
           str = examples(i).toString()
           writer.append(str + "\n")
-          val tokens = str.split("\\s+")
-          val length = tokens.length
-          if (length == 1) writerArrf.append(str + "\n")
-          else {
-            val strArrf = tokens.tail.mkString(",") + "," + tokens.head
-            writerArrf.append(strArrf + "\n")
-          }
           writer.flush()
-          writerArrf.flush()
         }
       }
+    } finally {
+      headWriter.close()
       writer.close()
-      writerArrf.close()
     }
   }
 
@@ -123,7 +128,7 @@ class FileWriter extends Configurable with Serializable {
 }
 
 object SampleDataWriter {
-  
+
   def main(args: Array[String]) {
     var params = "FileWriter -n 10 -f ./rbfevents2 -g (RandomRBFEventsGenerator -f 3)"
     if (args.length > 2) {

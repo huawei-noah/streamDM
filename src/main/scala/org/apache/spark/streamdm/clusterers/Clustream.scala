@@ -22,8 +22,8 @@ import org.apache.spark.streamdm.clusterers.utils._
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 import org.apache.spark.rdd._
-
 import com.github.javacliparser._
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * A Clusterer trait defines the needed operations for any implemented

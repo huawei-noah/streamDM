@@ -17,12 +17,14 @@
 
 package org.apache.spark.streamdm.streams
 
-import com.github.javacliparser.{StringOption, IntOption, ClassOption}
+import com.github.javacliparser.{ StringOption, IntOption, ClassOption }
 import org.apache.spark.streamdm.core._
+import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streamdm.core.Instance
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * Stream reader that gets instances from a socket stream.
@@ -34,12 +36,12 @@ import org.apache.spark.streamdm.core.Instance
  *  <li> Instance type (<b>-t</b>), either <i>dense</i> or <i>sparse</i>
  * </ul>
  */
-class SocketTextStreamReader extends StreamReader{
+class SocketTextStreamReader extends StreamReader {
 
   val portOption: IntOption = new IntOption("port", 'p',
     "Socket port", 9999, 0, Integer.MAX_VALUE)
 
-  val hostOption: StringOption = new StringOption("host", 'h',"Host",
+  val hostOption: StringOption = new StringOption("host", 'h', "Host",
     "localhost")
 
   val instanceOption: StringOption = new StringOption("instanceType", 't',
@@ -51,7 +53,7 @@ class SocketTextStreamReader extends StreamReader{
    * @param ssc a Spark Streaming context
    * @return a stream of Examples
    */
-  def getExamples(ssc:StreamingContext): DStream[Example] = {
+  def getExamples(ssc: StreamingContext): DStream[Example] = {
     //stream is a localhost socket stream
     val text = ssc.socketTextStream(hostOption.getValue, portOption.getValue)
     //transform stream into stream of instances
@@ -69,9 +71,8 @@ class SocketTextStreamReader extends StreamReader{
 
     //Prepare specification of class attributes
     val outputIS = new InstanceSpecification()
-    val classFeature = new NominalFeatureSpecification(Array("+","-"))
-    outputIS.setFeatureSpecification(0, classFeature)
-    outputIS.setName(0, "class")
+    val classFeature = new NominalFeatureSpecification(Array("+", "-"))
+    outputIS.addFeatureSpecification(0, "class", classFeature)
 
     new ExampleSpecification(new InstanceSpecification(),
       outputIS)

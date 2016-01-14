@@ -18,14 +18,12 @@
 package org.apache.spark.streamdm.classifiers.bayes
 
 import scala.math.{ log, log10 }
-
 import com.github.javacliparser.IntOption
 import org.apache.spark.streaming.dstream._
-
 import org.apache.spark.streamdm.classifiers.Classifier
 import org.apache.spark.streamdm.core._
-
 import org.apache.spark.streamdm.classifiers.trees._
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 /**
  * Incremental Multinomial Naive Bayes learner. Builds a bayesian text
  * classifier making the naive assumption that all inputs are independent and

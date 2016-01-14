@@ -18,13 +18,13 @@
 package org.apache.spark.streamdm.classifiers.meta
 
 import java.util.Random
-
 import com.github.javacliparser.{ClassOption, IntOption}
 import org.apache.spark.streamdm.classifiers.Classifier
 import org.apache.spark.streamdm.classifiers.model._
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 import org.apache.spark.streamdm.utils.Utils
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
  * The Bagging classifier trains an ensemble of classifier to improve performance.

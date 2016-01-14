@@ -35,13 +35,13 @@ object Utils {
   /*
    * Return a string for a matrix
    * 
-   * @param m double matrix in form of 2-D array
+   * @param m  matrix in form of 2-D array
    * @param split string of the split
    * @param head string of matrix head and each line's head
    * @param tail string of matrix tail and each line's tail
    * @return string format of input matrix
    */
-  def matrixtoString(m: Array[Array[Double]], split: String = ",", head: String = "{", tail: String = "}"): String = {
+  def matrixtoString[T](m: Array[Array[T]], split: String = ",", head: String = "{", tail: String = "}"): String = {
     val sb = new StringBuffer(head)
     for (i <- 0 until m.length) {
       sb.append(head)
@@ -60,13 +60,13 @@ object Utils {
   /*
    * Return a string for an array
    * 
-   * @param m double array
+   * @param m  array
    * @param split string of the split
    * @param head string of array head
    * @param tail string of array tail
    * @return string format of input array
    */
-  def arraytoString(pre: Array[Double], split: String = ",", head: String = "{", tail: String = "}"): String = {
+  def arraytoString[T](pre: Array[T], split: String = ",", head: String = "{", tail: String = "}"): String = {
     val sb = new StringBuffer(head)
     for (i <- 0 until pre.length) {
       sb.append(pre(i))
