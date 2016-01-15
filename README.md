@@ -26,7 +26,7 @@ internally as a sequence of RDDs.
 
 ### <a name="methods"></a>Included Methods
 
-In this first release of StreamDM, we have implemented:
+In this current release of StreamDM v0.2.0, we have implemented:
 
 * [SGD Learner](http://huawei-noah.github.io/streamDM/docs/SGD.html) and [Perceptron](http://huawei-noah.github.io/streamDM/docs/SGD.html#perceptron)
 * [Naive Bayes](http://huawei-noah.github.io/streamDM/docs/NB.html)
@@ -45,7 +45,7 @@ we also implemented following [data generators](http://huawei-noah.github.io/str
 We have also implemented [SampleDataWriter](http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html), which can call data generators 
 to create sample data for simulation or test.
 
-In the next releases we plan to add: 
+In the year of 2016, we plan to add: 
 
 * Classification: Random Forests
 * Regression: Hoeffding Regression Tree, Bagging, Random Forests
