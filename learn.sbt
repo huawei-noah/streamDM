@@ -1,6 +1,6 @@
 name := "streamDM (Spark Streaming)"
 
-version := "0.1"
+version := "0.2"
 
 libraryDependencies += "org.apache.spark" %% "spark-core" % "1.5.1"
 
