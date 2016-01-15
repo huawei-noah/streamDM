@@ -26,7 +26,7 @@ internally as a sequence of RDDs.
 
 ### <a name="methods"></a>Included Methods
 
-In this current release of StreamDM v0.2.0, we have implemented:
+In this current release of StreamDM v0.2, we have implemented:
 
 * [SGD Learner](http://huawei-noah.github.io/streamDM/docs/SGD.html) and [Perceptron](http://huawei-noah.github.io/streamDM/docs/SGD.html#perceptron)
 * [Naive Bayes](http://huawei-noah.github.io/streamDM/docs/NB.html)
