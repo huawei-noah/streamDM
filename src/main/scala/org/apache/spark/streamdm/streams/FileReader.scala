@@ -32,7 +32,6 @@ import com.github.javacliparser.{ IntOption, FloatOption, StringOption, FileOpti
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.streams.generators.Generator
-import org.apache.spark.streamdm.core.specification._
 
 /**
  * FileReader is used to read data from one file of full data to simulate a stream data.
@@ -59,7 +58,7 @@ class FileReader extends StreamReader with Logging {
     "Type of the instance to use", "dense")
 
   val fileNameOption: StringOption = new StringOption("fileName", 'f',
-    "File Name", "./sampleData")
+    "File Name", "../data/hyperplanesampledata")
 
   val dataHeadTypeOption: StringOption = new StringOption("dataHeadType", 'h',
     "Data Head Format", "arff")
@@ -89,12 +88,6 @@ class FileReader extends StreamReader with Logging {
       }
       spec = headParser.getSpecification(
         if (hasHeadFile) headFileName else fileName, dataHeadTypeOption.getValue)
-      //      logInfo("IN:" + spec.in.size() + ",OUT:" + spec.out.size())
-      //      logInfo(headParser.getHead(spec))
-      //      for (index <- 0 until spec.in.size()) {
-      //        logInfo("" + spec.inputFeatureSpecification(index))
-      //      }
-      //      logInfo("CCC" + spec.out(0) + spec.out(0).range())
       for (index <- 0 until spec.out(0).range()) {
         logInfo(spec.out(0).asInstanceOf[NominalFeatureSpecification](index))
       }
