@@ -28,25 +28,9 @@ instances as a stream. Then a linear binary classifier is trained by using
 StochasticGradientDescent and the predictions are evaluted by outputting the
 confusion matrix.
 
-The example can be run by executing the following steps:
+The example can be run by executing in commend line:
 
-* In the first terminal: create the dataset syn.dat (only needed once); this
-  script will generate a file containing dense instances of 3 features:
-
-  {% highlight bash %}
-  cd scripts/instance_server
-  ./generate_dataset.py
-  {% endhighlight %}
-
-* After, in one terminal, start the server sending instances in syn.dat into
-  port 9999 on localhost; this stream will be read by the task:
-
-  {% highlight bash %}
-  cd scripts/instance_server
-  ./server.py
-  {% endhighlight %}
-
-* In another terminal, use the provided spark script to run the task (after
+* In the terminal, use the provided spark script to run the task (after
   modifying the `SPARK_HOME` variable with the folder of your Spark installation):
 
   {% highlight bash %}
@@ -71,3 +55,15 @@ The example can be run by executing the following steps:
 
 The standard output will contain a confusion matrix aggregating the prediction
 results for every Spark RDD in the stream.
+
+Four [data generators](http://huawei-noah.github.io/streamDM/docs/generators.html) can generate sample data 
+by  [SampleDataWriter](http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html):
+
+* In the terminal, use the provided sample data generator script to generate sample data (after
+  modifying the `SPARK_HOME` variable with the folder of your Spark installation
+  and setting the correct jar files):
+
+  {% highlight bash %}
+  cd scripts
+  ./generateData.sh "FileWriter -n 1000 -f ../sampledata/mysampledata -g (HyperPlaneGenerator -k 100 -f 10)"
+  {% endhighlight %}
