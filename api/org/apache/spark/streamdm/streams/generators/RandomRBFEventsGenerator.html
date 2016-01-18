@@ -1,0 +1,1142 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>RandomRBFEventsGenerator - org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator</title>
+          <meta name="description" content="RandomRBFEventsGenerator - org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator" />
+          <meta name="keywords" content="RandomRBFEventsGenerator org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../../index.html';
+            var hash = 'org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img src="../../../../../../lib/class_big.png" />
+        <p id="owner"><a href="../../../../../package.html" class="extype" name="org">org</a>.<a href="../../../../package.html" class="extype" name="org.apache">apache</a>.<a href="../../../package.html" class="extype" name="org.apache.spark">spark</a>.<a href="../../package.html" class="extype" name="org.apache.spark.streamdm">streamdm</a>.<a href="../package.html" class="extype" name="org.apache.spark.streamdm.streams">streams</a>.<a href="package.html" class="extype" name="org.apache.spark.streamdm.streams.generators">generators</a></p>
+        <h1>RandomRBFEventsGenerator</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">RandomRBFEventsGenerator</span><span class="result"> extends <a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>RandomRBFEventsGenerator generates data stream for Clustream  via a random radial basis function.</p><p>It uses the following options:</p><ul><li> Chunk size (<b>-k</b>)</li><li> Slide duration (<b>-d</b>)</li><li> Seed for random generation of model (<b>-m</b>)</li><li> Seed for random generation of instances (<b>-i</b>)</li><li> The average number of centroids in the model (<b>-C</b>)</li><li> Deviation of the number of centroids in the model (<b>-c</b>)</li><li> The average radii of the centroids in the model (<b>-R</b>)</li><li> Deviation of average radii of the centroids in the model (<b>-r</b>)</li><li> Offset of the average weight a cluster has(<b>-D</b>)</li><li> Kernels move a predefined distance of 0.01 every X points (<b>-V</b>)</li><li> Speed/Velocity point offset (<b>-v</b>)</li><li> Noise level (<b>-N</b>)</li><li> Allow noise to be placed within a cluster(<b>-n</b>)</li><li> Event frequency (<b>-E</b>)</li><li> Enable merging and splitting of clusters(<b>-M</b>)</li><li> Enable emerging and disappearing of clusters (<b>-e</b>)</li><li> The number of features to generate (<b>-f</b>)</li><li> Decay horizon (<b>-h</b>)</li></ul></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a>, <a href="../StreamReader.html" class="extype" name="org.apache.spark.streamdm.streams.StreamReader">StreamReader</a>, <a href="../../../../../../com/github/javacliparser/Configurable.html" class="extype" name="com.github.javacliparser.Configurable">Configurable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator"><span>RandomRBFEventsGenerator</span></li><li class="in" name="org.apache.spark.streamdm.streams.generators.Generator"><span>Generator</span></li><li class="in" name="org.apache.spark.streamdm.streams.StreamReader"><span>StreamReader</span></li><li class="in" name="com.github.javacliparser.Configurable"><span>Configurable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;():org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator"></a>
+      <a id="&lt;init&gt;:RandomRBFEventsGenerator"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">RandomRBFEventsGenerator</span><span class="params">()</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator.GeneratorCluster" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GeneratorClusterextendsAnyRef"></a>
+      <a id="GeneratorCluster:GeneratorCluster"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RandomRBFEventsGenerator$GeneratorCluster.html"><span class="name">GeneratorCluster</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A GeneratorCluster represents the cluster which contains
+ some MicroCluster(represented by SphereCluster) in Clustream
+ Algorithm.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#chooseWeightedElement" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="chooseWeightedElement():Int"></a>
+      <a id="chooseWeightedElement():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">chooseWeightedElement</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#chunkSizeOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="chunkSizeOption:com.github.javacliparser.IntOption"></a>
+      <a id="chunkSizeOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">chunkSizeOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#clusterIdCounter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="clusterIdCounter:Int"></a>
+      <a id="clusterIdCounter:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clusterIdCounter</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#decayHorizonOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="decayHorizonOption:com.github.javacliparser.IntOption"></a>
+      <a id="decayHorizonOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">decayHorizonOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#densityRangeOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="densityRangeOption:com.github.javacliparser.FloatOption"></a>
+      <a id="densityRangeOption:FloatOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">densityRangeOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FloatOption.html" class="extype" name="com.github.javacliparser.FloatOption">FloatOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#eventDeleteCreateOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="eventDeleteCreateOption:com.github.javacliparser.FlagOption"></a>
+      <a id="eventDeleteCreateOption:FlagOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eventDeleteCreateOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FlagOption.html" class="extype" name="com.github.javacliparser.FlagOption">FlagOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#eventFrequencyOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="eventFrequencyOption:com.github.javacliparser.IntOption"></a>
+      <a id="eventFrequencyOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eventFrequencyOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#eventFrequencyRange" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="eventFrequencyRange:Int"></a>
+      <a id="eventFrequencyRange:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eventFrequencyRange</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#eventMergeSplitOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="eventMergeSplitOption:com.github.javacliparser.FlagOption"></a>
+      <a id="eventMergeSplitOption:FlagOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eventMergeSplitOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FlagOption.html" class="extype" name="com.github.javacliparser.FlagOption">FlagOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#eventScheduler" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="eventScheduler():Unit"></a>
+      <a id="eventScheduler():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eventScheduler</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#fadeIn" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fadeIn():String"></a>
+      <a id="fadeIn():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fadeIn</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#fadeOut" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fadeOut():String"></a>
+      <a id="fadeOut():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fadeOut</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#getChunkSize" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getChunkSize():Int"></a>
+      <a id="getChunkSize():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getChunkSize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">returns chunk size
+</p><div class="fullcomment"><div class="comment cmt"><p>returns chunk size
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator">RandomRBFEventsGenerator</a> → <a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a></dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#getExample" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getExample():org.apache.spark.streamdm.core.Example"></a>
+      <a id="getExample():Example"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getExample</span><span class="params">()</span><span class="result">: <a href="../../core/Example.html" class="extype" name="org.apache.spark.streamdm.core.Example">Example</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">generates a random example.</p><div class="fullcomment"><div class="comment cmt"><p>generates a random example.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a random example
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator">RandomRBFEventsGenerator</a> → <a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a></dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#getExampleSpecification" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getExampleSpecification():org.apache.spark.streamdm.core.specification.ExampleSpecification"></a>
+      <a id="getExampleSpecification():ExampleSpecification"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getExampleSpecification</span><span class="params">()</span><span class="result">: <a href="../../core/specification/ExampleSpecification.html" class="extype" name="org.apache.spark.streamdm.core.specification.ExampleSpecification">ExampleSpecification</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Obtains the specification of the examples in the stream.</p><div class="fullcomment"><div class="comment cmt"><p>Obtains the specification of the examples in the stream.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an ExampleSpecification of the features
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator">RandomRBFEventsGenerator</a> → <a href="../StreamReader.html" class="extype" name="org.apache.spark.streamdm.streams.StreamReader">StreamReader</a></dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.Generator#getExamples" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getExamples(length:Int):Array[org.apache.spark.streamdm.core.Example]"></a>
+      <a id="getExamples(Int):Array[Example]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getExamples</span><span class="params">(<span name="length">length: <span class="extype" name="scala.Int">Int</span> = <span class="symbol"><span class="name"><a href="Generator.html#getChunkSize():Int">getChunkSize()</a></span></span></span>)</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<a href="../../core/Example.html" class="extype" name="org.apache.spark.streamdm.core.Example">Example</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">obtains an array of examples
+</p><div class="fullcomment"><div class="comment cmt"><p>obtains an array of examples
+</p></div><dl class="paramcmts block"><dt class="param">length</dt><dd class="cmt"><p>size of the array; default chunkSizeOption.getValue</p></dd><dt>returns</dt><dd class="cmt"><p>an array of Examples
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a></dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.Generator#getExamples" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getExamples(ssc:org.apache.spark.streaming.StreamingContext):org.apache.spark.streaming.dstream.DStream[org.apache.spark.streamdm.core.Example]"></a>
+      <a id="getExamples(StreamingContext):DStream[Example]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getExamples</span><span class="params">(<span name="ssc">ssc: <span class="extype" name="org.apache.spark.streaming.StreamingContext">StreamingContext</span></span>)</span><span class="result">: <span class="extype" name="org.apache.spark.streaming.dstream.DStream">DStream</span>[<a href="../../core/Example.html" class="extype" name="org.apache.spark.streamdm.core.Example">Example</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Obtains a stream of random examples.</p><div class="fullcomment"><div class="comment cmt"><p>Obtains a stream of random examples.
+</p></div><dl class="paramcmts block"><dt class="param">ssc</dt><dd class="cmt"><p>a Spark Streaming context</p></dd><dt>returns</dt><dd class="cmt"><p>a stream of Examples
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a> → <a href="../StreamReader.html" class="extype" name="org.apache.spark.streamdm.streams.StreamReader">StreamReader</a></dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#getNextEvent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getNextEvent():Int"></a>
+      <a id="getNextEvent():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getNextEvent</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#getNoisePoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getNoisePoint():Array[Double]"></a>
+      <a id="getNoisePoint():Array[Double]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getNoisePoint</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#getslideDuration" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getslideDuration():Int"></a>
+      <a id="getslideDuration():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getslideDuration</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">returns slide duration
+</p><div class="fullcomment"><div class="comment cmt"><p>returns slide duration
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator">RandomRBFEventsGenerator</a> → <a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a></dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#init" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="init():Unit"></a>
+      <a id="init():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">init</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">initializes the generator
+</p><div class="fullcomment"><div class="comment cmt"><p>initializes the generator
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator">RandomRBFEventsGenerator</a> → <a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a></dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#initKernels" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="initKernels():Unit"></a>
+      <a id="initKernels():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">initKernels</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.Generator#inited" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="inited:Boolean"></a>
+      <a id="inited:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inited</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a></dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#instanceRandom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="instanceRandom:scala.util.Random"></a>
+      <a id="instanceRandom:Random"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">instanceRandom</span><span class="result">: <span class="extype" name="scala.util.Random">Random</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#instanceRandomSeedOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="instanceRandomSeedOption:com.github.javacliparser.IntOption"></a>
+      <a id="instanceRandomSeedOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">instanceRandomSeedOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#kernelMovePointFrequency" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="kernelMovePointFrequency:Int"></a>
+      <a id="kernelMovePointFrequency:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">kernelMovePointFrequency</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#kernelRadiiOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="kernelRadiiOption:com.github.javacliparser.FloatOption"></a>
+      <a id="kernelRadiiOption:FloatOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">kernelRadiiOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FloatOption.html" class="extype" name="com.github.javacliparser.FloatOption">FloatOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#kernelRadiiRangeOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="kernelRadiiRangeOption:com.github.javacliparser.FloatOption"></a>
+      <a id="kernelRadiiRangeOption:FloatOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">kernelRadiiRangeOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FloatOption.html" class="extype" name="com.github.javacliparser.FloatOption">FloatOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#kernels" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="kernels:scala.collection.mutable.ArrayBuffer[RandomRBFEventsGenerator.this.GeneratorCluster]"></a>
+      <a id="kernels:ArrayBuffer[GeneratorCluster]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">kernels</span><span class="result">: <span class="extype" name="scala.collection.mutable.ArrayBuffer">ArrayBuffer</span>[<a href="RandomRBFEventsGenerator$GeneratorCluster.html" class="extype" name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator.GeneratorCluster">GeneratorCluster</a>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#maxDistanceMoveThresholdByStep" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="maxDistanceMoveThresholdByStep:Double"></a>
+      <a id="maxDistanceMoveThresholdByStep:Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maxDistanceMoveThresholdByStep</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#maxOverlapFitRuns" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="maxOverlapFitRuns:Int"></a>
+      <a id="maxOverlapFitRuns:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maxOverlapFitRuns</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#mergeClusterA" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mergeClusterA:RandomRBFEventsGenerator.this.GeneratorCluster"></a>
+      <a id="mergeClusterA:GeneratorCluster"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mergeClusterA</span><span class="result">: <a href="RandomRBFEventsGenerator$GeneratorCluster.html" class="extype" name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator.GeneratorCluster">GeneratorCluster</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#mergeClusterB" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mergeClusterB:RandomRBFEventsGenerator.this.GeneratorCluster"></a>
+      <a id="mergeClusterB:GeneratorCluster"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mergeClusterB</span><span class="result">: <a href="RandomRBFEventsGenerator$GeneratorCluster.html" class="extype" name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator.GeneratorCluster">GeneratorCluster</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#mergeKernels" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mergeKernels(steps:Int):String"></a>
+      <a id="mergeKernels(Int):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mergeKernels</span><span class="params">(<span name="steps">steps: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#mergeKernelsOverlapping" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mergeKernelsOverlapping:Boolean"></a>
+      <a id="mergeKernelsOverlapping:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mergeKernelsOverlapping</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#merge_threshold" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="merge_threshold:Double"></a>
+      <a id="merge_threshold:Double"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">merge_threshold</span><span class="result">: <span class="extype" name="scala.Double">Double</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#modelRandomSeedOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="modelRandomSeedOption:com.github.javacliparser.IntOption"></a>
+      <a id="modelRandomSeedOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">modelRandomSeedOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#nextEventChoice" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="nextEventChoice:Int"></a>
+      <a id="nextEventChoice:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nextEventChoice</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#nextEventCounter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="nextEventCounter:Int"></a>
+      <a id="nextEventCounter:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nextEventCounter</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#noiseInClusterOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="noiseInClusterOption:com.github.javacliparser.FlagOption"></a>
+      <a id="noiseInClusterOption:FlagOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">noiseInClusterOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FlagOption.html" class="extype" name="com.github.javacliparser.FlagOption">FlagOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#noiseLevelOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="noiseLevelOption:com.github.javacliparser.FloatOption"></a>
+      <a id="noiseLevelOption:FloatOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">noiseLevelOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FloatOption.html" class="extype" name="com.github.javacliparser.FloatOption">FloatOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#normalizeWeights" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="normalizeWeights():Unit"></a>
+      <a id="normalizeWeights():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">normalizeWeights</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#numActiveKernels" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="numActiveKernels:Int"></a>
+      <a id="numActiveKernels:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">numActiveKernels</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#numClusterOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="numClusterOption:com.github.javacliparser.IntOption"></a>
+      <a id="numClusterOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">numClusterOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#numClusterRangeOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="numClusterRangeOption:com.github.javacliparser.IntOption"></a>
+      <a id="numClusterRangeOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">numClusterRangeOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#numFeaturesOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="numFeaturesOption:com.github.javacliparser.IntOption"></a>
+      <a id="numFeaturesOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">numFeaturesOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#numGeneratedInstances" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="numGeneratedInstances:Int"></a>
+      <a id="numGeneratedInstances:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">numGeneratedInstances</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#slideDurationOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="slideDurationOption:com.github.javacliparser.IntOption"></a>
+      <a id="slideDurationOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slideDurationOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#speedOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="speedOption:com.github.javacliparser.IntOption"></a>
+      <a id="speedOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">speedOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#speedRangeOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="speedRangeOption:com.github.javacliparser.IntOption"></a>
+      <a id="speedRangeOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">speedRangeOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.streams.generators.RandomRBFEventsGenerator#splitKernel" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="splitKernel():String"></a>
+      <a id="splitKernel():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">splitKernel</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="org.apache.spark.streamdm.streams.generators.Generator">
+              <h3>Inherited from <a href="Generator.html" class="extype" name="org.apache.spark.streamdm.streams.generators.Generator">Generator</a></h3>
+            </div><div class="parent" name="org.apache.spark.streamdm.streams.StreamReader">
+              <h3>Inherited from <a href="../StreamReader.html" class="extype" name="org.apache.spark.streamdm.streams.StreamReader">StreamReader</a></h3>
+            </div><div class="parent" name="com.github.javacliparser.Configurable">
+              <h3>Inherited from <a href="../../../../../../com/github/javacliparser/Configurable.html" class="extype" name="com.github.javacliparser.Configurable">Configurable</a></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../../../../lib/template.js"></script>
+    </body>
+      </html>

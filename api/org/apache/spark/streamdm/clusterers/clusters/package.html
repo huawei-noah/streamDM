@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>clusters - org.apache.spark.streamdm.clusterers.clusters</title>
+          <meta name="description" content="clusters - org.apache.spark.streamdm.clusterers.clusters" />
+          <meta name="keywords" content="clusters org.apache.spark.streamdm.clusterers.clusters" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../../index.html';
+            var hash = 'org.apache.spark.streamdm.clusterers.clusters.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../../package.html" class="extype" name="org">org</a>.<a href="../../../../package.html" class="extype" name="org.apache">apache</a>.<a href="../../../package.html" class="extype" name="org.apache.spark">spark</a>.<a href="../../package.html" class="extype" name="org.apache.spark.streamdm">streamdm</a>.<a href="../package.html" class="extype" name="org.apache.spark.streamdm.clusterers">clusterers</a></p>
+        <h1>clusters</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clusters</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="org.apache.spark.streamdm.clusterers.clusters.BucketManager" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BucketManagerextendsClusters"></a>
+      <a id="BucketManager:BucketManager"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BucketManager.html"><span class="name">BucketManager</span></a><span class="result"> extends <a href="Clusters.html" class="extype" name="org.apache.spark.streamdm.clusterers.clusters.Clusters">Clusters</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Data structure for managing all buckets for streamKM++ algorithm.</p>
+    </li><li name="org.apache.spark.streamdm.clusterers.clusters.Clusters" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ClustersextendsModel"></a>
+      <a id="Clusters:Clusters"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Clusters.html"><span class="name">Clusters</span></a><span class="result"> extends <a href="../../core/Model.html" class="extype" name="org.apache.spark.streamdm.core.Model">Model</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A Clusters trait defines the needed operations for maintaining a clustering
+data structure.</p>
+    </li><li name="org.apache.spark.streamdm.clusterers.clusters.MicroCluster" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MicroClusterextendsSerializablewithProduct"></a>
+      <a id="MicroCluster:MicroCluster"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="MicroCluster.html"><span class="name">MicroCluster</span></a><span class="params">(<span name="sum">sum: <a href="../../core/Instance.html" class="extype" name="org.apache.spark.streamdm.core.Instance">Instance</a></span>, <span name="sqSum">sqSum: <a href="../../core/Instance.html" class="extype" name="org.apache.spark.streamdm.core.Instance">Instance</a></span>, <span name="timeSum">timeSum: <span class="extype" name="scala.Long">Long</span></span>, <span name="sqTimeSum">sqTimeSum: <span class="extype" name="scala.Double">Double</span></span>, <span name="num">num: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span> with <span class="extype" name="scala.Product">Product</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A MicroCluster contains the underlying structure for the Clustream processing
+framework, and summarizes a number of instances belonging to the same
+MicroCluster.</p>
+    </li><li name="org.apache.spark.streamdm.clusterers.clusters.MicroClusters" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MicroClustersextendsClusterswithProductwithSerializable"></a>
+      <a id="MicroClusters:MicroClusters"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="MicroClusters.html"><span class="name">MicroClusters</span></a><span class="params">(<span name="microclusters">microclusters: <span class="extype" name="scala.Array">Array</span>[<a href="MicroCluster.html" class="extype" name="org.apache.spark.streamdm.clusterers.clusters.MicroCluster">MicroCluster</a>]</span>)</span><span class="result"> extends <a href="Clusters.html" class="extype" name="org.apache.spark.streamdm.clusterers.clusters.Clusters">Clusters</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The MicroClusters object contains a number of microclusters in an Array.</p>
+    </li><li name="org.apache.spark.streamdm.clusterers.clusters.TreeCoreset" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TreeCoresetextendsAnyRef"></a>
+      <a id="TreeCoreset:TreeCoreset"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="TreeCoreset.html"><span class="name">TreeCoreset</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A TreeCoreset contains the underlying tree structure for the coreset
+extraction framework.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="org.apache.spark.streamdm.clusterers.clusters.MicroClusterUtils" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MicroClusterUtils"></a>
+      <a id="MicroClusterUtils:MicroClusterUtils"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="MicroClusterUtils$.html"><span class="name">MicroClusterUtils</span></a>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../../../../lib/template.js"></script>
+    </body>
+      </html>

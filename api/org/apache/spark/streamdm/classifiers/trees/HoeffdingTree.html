@@ -1,0 +1,720 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>HoeffdingTree - org.apache.spark.streamdm.classifiers.trees.HoeffdingTree</title>
+          <meta name="description" content="HoeffdingTree - org.apache.spark.streamdm.classifiers.trees.HoeffdingTree" />
+          <meta name="keywords" content="HoeffdingTree org.apache.spark.streamdm.classifiers.trees.HoeffdingTree" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../../index.html';
+            var hash = 'org.apache.spark.streamdm.classifiers.trees.HoeffdingTree';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img src="../../../../../../lib/class_big.png" />
+        <p id="owner"><a href="../../../../../package.html" class="extype" name="org">org</a>.<a href="../../../../package.html" class="extype" name="org.apache">apache</a>.<a href="../../../package.html" class="extype" name="org.apache.spark">spark</a>.<a href="../../package.html" class="extype" name="org.apache.spark.streamdm">streamdm</a>.<a href="../package.html" class="extype" name="org.apache.spark.streamdm.classifiers">classifiers</a>.<a href="package.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees">trees</a></p>
+        <h1>HoeffdingTree</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">HoeffdingTree</span><span class="result"> extends <a href="../Classifier.html" class="extype" name="org.apache.spark.streamdm.classifiers.Classifier">Classifier</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The Hoeffding tree is an incremental decision tree learner for large data
+streams, that assumes that the data distribution is not changing over time.
+It grows incrementally a decision tree based on the theoretical guarantees of
+the Hoeffding bound (or additive Chernoff bound). A node is expanded as soon
+as there is sufficient statistical evidence that an optimal splitting feature
+exists, a decision based on the distribution-independent Hoeffding bound. The
+model learned by the Hoeffding tree is asymptotically nearly identical to the
+one built by a non-incremental learner, if the number of training instances
+is large enough.</p><p>It is controlled by the following options:</p><ul><li> numeric observer to use (<b>-n</b>); for the moment, only Gaussian
+approximation is supported; class of type FeatureClassObserver;</li><li> number of examples a leaf should observe before a split attempt
+(<b>-g</b>);</li><li> Number of examples a leaf should observe before applying NaiveBayes
+(<b>-q</b>);</li><li> split criterion to use (<b>-s</b>), an object of type SplitCriterionType;</li><li> allowable error in split decision (<b>-c</b>);</li><li> threshold of allowable error in breaking ties (<b>-t</b>);</li><li> allow only binary splits (<b>-b</b>), boolean flag;</li><li> disable poor attributes (<b>-r</b>);</li><li> allow growth (<b>-o</b>);</li><li> disable pre-pruning (<b>-p</b>);</li><li> leaf prediction to use (<b>-l</b>), either MajorityClass (0), NaiveBayes
+(1) or adaptive NaiveBayes (2, default);</li><li> enable splitting at all leaves (<b>-a</b>); the original algorithm can
+split at any time, but in Spark Streaming one can only split once per RDD; the option
+controls whether to split at leaf of the last Example of the RDD, or at every leaf.</li></ul></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="../Classifier.html" class="extype" name="org.apache.spark.streamdm.classifiers.Classifier">Classifier</a>, <a href="../../core/Learner.html" class="extype" name="org.apache.spark.streamdm.core.Learner">Learner</a>, <span class="extype" name="scala.Serializable">Serializable</span>, <a href="../../../../../../com/github/javacliparser/Configurable.html" class="extype" name="com.github.javacliparser.Configurable">Configurable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree"><span>HoeffdingTree</span></li><li class="in" name="org.apache.spark.streamdm.classifiers.Classifier"><span>Classifier</span></li><li class="in" name="org.apache.spark.streamdm.core.Learner"><span>Learner</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="com.github.javacliparser.Configurable"><span>Configurable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;():org.apache.spark.streamdm.classifiers.trees.HoeffdingTree"></a>
+      <a id="&lt;init&gt;:HoeffdingTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">HoeffdingTree</span><span class="params">()</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree.T" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="T=org.apache.spark.streamdm.classifiers.trees.HoeffdingTreeModel"></a>
+      <a id="T:T"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">T</span><span class="result"> = <a href="HoeffdingTreeModel.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTreeModel">HoeffdingTreeModel</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree">HoeffdingTree</a> → <a href="../../core/Learner.html" class="extype" name="org.apache.spark.streamdm.core.Learner">Learner</a></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#binaryOnlyOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="binaryOnlyOption:com.github.javacliparser.FlagOption"></a>
+      <a id="binaryOnlyOption:FlagOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">binaryOnlyOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FlagOption.html" class="extype" name="com.github.javacliparser.FlagOption">FlagOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#espec" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="espec:org.apache.spark.streamdm.core.specification.ExampleSpecification"></a>
+      <a id="espec:ExampleSpecification"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">espec</span><span class="result">: <a href="../../core/specification/ExampleSpecification.html" class="extype" name="org.apache.spark.streamdm.core.specification.ExampleSpecification">ExampleSpecification</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#getModel" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getModel:org.apache.spark.streamdm.classifiers.trees.HoeffdingTreeModel"></a>
+      <a id="getModel:HoeffdingTreeModel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getModel</span><span class="result">: <a href="HoeffdingTreeModel.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTreeModel">HoeffdingTreeModel</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Gets the current Model used for the Learner.</p><div class="fullcomment"><div class="comment cmt"><p>Gets the current Model used for the Learner.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>the Model object used for training
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree">HoeffdingTree</a> → <a href="../../core/Learner.html" class="extype" name="org.apache.spark.streamdm.core.Learner">Learner</a></dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#growthAllowedOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="growthAllowedOption:com.github.javacliparser.FlagOption"></a>
+      <a id="growthAllowedOption:FlagOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">growthAllowedOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FlagOption.html" class="extype" name="com.github.javacliparser.FlagOption">FlagOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#init" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="init(exampleSpecification:org.apache.spark.streamdm.core.specification.ExampleSpecification):Unit"></a>
+      <a id="init(ExampleSpecification):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">init</span><span class="params">(<span name="exampleSpecification">exampleSpecification: <a href="../../core/specification/ExampleSpecification.html" class="extype" name="org.apache.spark.streamdm.core.specification.ExampleSpecification">ExampleSpecification</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Init the model based on the algorithm implemented in the learner.</p><div class="fullcomment"><div class="comment cmt"><p>Init the model based on the algorithm implemented in the learner.
+</p></div><dl class="paramcmts block"><dt class="param">exampleSpecification</dt><dd class="cmt"><p>the ExampleSpecification of the input stream.
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree">HoeffdingTree</a> → <a href="../../core/Learner.html" class="extype" name="org.apache.spark.streamdm.core.Learner">Learner</a></dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#learningNodeOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="learningNodeOption:com.github.javacliparser.IntOption"></a>
+      <a id="learningNodeOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">learningNodeOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#model" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="model:org.apache.spark.streamdm.classifiers.trees.HoeffdingTreeModel"></a>
+      <a id="model:HoeffdingTreeModel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">model</span><span class="result">: <a href="HoeffdingTreeModel.html" class="extype" name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTreeModel">HoeffdingTreeModel</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#nbThresholdOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="nbThresholdOption:com.github.javacliparser.IntOption"></a>
+      <a id="nbThresholdOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nbThresholdOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#noPrePruneOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="noPrePruneOption:com.github.javacliparser.FlagOption"></a>
+      <a id="noPrePruneOption:FlagOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">noPrePruneOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FlagOption.html" class="extype" name="com.github.javacliparser.FlagOption">FlagOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#numGraceOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="numGraceOption:com.github.javacliparser.IntOption"></a>
+      <a id="numGraceOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">numGraceOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#numericObserverTypeOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="numericObserverTypeOption:com.github.javacliparser.IntOption"></a>
+      <a id="numericObserverTypeOption:IntOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">numericObserverTypeOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/IntOption.html" class="extype" name="com.github.javacliparser.IntOption">IntOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#predict" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="predict(input:org.apache.spark.streaming.dstream.DStream[org.apache.spark.streamdm.core.Example]):org.apache.spark.streaming.dstream.DStream[(org.apache.spark.streamdm.core.Example,Double)]"></a>
+      <a id="predict(DStream[Example]):DStream[(Example,Double)]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">predict</span><span class="params">(<span name="input">input: <span class="extype" name="org.apache.spark.streaming.dstream.DStream">DStream</span>[<a href="../../core/Example.html" class="extype" name="org.apache.spark.streamdm.core.Example">Example</a>]</span>)</span><span class="result">: <span class="extype" name="org.apache.spark.streaming.dstream.DStream">DStream</span>[(<a href="../../core/Example.html" class="extype" name="org.apache.spark.streamdm.core.Example">Example</a>, <span class="extype" name="scala.Double">Double</span>)]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree">HoeffdingTree</a> → <a href="../Classifier.html" class="extype" name="org.apache.spark.streamdm.classifiers.Classifier">Classifier</a></dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#removePoorFeaturesOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="removePoorFeaturesOption:com.github.javacliparser.FlagOption"></a>
+      <a id="removePoorFeaturesOption:FlagOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">removePoorFeaturesOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FlagOption.html" class="extype" name="com.github.javacliparser.FlagOption">FlagOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#splitAllOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="splitAllOption:com.github.javacliparser.FlagOption"></a>
+      <a id="splitAllOption:FlagOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">splitAllOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FlagOption.html" class="extype" name="com.github.javacliparser.FlagOption">FlagOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#splitConfidenceOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="splitConfidenceOption:com.github.javacliparser.FloatOption"></a>
+      <a id="splitConfidenceOption:FloatOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">splitConfidenceOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FloatOption.html" class="extype" name="com.github.javacliparser.FloatOption">FloatOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#splitCriterionOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="splitCriterionOption:com.github.javacliparser.ClassOption"></a>
+      <a id="splitCriterionOption:ClassOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">splitCriterionOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/ClassOption.html" class="extype" name="com.github.javacliparser.ClassOption">ClassOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#tieThresholdOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tieThresholdOption:com.github.javacliparser.FloatOption"></a>
+      <a id="tieThresholdOption:FloatOption"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tieThresholdOption</span><span class="result">: <a href="../../../../../../com/github/javacliparser/FloatOption.html" class="extype" name="com.github.javacliparser.FloatOption">FloatOption</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree#train" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="train(input:org.apache.spark.streaming.dstream.DStream[org.apache.spark.streamdm.core.Example]):Unit"></a>
+      <a id="train(DStream[Example]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">train</span><span class="params">(<span name="input">input: <span class="extype" name="org.apache.spark.streaming.dstream.DStream">DStream</span>[<a href="../../core/Example.html" class="extype" name="org.apache.spark.streamdm.core.Example">Example</a>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Train the model based on the algorithm implemented in the learner,
+from the stream of Examples given for training.</p><div class="fullcomment"><div class="comment cmt"><p>Train the model based on the algorithm implemented in the learner,
+from the stream of Examples given for training.
+</p></div><dl class="paramcmts block"><dt class="param">input</dt><dd class="cmt"><p>a stream of Examples
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="org.apache.spark.streamdm.classifiers.trees.HoeffdingTree">HoeffdingTree</a> → <a href="../../core/Learner.html" class="extype" name="org.apache.spark.streamdm.core.Learner">Learner</a></dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="org.apache.spark.streamdm.classifiers.Classifier">
+              <h3>Inherited from <a href="../Classifier.html" class="extype" name="org.apache.spark.streamdm.classifiers.Classifier">Classifier</a></h3>
+            </div><div class="parent" name="org.apache.spark.streamdm.core.Learner">
+              <h3>Inherited from <a href="../../core/Learner.html" class="extype" name="org.apache.spark.streamdm.core.Learner">Learner</a></h3>
+            </div><div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="com.github.javacliparser.Configurable">
+              <h3>Inherited from <a href="../../../../../../com/github/javacliparser/Configurable.html" class="extype" name="com.github.javacliparser.Configurable">Configurable</a></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../../../../lib/template.js"></script>
+    </body>
+      </html>
