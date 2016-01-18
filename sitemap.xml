@@ -2,42 +2,50 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>http://huawei-noah.github.io/streamDM/docs/Bagging.html</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
   <url>
     <loc>http://huawei-noah.github.io/streamDM/docs/CluStream.html</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
   <url>
     <loc>http://huawei-noah.github.io/streamDM/docs/Contributors.html</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
   <url>
     <loc>http://huawei-noah.github.io/streamDM/docs/GettingStarted.html</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
   <url>
     <loc>http://huawei-noah.github.io/streamDM/docs/HDT.html</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
   <url>
     <loc>http://huawei-noah.github.io/streamDM/docs/NB.html</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
   <url>
     <loc>http://huawei-noah.github.io/streamDM/docs/Programming.html</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
   <url>
     <loc>http://huawei-noah.github.io/streamDM/docs/SGD.html</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
+  </url>
+  <url>
+    <loc>http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html</loc>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
   <url>
     <loc>http://huawei-noah.github.io/streamDM/docs/StreamKM.html</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
+  </url>
+  <url>
+    <loc>http://huawei-noah.github.io/streamDM/docs/generators.html</loc>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
   <url>
     <loc>http://huawei-noah.github.io/streamDM/</loc>
-    <lastmod>2015-07-07T11:29:02+08:00</lastmod>
+    <lastmod>2016-01-18T15:47:36+08:00</lastmod>
   </url>
 </urlset>

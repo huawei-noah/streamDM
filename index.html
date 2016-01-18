@@ -165,7 +165,7 @@ internally as a sequence of RDDs.</p>
 
 <h3 id="included-methods"><a name="methods"></a>Included Methods</h3>
 
-<p>In this first pre-release of StreamDM, we have implemented:</p>
+<p>In this first release of StreamDM, we have implemented:</p>
 
 <ul>
 <li><a href="docs/SGD.html">SGD Learner</a> and <a href="docs/SGD.html#perceptron">Perceptron</a></li>
@@ -176,11 +176,25 @@ internally as a sequence of RDDs.</p>
 <li><a href="docs/StreamKM.html">Stream KM++</a></li>
 </ul>
 
-<p>In the next releases we plan to add: </p>
+<p>We have implemented following <a href="docs/generators.html">data generators</a>:</p>
 
 <ul>
-<li>Random Forests</li>
-<li>Frequent Itemset Miner: IncMine</li>
+<li>HyperplaneGenerator</li>
+<li>RandomTreeGenerator</li>
+<li>RandomRBFGenerator</li>
+<li>RandomRBFEventsGenerator</li>
+</ul>
+
+<p>We have also implemented <a href="docs/SampleDataWriter.html">SampleDataWriter</a>, which can call data generators 
+to create sample data for simulation or test.</p>
+
+<p>In the next releases we plan to add:</p>
+
+<ul>
+<li>Classification: Random Forests</li>
+<li>Regression: Hoeffding Regression Tree, Bagging, Random Forests</li>
+<li>Clustering: Clustree, DenStream</li>
+<li>Frequent Itemset Miner: IncMine, IncSecMine</li>
 </ul>
 
 <h2 id="going-further">Going Further</h2>
@@ -209,7 +223,7 @@ documentation can be consulted <a href="api/index.html">here</a>. </p>
   <footer role="contentinfo" class="entry-wrapper">
     
 
-<span>&copy; 2015 HUAWEI Noah's Ark Lab.</span>
+<span>&copy; 2016 HUAWEI Noah's Ark Lab.</span>
 <div class="social-icons">
 	
 	

@@ -5,34 +5,34 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>Page Not Found &#8211; streamDM</title>
+<title>SampleDataWriter &#8211; streamDM</title>
 
 
 
 
 
 <!-- Twitter Cards -->
-<meta name="twitter:title" content="Page Not Found">
+<meta name="twitter:title" content="SampleDataWriter">
 
 
 
 
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://huawei-noah.github.io/streamDM/images/site-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://huawei-noah.github.io/streamDM/images/screen_network.png">
 
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Page Not Found">
+<meta property="og:title" content="SampleDataWriter">
 
-<meta property="og:url" content="http://huawei-noah.github.io/streamDM/404.html">
+<meta property="og:url" content="http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html">
 <meta property="og:site_name" content="streamDM">
 
 
 
 
 
-<link rel="canonical" href="http://huawei-noah.github.io/streamDM/404.html">
+<link rel="canonical" href="http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html">
 <link href="http://huawei-noah.github.io/streamDM/feed.xml" type="application/atom+xml" rel="alternate" title="streamDM Feed">
 
 <!-- http://t.co/dKP3o1e -->
@@ -118,36 +118,39 @@
 <!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
 
 <header class="masthead">
-	<div class="wrap">
-      
-  		<a href="http://huawei-noah.github.io/streamDM/" class="site-logo" rel="home" title="streamDM"><img src="http://huawei-noah.github.io/streamDM/images/site-logo.png" width="200" height="200" alt="streamDM logo" class="animated fadeInDown"></a>
-      
-      <h1 class="site-title animated fadeIn"><a href="http://huawei-noah.github.io/streamDM/">streamDM</a></h1>
-		<h2 class="site-description animated fadeIn" itemprop="description">stream Data Mining for Spark Streaming</h2>
-	</div>
+	
+		<div class="wrap">
+			<a href="http://huawei-noah.github.io/streamDM/" class="site-logo" rel="home" title="streamDM"><img src="http://huawei-noah.github.io/streamDM/images/site-logo.png" width="200" height="200" alt="streamDM logo" class="animated fadeInDown"></a>
+		</div>
+	
 </header><!-- /.masthead -->
+
 
 <div class="js-menu-screen menu-screen"></div>
 
 
 <div id="main" role="main">
   <article class="entry">
-    
+    <img src="http://huawei-noah.github.io/streamDM/images/screen_network.png" class="entry-feature-image" alt="SampleDataWriter" >
     <div class="entry-wrapper">
       <header class="entry-header">
-        <h1 class="entry-title">Page Not Found</h1>
+        <h1 class="entry-title">SampleDataWriter</h1>
       </header>
       <div class="entry-content">
-        <p>Sorry, but the page you were trying to view does not exist --- perhaps you can try searching for it below.</p>
+        <h2 id="sampledatawriter">SampleDataWriter</h2>
 
-<script type="text/javascript">
-  var GOOG_FIXURL_LANG = 'en';
-  var GOOG_FIXURL_SITE = 'http://huawei-noah.github.io/streamDM'
-</script>
+<p>Calls data generators to create sample data for simulation or test.
+Runs command line with parameters:</p>
 
-<script type="text/javascript"
-  src="//linkhelp.clients.google.com/tbproxy/lh/wm/fixurl.js">
-</script>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">./generateData.sh <span class="s2">&quot;FileWriter -n 1000 -f ./HPData.10.L -g (HyperplaneGenerator -k 100 -f 10)&quot;</span></code></pre></div>
+
+<h3 id="parameters:">Parameters:</h3>
+
+<ul>
+<li>Chunk number (-n)</li>
+<li>File Name (-f)</li>
+<li>Generator (-g)</li>
+</ul>
 
       </div><!-- /.entry-content -->
     </div><!-- /.entry-wrapper -->

@@ -158,26 +158,10 @@ instances as a stream. Then a linear binary classifier is trained by using
 StochasticGradientDescent and the predictions are evaluted by outputting the
 confusion matrix.</p>
 
-<p>The example can be run by executing the following steps:</p>
+<p>The example can be run by executing in commend line:</p>
 
 <ul>
-<li>In the first terminal: create the dataset syn.dat (only needed once); this
-script will generate a file containing dense instances of 3 features:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd </span>scripts/instance_server
-  ./generate_dataset.py</code></pre></div>
-
-<ul>
-<li>After, in one terminal, start the server sending instances in syn.dat into
-port 9999 on localhost; this stream will be read by the task:</li>
-</ul>
-
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd </span>scripts/instance_server
-  ./server.py</code></pre></div>
-
-<ul>
-<li>In another terminal, use the provided spark script to run the task (after
+<li>In the terminal, use the provided spark script to run the task (after
 modifying the <code>SPARK_HOME</code> variable with the folder of your Spark installation):</li>
 </ul>
 
@@ -189,7 +173,7 @@ modifying the <code>SPARK_HOME</code> variable with the folder of your Spark ins
 </ul>
 
 <div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd </span>scripts
-  ./spark.sh <span class="s2">&quot;EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -r ZeroRegularizer)&quot;</span></code></pre></div>
+  ./spark.sh <span class="s2">&quot;EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -r ZeroRegularizer) –s (FileReader –k 100 –d 60 –f ../data/mydata)&quot;</span></code></pre></div>
 
 <ul>
 <li>[Optional] It is advisable to separate the standard and the error output, for
@@ -202,6 +186,18 @@ better readability:</li>
 <p>The standard output will contain a confusion matrix aggregating the prediction
 results for every Spark RDD in the stream.</p>
 
+<p>Four <a href="http://huawei-noah.github.io/streamDM/docs/generators.html">data generators</a> can generate sample data 
+by  <a href="http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html">SampleDataWriter</a>:</p>
+
+<ul>
+<li>In the terminal, use the provided sample data generator script to generate sample data (after
+modifying the <code>SPARK_HOME</code> variable with the folder of your Spark installation
+and setting the correct jar files):</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cd </span>scripts
+  ./generateData.sh <span class="s2">&quot;FileWriter -n 1000 -f ../sampledata/mysampledata -g (HyperPlaneGenerator -k 100 -f 10)&quot;</span></code></pre></div>
+
       </div><!-- /.entry-content -->
     </div><!-- /.entry-wrapper -->
   </article>
@@ -211,7 +207,7 @@ results for every Spark RDD in the stream.</p>
   <footer role="contentinfo" class="entry-wrapper">
     
 
-<span>&copy; 2015 HUAWEI Noah's Ark Lab.</span>
+<span>&copy; 2016 HUAWEI Noah's Ark Lab.</span>
 <div class="social-icons">
 	
 	
