@@ -42,7 +42,7 @@ The example can be run by executing in commend line:
  
   {% highlight bash %}
   cd scripts
-  ./spark.sh "EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -r ZeroRegularizer)"
+  ./spark.sh "EvaluatePrequential -l (SGDLearner -l 0.01 -o LogisticLoss -r ZeroRegularizer) –s (FileReader –k 100 –d 60 –f ../data/mydata)"
   {% endhighlight %}
 
 * [Optional] It is advisable to separate the standard and the error output, for
