@@ -375,28 +375,42 @@ learner, and <code>train</code> for updating the model with the data from the st
 the requirements for the learner are more specific, specialized traits need to
 be implemented instead. For example, the <code>Classifier</code> trait also contains a
 <code>predict</code> methods which applies the model to a stream:</p>
-<div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">trait</span> <span class="nc">Classifier</span> <span class="k">extends</span> <span class="nc">Learner</span> <span class="o">{</span>
+<div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">trait</span> <span class="nc">Classifier</span> <span class="k">extends</span> <span class="nc">Learner</span> <span class="k">with</span> <span class="nc">Serializable</span> <span class="o">{</span>
 
-  <span class="cm">/* Init the model based on the algorithm implemented in the learner,</span>
-<span class="cm">   * from the stream of instances given for training.</span>
+  <span class="cm">/* Predict the label of the Example stream, given the current Model</span>
 <span class="cm">   *</span>
+<span class="cm">   * @param instance the input Example stream </span>
+<span class="cm">   * @return a stream of tuples containing the original instance and the</span>
+<span class="cm">   * predicted value</span>
 <span class="cm">   */</span>
-  <span class="k">def</span> <span class="n">init</span><span class="k">:</span> <span class="kt">Unit</span>
+  <span class="k">def</span> <span class="n">predict</span><span class="o">(</span><span class="n">input</span><span class="k">:</span> <span class="kt">DStream</span><span class="o">[</span><span class="kt">Example</span><span class="o">])</span><span class="k">:</span> <span class="kt">DStream</span><span class="o">[(</span><span class="kt">Example</span>, <span class="kt">Double</span><span class="o">)]</span>
+<span class="o">}</span>
 
-  <span class="cm">/* Train the model based on the algorithm implemented in the learner, </span>
-<span class="cm">   * from the stream of instances given for training.</span>
+<span class="k">trait</span> <span class="nc">Learner</span> <span class="k">extends</span> <span class="nc">Configurable</span>  <span class="k">with</span> <span class="nc">Serializable</span> <span class="o">{</span>
+
+  <span class="k">type</span> <span class="kt">T</span> <span class="k">&lt;:</span> <span class="kt">Model</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Init the model based on the algorithm implemented in the learner.</span>
 <span class="cm">   *</span>
-<span class="cm">   * @param input a stream of instances</span>
-<span class="cm">   * @return the updated Model</span>
+<span class="cm">   * @param exampleSpecification the ExampleSpecification of the input stream.</span>
+<span class="cm">   */</span>
+  <span class="k">def</span> <span class="n">init</span><span class="o">(</span><span class="n">exampleSpecification</span><span class="k">:</span> <span class="kt">ExampleSpecification</span><span class="o">)</span><span class="k">:</span> <span class="kt">Unit</span>
+
+  <span class="cm">/** </span>
+<span class="cm">   * Train the model based on the algorithm implemented in the learner, </span>
+<span class="cm">   * from the stream of Examples given for training.</span>
+<span class="cm">   * </span>
+<span class="cm">   * @param input a stream of Examples</span>
 <span class="cm">   */</span>
   <span class="k">def</span> <span class="n">train</span><span class="o">(</span><span class="n">input</span><span class="k">:</span> <span class="kt">DStream</span><span class="o">[</span><span class="kt">Example</span><span class="o">])</span><span class="k">:</span> <span class="kt">Unit</span>
 
-  <span class="cm">/* Predict the label of the Instance, given the current Model</span>
-<span class="cm">   *</span>
-<span class="cm">   * @param instance the Instance which needs a class predicted</span>
-<span class="cm">   * @return a tuple containing the original instance and the predicted value</span>
+  <span class="cm">/**</span>
+<span class="cm">   * Gets the current Model used for the Learner.</span>
+<span class="cm">   * </span>
+<span class="cm">   * @return the Model object used for training</span>
 <span class="cm">   */</span>
-  <span class="k">def</span> <span class="n">predict</span><span class="o">(</span><span class="n">input</span><span class="k">:</span> <span class="kt">DStream</span><span class="o">[</span><span class="kt">Example</span><span class="o">])</span><span class="k">:</span> <span class="kt">DStream</span><span class="o">[(</span><span class="kt">Example</span>,<span class="kt">Double</span><span class="o">)]</span>
+  <span class="k">def</span> <span class="n">getModel</span><span class="k">:</span> <span class="kt">T</span>
 <span class="o">}</span>
 </code></pre></div>
       </div><!-- /.entry-content -->
