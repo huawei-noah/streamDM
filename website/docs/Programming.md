@@ -163,13 +163,15 @@ rate of 0.001 and using hinge loss will use the command line options:
 ```
 
 Then, the instances get parsed by the reader:
+
 ```scala
-  val instances = reader.getExamples(ssc)
+    val instances = reader.getExamples(ssc)
 ```
 
 After the parsing, the evaluate first then train cycle is performed. In this
 case, our learner is restricted to a `Classifier` so that the method `predict`
 is available:
+
 ```scala
   //Predict
   val predPairs = learner.predict(instances)
@@ -180,6 +182,7 @@ is available:
 
 Finally, the results are output. Here, the evaluator output is combined with the
 final output:
+
 ```scala
   writer.output(evaluator.addResult(predPairs))
 ```
