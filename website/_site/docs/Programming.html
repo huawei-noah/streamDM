@@ -322,23 +322,20 @@ rate of 0.001 and using hinge loss will use the command line options:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">  EvaluatePrequential -s (SocketTextStreamReader -t sparse) -l 
     (SGDLearner -l 0.001 )
 </code></pre></div>
-<p>Then, the instances get parsed by the reader:
-<code>scala
-  val instances = reader.getExamples(ssc)
-</code></p>
-
+<p>Then, the instances get parsed by the reader:</p>
+<div class="highlight"><pre><code class="language-scala" data-lang="scala">    <span class="k">val</span> <span class="n">instances</span> <span class="k">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">getExamples</span><span class="o">(</span><span class="n">ssc</span><span class="o">)</span>
+</code></pre></div>
 <p>After the parsing, the evaluate first then train cycle is performed. In this
 case, our learner is restricted to a <code>Classifier</code> so that the method <code>predict</code>
-is available:
-```scala
-  //Predict
-  val predPairs = learner.predict(instances)
-  //Train
-  learner.train(instances)</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">Finally, the results are output. Here, the evaluator output is combined with the
-final output:
-```scala
-  writer.output(evaluator.addResult(predPairs))
+is available:</p>
+<div class="highlight"><pre><code class="language-scala" data-lang="scala">  <span class="c1">//Predict</span>
+  <span class="k">val</span> <span class="n">predPairs</span> <span class="k">=</span> <span class="n">learner</span><span class="o">.</span><span class="n">predict</span><span class="o">(</span><span class="n">instances</span><span class="o">)</span>
+  <span class="c1">//Train</span>
+  <span class="n">learner</span><span class="o">.</span><span class="n">train</span><span class="o">(</span><span class="n">instances</span><span class="o">)</span>
+</code></pre></div>
+<p>Finally, the results are output. Here, the evaluator output is combined with the
+final output:</p>
+<div class="highlight"><pre><code class="language-scala" data-lang="scala">  <span class="n">writer</span><span class="o">.</span><span class="n">output</span><span class="o">(</span><span class="n">evaluator</span><span class="o">.</span><span class="n">addResult</span><span class="o">(</span><span class="n">predPairs</span><span class="o">))</span>
 </code></pre></div>
 <h2 id="extending-streamdm">Extending StreamDM</h2>
 
