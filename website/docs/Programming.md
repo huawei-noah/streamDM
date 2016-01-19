@@ -232,27 +232,41 @@ be implemented instead. For example, the `Classifier` trait also contains a
 `predict` methods which applies the model to a stream:
  
 ```scala
-trait Classifier extends Learner {
+trait Classifier extends Learner with Serializable {
 
-  /* Init the model based on the algorithm implemented in the learner,
-   * from the stream of instances given for training.
+  /* Predict the label of the Example stream, given the current Model
    *
+   * @param instance the input Example stream 
+   * @return a stream of tuples containing the original instance and the
+   * predicted value
    */
-  def init: Unit
+  def predict(input: DStream[Example]): DStream[(Example, Double)]
+}
 
-  /* Train the model based on the algorithm implemented in the learner, 
-   * from the stream of instances given for training.
+trait Learner extends Configurable  with Serializable {
+
+  type T <: Model
+  
+  /**
+   * Init the model based on the algorithm implemented in the learner.
    *
-   * @param input a stream of instances
-   * @return the updated Model
+   * @param exampleSpecification the ExampleSpecification of the input stream.
+   */
+  def init(exampleSpecification: ExampleSpecification): Unit
+
+  /** 
+   * Train the model based on the algorithm implemented in the learner, 
+   * from the stream of Examples given for training.
+   * 
+   * @param input a stream of Examples
    */
   def train(input: DStream[Example]): Unit
 
-  /* Predict the label of the Instance, given the current Model
-   *
-   * @param instance the Instance which needs a class predicted
-   * @return a tuple containing the original instance and the predicted value
+  /**
+   * Gets the current Model used for the Learner.
+   * 
+   * @return the Model object used for training
    */
-  def predict(input: DStream[Example]): DStream[(Example,Double)]
+  def getModel: T
 }
 ```
