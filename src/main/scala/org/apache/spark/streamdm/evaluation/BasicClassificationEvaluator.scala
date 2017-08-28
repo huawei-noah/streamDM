@@ -44,6 +44,10 @@ class BasicClassificationEvaluator extends Evaluator{
       .format((x._1+x._4)/(x._1+x._2+x._3+x._4),x._1,x._2,x._3,x._4)})
   }
 
+  override def header(): String = {
+    "Accuracy,TP,FN,FP,TN"
+  }
+
   /**
    * Get the evaluation result.
    *

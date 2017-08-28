@@ -40,4 +40,10 @@ class PrintStreamWriter extends StreamWriter{
       rdd.foreach(x => {println(x)})
     })
   }
+
+  /**
+    * Prints a single line of text to the output only once.
+    * @param text
+    */
+  override def output(text: String) = println(text)
 }

@@ -37,6 +37,15 @@ abstract class Evaluator extends Configurable with Serializable{
   def addResult(input: DStream[(Example, Double)]):  DStream[String]
 
   /**
+    * Obtains the header definition
+    *
+    * @return a String representing the measurements header
+    */
+  def header(): String = {
+    ""
+  }
+
+  /**
    * Get the evaluation result.
    *
    * @return a Double containing the evaluation result
