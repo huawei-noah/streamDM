@@ -543,7 +543,7 @@ object Statistics {
 
   def polevl(x: Double, coef: Array[Double], N: Int): Double = {
     var ans = coef(0)
-    for (i <- 1 until N)
+    for (i <- 1 until N+1)
       ans = ans * x + coef(i)
     ans
   }
