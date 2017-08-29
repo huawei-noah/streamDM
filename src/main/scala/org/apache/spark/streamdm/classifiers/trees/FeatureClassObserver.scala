@@ -184,18 +184,18 @@ class NominalFeatureClassObserver(val numClasses: Int, val fIndex: Int, val numF
   override def bestSplit(criterion: SplitCriterion, pre: Array[Double],
     fValue: Double, isBinarySplit: Boolean): FeatureSplit = {
     var fSplit: FeatureSplit = null
-    for (i <- 0 until pre.length) {
+    if (!isBinarySplit) {
+      val post = multiwaySplit()
+      val merit = criterion.merit(pre, post)
+      fSplit = new FeatureSplit(new NominalMultiwayTest(fIndex, numFeatureValues), merit, post)
+    }
+
+    for (i <- 0 until numFeatureValues) {
       val post: Array[Array[Double]] = binarySplit(i)
       val merit = criterion.merit(normal(pre), normal(post))
       if (fSplit == null || fSplit.merit < merit) {
         fSplit = new FeatureSplit(new NominalBinaryTest(fIndex, i), merit, post)
       }
-    }
-    if (!isBinarySplit) {
-      val post = multiwaySplit()
-      val merit = criterion.merit(pre, post)
-      if (fSplit.merit < merit)
-        fSplit = new FeatureSplit(new NominalMultiwayTest(fIndex, numFeatureValues), merit, post)
     }
     fSplit
   }
