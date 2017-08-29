@@ -30,4 +30,11 @@ abstract class StreamWriter extends Configurable {
    * @param stream a DStream of Strings for which the output is processed 
    */
   def output(stream: DStream[String]): Unit
+
+  /**
+    * Writes a single line on the output. Useful for writing one-time text, such as headers.
+    *
+    * @param text
+    */
+  def output(text: String): Unit
 }

@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.tasks
 
-import com.github.javacliparser.{StringOption, ClassOption}
+import com.github.javacliparser.{ClassOption, FlagOption, StringOption}
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.streams._
@@ -45,10 +45,13 @@ class EvaluatePrequential extends Task {
     "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")
 
   val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
-    "Stream reader to use", classOf[StreamReader], "FileReader")
+    "Stream reader to use", classOf[StreamReader], "org.apache.spark.streamdm.streams.generators.RandomTreeGenerator")
 
   val resultsWriterOption:ClassOption = new ClassOption("resultsWriter", 'w',
     "Stream writer to use", classOf[StreamWriter], "PrintStreamWriter")
+
+  val shouldPrintHeaderOption:FlagOption = new FlagOption("shouldPrintHeader", 'h',
+    "Whether or not to print the evaluator header on the output file")
 
   /**
    * Run the task.
@@ -66,6 +69,10 @@ class EvaluatePrequential extends Task {
     val writer:StreamWriter = this.resultsWriterOption.getValue()
 
     val instances = reader.getExamples(ssc)
+
+    if(shouldPrintHeaderOption.isSet) {
+      writer.output(evaluator.header())
+    }
 
     //Predict
     val predPairs = learner.predict(instances)
