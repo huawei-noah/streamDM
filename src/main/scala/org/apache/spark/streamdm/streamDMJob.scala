@@ -42,7 +42,9 @@ object streamDMJob {
     var batchInterval: Int = 1000
     if(args.length > 0){
       if(Try(args(0).toInt).isSuccess){
-        batchInterval = args(0).toInt
+        if(args(0).toInt > 0 && args(0).toInt < Int.MaxValue){
+          batchInterval = args(0).toInt
+        }
         newArgs = newArgs.drop(1)
       }
     }
