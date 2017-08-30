@@ -46,6 +46,14 @@ abstract class Evaluator extends Configurable with Serializable{
   }
 
   /**
+    * Allow passing parameters to the specific evaluator, such as beta from fbeta-score.
+    * @param parameters
+    */
+  def setParameters(parameters : Map[String, Double]): Unit = {
+
+  }
+
+  /**
    * Get the evaluation result.
    *
    * @return a Double containing the evaluation result
