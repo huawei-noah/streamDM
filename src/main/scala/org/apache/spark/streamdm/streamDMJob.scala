@@ -34,9 +34,6 @@ object streamDMJob {
 
     //configuration and initialization of model
     val conf = new SparkConf().setAppName("streamDM")
-    //    conf.setMaster("local[2]")
-
-    // conf.setMaster("yarn")   //to run on clusters
 
     var newArgs = args.clone()
     var batchInterval: Int = 1000
