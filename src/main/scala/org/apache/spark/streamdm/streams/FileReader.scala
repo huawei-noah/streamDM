@@ -34,17 +34,17 @@ import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.streams.generators.Generator
 
 /**
- * FileReader is used to read data from one file of full data to simulate a stream data.
- *
- * <p>It uses the following options:
- * <ul>
- *  <li> Chunk size (<b>-k</b>)
- *  <li> Slide duration in milliseconds (<b>-d</b>)
- *  <li> Type of the instance to use, it should be "dense" or "sparse" (<b>-t</b>)
- *  <li> Data File Name (<b>-f</b>)
- *  <li> Data Header Format,uses weka's arff as default.(<b>-h</b>)
- * </ul>
- */
+  * FileReader is used to read data from one file of full data to simulate a stream data.
+  *
+  * <p>It uses the following options:
+  * <ul>
+  *  <li> Chunk size (<b>-k</b>)
+  *  <li> Slide duration in milliseconds (<b>-d</b>)
+  *  <li> Type of the instance to use, it should be "dense" or "sparse" (<b>-t</b>)
+  *  <li> Data File Name (<b>-f</b>)
+  *  <li> Data Header Format,uses weka's arff as default.(<b>-h</b>)
+  * </ul>
+  */
 
 class FileReader extends StreamReader with Logging {
 
@@ -52,10 +52,13 @@ class FileReader extends StreamReader with Logging {
     "Chunk Size", 10000, 1, Integer.MAX_VALUE)
 
   val slideDurationOption: IntOption = new IntOption("slideDuration", 'd',
-    "Slide Duration in milliseconds", 1000, 1, Integer.MAX_VALUE)
+    "Slide Duration in milliseconds", 100, 1, Integer.MAX_VALUE)
 
   val instanceOption: StringOption = new StringOption("instanceType", 't',
     "Type of the instance to use", "dense")
+
+  val instanceLimitOption: IntOption = new IntOption("instanceLimit", 'i',
+    "Limit of number of instance", 100000,1, Integer.MAX_VALUE)
 
   val fileNameOption: StringOption = new StringOption("fileName", 'f',
     "File Name", "../data/hyperplanesampledata")
@@ -70,6 +73,7 @@ class FileReader extends StreamReader with Logging {
   var hasHeadFile: Boolean = false
   var lines: Iterator[String] = null
   var spec: ExampleSpecification = null
+  var counter: Int = 0
 
   def init() {
     if (!isInited) {
@@ -83,7 +87,7 @@ class FileReader extends StreamReader with Logging {
         dataHeadTypeOption.getValue + ".head"
       val hfile: File = new File(headFileName)
       if (hfile.exists()) {
-        // has a head file 
+        // has a head file
         hasHeadFile = true
       }
       spec = headParser.getSpecification(
@@ -97,35 +101,37 @@ class FileReader extends StreamReader with Logging {
   }
 
   /**
-   * Obtains the specification of the examples in the stream.
-   *
-   * @return an ExampleSpecification of the features
-   */
+    * Obtains the specification of the examples in the stream.
+    *
+    * @return an ExampleSpecification of the features
+    */
   override def getExampleSpecification(): ExampleSpecification = {
     init()
     spec
   }
 
   /**
-   * Get one Exmaple from file
-   *
-   * @return an Exmaple
-   */
+    * Get one Example from file
+    *
+    * @return an Example
+    */
   def getExampleFromFile(): Example = {
     var exp: Example = null
+    // start to read file from its beginning.
     if (lines == null || !lines.hasNext) {
+      //get the whole file
       lines = Source.fromFile(fileName).getLines()
     }
     // if reach the end of file, will go to the head again
     if (!lines.hasNext) {
-      lines = Source.fromFile(fileName).getLines()
+      println("=============================")
+      println("\t\tEnd of file!")
+      println("=============================")
+      exp
     }
     var line = lines.next()
     while (!hasHeadFile && (line == "" || line.startsWith(" ") ||
       line.startsWith("%") || line.startsWith("@"))) {
-      //logInfo(line)
-      if (!lines.hasNext)
-        lines = Source.fromFile(fileName).getLines()
       line = lines.next()
     }
     if (!hasHeadFile) {
@@ -147,21 +153,35 @@ class FileReader extends StreamReader with Logging {
   }
 
   /**
-   * Obtains a stream of examples.
-   *
-   * @param ssc a Spark Streaming context
-   * @return a stream of Examples
-   */
+    * Obtains a stream of examples.
+    *
+    * @param ssc a Spark Streaming context
+    * @return a stream of Examples
+    */
   override def getExamples(ssc: StreamingContext): DStream[Example] = {
     init()
     new InputDStream[Example](ssc) {
-      override def start(): Unit = {}
+      override def start(): Unit = {
+        logInfo("File reading gets started.")
+      }
 
-      override def stop(): Unit = {}
+      override def stop(): Unit = {
+        logInfo("Reading file stopped.")
+      }
 
       override def compute(validTime: Time): Option[RDD[Example]] = {
         val examples: Array[Example] = Array.fill[Example](chunkSizeOption.getValue)(getExampleFromFile())
-        Some(ssc.sparkContext.parallelize(examples))
+        val examplesRDD = ssc.sparkContext.parallelize(examples)
+        // stop the stream when it gets over N instances.
+        counter = counter + 1
+        val limit = instanceLimitOption.getValue/ chunkSizeOption.getValue
+        if(counter > limit){
+          println("Over limit instances. STOP!" )
+          logInfo("Over limit instances. STOP!" )
+          ssc.stop(stopSparkContext = false, stopGracefully = false)
+        }
+        Some(examplesRDD)
+
       }
 
       override def slideDuration = {
