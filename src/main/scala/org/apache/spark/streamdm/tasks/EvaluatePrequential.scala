@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.tasks
 
-import com.github.javacliparser.{ClassOption, FlagOption, StringOption}
+import com.github.javacliparser._
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.streams._
@@ -53,6 +53,9 @@ class EvaluatePrequential extends Task {
   val shouldPrintHeaderOption:FlagOption = new FlagOption("shouldPrintHeader", 'h',
     "Whether or not to print the evaluator header on the output file")
 
+  val betaOption = new FloatOption("beta", 'b',
+    "Beta value for fbeta-score calculation.", 1.0, Double.MinValue, Double.MaxValue)
+
   /**
    * Run the task.
    * @param ssc The Spark Streaming context in which the task is run.
@@ -70,6 +73,8 @@ class EvaluatePrequential extends Task {
 
     val instances = reader.getExamples(ssc)
 
+    // It is important to set the evaluator parameters before invoking header() as they might influence the header.
+    evaluator.setParameters(Map({"beta" -> this.betaOption.getValue()}))
     if(shouldPrintHeaderOption.isSet) {
       writer.output(evaluator.header())
     }
