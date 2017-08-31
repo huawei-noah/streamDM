@@ -19,18 +19,22 @@ package org.apache.spark.streamdm.evaluation
 
 import java.io.Serializable
 
+import com.github.javacliparser.FloatOption
 import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Single label binary classification evaluator which computes the confusion
- * matrix from a stream of tuples composes of the testing Examples and doubles
+ * matrix from a stream of tuples composed of testing Examples and doubles
  * predicted by the learners.
  */
 class BasicClassificationEvaluator extends Evaluator{
+
+  val betaOption = new FloatOption("beta", 'b',
+    "Beta value for fbeta-score calculation.", 1.0, Double.MinValue, Double.MaxValue)
+
   var numInstancesCorrect = 0;
   var numInstancesSeen = 0;
-  var beta = 1.0;
 
   /**
    * Process the result of a predicted stream of Examples and Doubles.
@@ -53,7 +57,7 @@ class BasicClassificationEvaluator extends Evaluator{
     val recall = confMat{"tp"} / (confMat{"tp"}+confMat{"fn"})
     val precision = confMat{"tp"} / (confMat{"tp"}+confMat{"fp"})
     val specificity = confMat{"tn"} / (confMat{"tn"}+confMat{"fp"})
-    val f_beta_score = (1 + scala.math.pow(this.beta,2)) * ((precision * recall) / ((scala.math.pow(this.beta,2) * precision) + recall))
+    val f_beta_score = (1 + scala.math.pow(this.betaOption.getValue(),2)) * ((precision * recall) / ((scala.math.pow(this.betaOption.getValue(),2) * precision) + recall))
 
      "%.3f,%.3f,%.3f,%.3f,%.3f,%.0f,%.0f,%.0f,%.0f".format(
         accuracy, recall, precision, f_beta_score, specificity,
@@ -61,17 +65,7 @@ class BasicClassificationEvaluator extends Evaluator{
   }
 
   override def header(): String = {
-    "Accuracy,Recall,Precision,F(beta=%.1f)-score,Specificity,TP,FN,FP,TN".format(this.beta)
-  }
-
-  /**
-    * Set the beta parameter for fbeta-score calculation. If it was not set, the default value is used beta = 1.0
-    * @param parameters
-    */
-  override def setParameters(parameters: Map[String, Double]): Unit = {
-    super.setParameters(parameters)
-    if(parameters.contains("beta"))
-      this.beta = parameters{"beta"}
+    "Accuracy,Recall,Precision,F(beta=%.1f)-score,Specificity,TP,FN,FP,TN".format(this.betaOption.getValue())
   }
 
   /**
