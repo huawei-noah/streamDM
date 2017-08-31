@@ -18,7 +18,6 @@
 package org.apache.spark.streamdm.tasks
 
 import com.github.javacliparser._
-import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.streams._
 import org.apache.spark.streaming.StreamingContext
@@ -42,7 +41,7 @@ class EvaluatePrequential extends Task {
     "Learner to use", classOf[Classifier], "SGDLearner")
 
   val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
-    "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")
+    "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator -b 1.0")
 
   val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "org.apache.spark.streamdm.streams.generators.RandomTreeGenerator")
@@ -52,9 +51,6 @@ class EvaluatePrequential extends Task {
 
   val shouldPrintHeaderOption:FlagOption = new FlagOption("shouldPrintHeader", 'h',
     "Whether or not to print the evaluator header on the output file")
-
-  val betaOption = new FloatOption("beta", 'b',
-    "Beta value for fbeta-score calculation.", 1.0, Double.MinValue, Double.MaxValue)
 
   /**
    * Run the task.
@@ -73,8 +69,6 @@ class EvaluatePrequential extends Task {
 
     val instances = reader.getExamples(ssc)
 
-    // It is important to set the evaluator parameters before invoking header() as they might influence the header.
-    evaluator.setParameters(Map({"beta" -> this.betaOption.getValue()}))
     if(shouldPrintHeaderOption.isSet) {
       writer.output(evaluator.header())
     }
