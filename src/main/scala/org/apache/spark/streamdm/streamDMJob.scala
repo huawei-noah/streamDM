@@ -35,14 +35,15 @@ object streamDMJob {
     //configuration and initialization of model
     val conf = new SparkConf().setAppName("streamDM")
 
-    var newArgs = args.clone()
+    var paramsArgs = args.clone()
     var batchInterval: Int = 1000
     if(args.length > 0){
-      if(Try(args(0).toInt).isSuccess){
-        if(args(0).toInt > 0 && args(0).toInt < Int.MaxValue){
-          batchInterval = args(0).toInt
+      val firstArg = args(0)
+      if(Try(firstArg.toInt).isSuccess){
+        if(firstArg.toInt > 0 && firstArg.toInt < Int.MaxValue){
+          batchInterval = firstArg.toInt
         }
-        newArgs = newArgs.drop(1)
+        paramsArgs = paramsArgs.drop(1)
       }
     }
     println("BatchInterval: " + batchInterval + " ms")
@@ -50,7 +51,7 @@ object streamDMJob {
     val ssc = new StreamingContext(conf, Milliseconds(batchInterval))
 
     //run task
-    val string = if (newArgs.length > 0) newArgs.mkString(" ")
+    val string = if (paramsArgs.length > 0) paramsArgs.mkString(" ")
     else "EvaluatePrequential"
     val task:Task = ClassOption.cliStringToObject(string, classOf[Task], null)
     task.run(ssc)
