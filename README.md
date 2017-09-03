@@ -45,12 +45,16 @@ we also implemented following [data generators](http://huawei-noah.github.io/str
 We have also implemented [SampleDataWriter](http://huawei-noah.github.io/streamDM/docs/SampleDataWriter.html), which can call data generators 
 to create sample data for simulation or test.
 
-In the year of 2016, we plan to add: 
+In the next release of streamDM, we are going to add:
 
 * Classification: Random Forests
+* Multi-label: Hoeffding Tree ML, Random Forests ML
+* Frequent Itemset Miner: IncMine
+
+For future works, we are considering:
 * Regression: Hoeffding Regression Tree, Bagging, Random Forests
 * Clustering: Clustree, DenStream
-* Frequent Itemset Miner: IncMine, IncSecMine
+* Frequent Itemset Miner: IncSecMine
 
 ## Going Further
 
