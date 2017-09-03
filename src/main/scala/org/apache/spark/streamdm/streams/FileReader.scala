@@ -58,7 +58,7 @@ class FileReader extends StreamReader with Logging {
     "Type of the instance to use", "dense")
 
   val instanceLimitOption: IntOption = new IntOption("instanceLimit", 'i',
-    "Limit of number of instance", 100000,1, Integer.MAX_VALUE)
+    "Limit of number of instance", 100000, 1, Integer.MAX_VALUE)
 
   val fileNameOption: StringOption = new StringOption("fileName", 'f',
     "File Name", "../data/hyperplanesampledata")
@@ -124,9 +124,6 @@ class FileReader extends StreamReader with Logging {
     }
     // if reach the end of file, will go to the head again
     if (!lines.hasNext) {
-      println("=============================")
-      println("\t\tEnd of file!")
-      println("=============================")
       exp
     }
     var line = lines.next()
