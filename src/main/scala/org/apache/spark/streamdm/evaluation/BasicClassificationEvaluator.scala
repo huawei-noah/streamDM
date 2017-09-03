@@ -57,10 +57,10 @@ class BasicClassificationEvaluator extends Evaluator{
     val recall = confMat{"tp"} / (confMat{"tp"}+confMat{"fn"})
     val precision = confMat{"tp"} / (confMat{"tp"}+confMat{"fp"})
     val specificity = confMat{"tn"} / (confMat{"tn"}+confMat{"fp"})
-    val f_beta_score = (1 + scala.math.pow(this.betaOption.getValue(),2)) * ((precision * recall) / ((scala.math.pow(this.betaOption.getValue(),2) * precision) + recall))
+    val f_beta_score = (1 + scala.math.pow(this.betaOption.getValue(),2)) * ((precision * recall) /
+      ((scala.math.pow(this.betaOption.getValue(),2) * precision) + recall))
 
-     "%.3f,%.3f,%.3f,%.3f,%.3f,%.0f,%.0f,%.0f,%.0f".format(
-        accuracy, recall, precision, f_beta_score, specificity,
+     "%.3f,%.3f,%.3f,%.3f,%.3f,%.0f,%.0f,%.0f,%.0f".format(accuracy, recall, precision, f_beta_score, specificity,
         confMat{"tp"}, confMat{"fn"}, confMat{"fp"}, confMat{"tn"})
   }
 
