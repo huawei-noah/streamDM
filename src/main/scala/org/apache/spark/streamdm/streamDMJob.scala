@@ -20,8 +20,9 @@ package org.apache.spark.streamdm
 import org.apache.spark._
 import org.apache.spark.streamdm.tasks.Task
 import org.apache.spark.streaming._
-
 import com.github.javacliparser.ClassOption
+
+import scala.util.Try
 
 /**
  * The main entry point for testing StreamDM by running tasks on Spark
@@ -33,13 +34,25 @@ object streamDMJob {
 
     //configuration and initialization of model
     val conf = new SparkConf().setAppName("streamDM")
-    conf.setMaster("local[2]")
 
-    val ssc = new StreamingContext(conf, Seconds(10))
+    var paramsArgs = args.clone()
+    var batchInterval: Int = 1000
+    if(args.length > 0){
+      val firstArg = args(0)
+      if(Try(firstArg.toInt).isSuccess){
+        if(firstArg.toInt > 0 && firstArg.toInt < Int.MaxValue){
+          batchInterval = firstArg.toInt
+        }
+        paramsArgs = paramsArgs.drop(1)
+      }
+    }
+    println("BatchInterval: " + batchInterval + " ms")
+
+    val ssc = new StreamingContext(conf, Milliseconds(batchInterval))
 
     //run task
-    val string = if (args.length > 0) args.mkString(" ") 
-                  else "EvaluatePrequential"
+    val string = if (paramsArgs.length > 0) paramsArgs.mkString(" ")
+    else "EvaluatePrequential"
     val task:Task = ClassOption.cliStringToObject(string, classOf[Task], null)
     task.run(ssc)
 
