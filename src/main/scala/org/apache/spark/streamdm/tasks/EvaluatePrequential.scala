@@ -17,8 +17,7 @@
 
 package org.apache.spark.streamdm.tasks
 
-import com.github.javacliparser.{ClassOption, FlagOption, StringOption}
-import org.apache.spark.streamdm.core._
+import com.github.javacliparser._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.streams._
 import org.apache.spark.streaming.StreamingContext
