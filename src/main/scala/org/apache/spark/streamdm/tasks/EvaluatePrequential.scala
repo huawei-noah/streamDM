@@ -41,7 +41,7 @@ class EvaluatePrequential extends Task {
     "Learner to use", classOf[Classifier], "SGDLearner")
 
   val evaluatorOption:ClassOption = new ClassOption("evaluator", 'e',
-    "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator -b 1.0")
+    "Evaluator to use", classOf[Evaluator], "BasicClassificationEvaluator")
 
   val streamReaderOption:ClassOption = new ClassOption("streamReader", 's',
     "Stream reader to use", classOf[StreamReader], "org.apache.spark.streamdm.streams.generators.RandomTreeGenerator")
