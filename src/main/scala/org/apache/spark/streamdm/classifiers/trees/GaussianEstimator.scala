@@ -171,7 +171,6 @@ class GaussianEstimator(var weightSum: Double = 0.0, var mean: Double = 0.0,
     //less than weights sum
     val lsWeight = {
       if (stdDev() > 0) {
-//        Statistics.normalProbability((splitValue - getMean()) / stdDev())
         Statistics.normalProbability((splitValue - getMean()) / stdDev()) * weightSum - eqWeight
       } else {
         if (splitValue < getMean()) weightSum - eqWeight
