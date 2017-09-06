@@ -100,7 +100,9 @@ class InfoGainSplitCriterion extends SplitCriterion with Serializable {
    * @return the entropy
    */
   def entropy(pre: Array[Double]): Double = {
-    if (pre == null || pre.sum <= 0 || hasNegative(pre)) 0.0
+    if (pre == null || pre.sum <= 0 || hasNegative(pre)) {
+      0.0
+    }
     else {
       log2(pre.sum) - pre.filter(_ > 0).map(x => x * log2(x)).sum / pre.sum
     }
