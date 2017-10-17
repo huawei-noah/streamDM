@@ -163,7 +163,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   val graceNum: Int = 200, val tieThreshold: Double = 0.05,
   val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
   val nbThreshold: Int = 0, val noPrePrune: Boolean = true,
-  val removePoorFeatures: Boolean = false, val splitAll: Boolean = false)
+  val removePoorFeatures: Boolean = false, val splitAll: Boolean = false, val maxDepth: Int = 20)
     extends Model with Serializable with Logging {
 
   type T = HoeffdingTreeModel
@@ -310,45 +310,75 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   }
 
   /**
-   * merge with another model's FeatureObservers and root, and try to split
-   */
+    * Merge function: merge with another model's FeatureObservers and root, and try to split
+    * @param that : other HoeffdingTree Model
+    * @param trySplit: (false: only update statistics, true: attempt to split).
+    * @return this
+    */
   def merge(that: HoeffdingTreeModel, trySplit: Boolean): HoeffdingTreeModel = {
 
-    this.blockNumExamples += that.blockNumExamples
     this.lastExample = that.lastExample
+    this.listExamples.appendAll(that.listExamples)
     // merge root with another root
     root.merge(that.root, trySplit)
+    /**
+      *  Merge, then split. We have two choices:
+      *  - Split N times, with N = batchSize/gracePeriod
+      *  - Split at all leaves. Search for all leaves and split.
+      */
     if (trySplit) {
-      if (!splitAll) {
-        //try to split one leaf node
-        val foundNode = root.filterToLeaf(lastExample, null, -1)
-        foundNode.node match {
-          case activeNode: ActiveLearningNode => {
-            attemptToSplit(activeNode, foundNode.parent, foundNode.index)
+      if(this.treeHeight() < maxDepth){
+        if (!splitAll) {
+          var times = 0
+          listExamples.toArray.foreach{
+            x=> {
+              val foundNode = root.filterToLeaf(x, null, -1)
+              foundNode.node match {
+                case activeNode: ActiveLearningNode => {
+                  attemptToSplit(activeNode, foundNode.parent, foundNode.index)
+                }
+                // nhnminh: to fix the error of scala.matchError
+                case activeNode: InactiveLearningNode => {
+                  logInfo("InactiveLearningNode Found!")
+                }
+              }
+              times=times+1
+            }
+
+          }
+        } else {
+          //try to split all leaf nodes
+          val queue = new Queue[FoundNode]()
+          queue.enqueue(new FoundNode(root, null, -1))
+          var numLeaves = 0
+          var toSplit = 0
+          var totalAddOnWeight = 0.0
+          while (queue.size > 0) {
+            val foundNode = queue.dequeue()
+            foundNode.node match {
+              case splitNode: SplitNode => {
+                for (i <- 0 until splitNode.children.length)
+                  queue.enqueue(new FoundNode(splitNode.children(i), splitNode, i))
+              }
+              case activeNode: ActiveLearningNode => {
+                totalAddOnWeight = totalAddOnWeight+ activeNode.addOnWeight()
+                numLeaves = numLeaves + 1
+                if(activeNode.addOnWeight() > graceNum){
+                  attemptToSplit(activeNode, foundNode.parent, foundNode.index)
+                  toSplit = toSplit + 1
+                }
+              }
+              case other: Node => {}
+            }
           }
         }
-      } else {
-        //try to split all leaf nodes
-        val queue = new Queue[FoundNode]()
-        queue.enqueue(new FoundNode(root, null, -1))
-        while (queue.size > 0) {
-          val foundNode = queue.dequeue()
-          foundNode.node match {
-            case splitNode: SplitNode => {
-              for (i <- 0 until splitNode.children.length)
-                queue.enqueue(new FoundNode(splitNode.children(i), splitNode, i))
-            }
-            case activeNode: ActiveLearningNode => {
-              attemptToSplit(activeNode, foundNode.parent, foundNode.index)
-            }
-            case other: Node => {}
-          }
-        }
+        listExamples = new ArrayBuffer[Example]()
       }
-      logInfo("{tree size (nodes),tree size (leaves),active learning leaves,tree depth}")
-      val tree_size_nodes = activeNodeCount + decisionNodeCount + inactiveNodeCount
-      val tree_size_leaves = activeNodeCount + inactiveNodeCount
-      logInfo("{" + tree_size_nodes + "," + tree_size_leaves + "," + activeNodeCount + "," + treeHeight() + "}")
+      else{
+        println("|| Tree's height exceeds maxDepth! ||")
+        listExamples = new ArrayBuffer[Example]()
+      }
+
     }
     this
   }
