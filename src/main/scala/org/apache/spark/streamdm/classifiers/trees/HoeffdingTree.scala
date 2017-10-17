@@ -243,35 +243,35 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
     if (growthAllowed && learnNode.isInstanceOf[ActiveLearningNode]) {
       // split only happened when the tree is allowed to grow and the node is a ActiveLearningNode
       val activeNode = learnNode.asInstanceOf[ActiveLearningNode]
-      if (activeNode.addOnWeight() >= graceNum) {
-        val isPure = activeNode.isPure()
-        if (!isPure) {
-          // one best suggestion for each feature
-          var bestSuggestions: Array[FeatureSplit] = activeNode.getBestSplitSuggestions(splitCriterion, this)
-          //sort the suggestion based on the merit
-          bestSuggestions = bestSuggestions.sorted
-          if (shouldSplit(activeNode, bestSuggestions)) {
-            val best: FeatureSplit = bestSuggestions.last
-            if (best.conditionalTest == null) {
-              //deactive a learning node
-              deactiveLearningNode(activeNode, parent, pIndex)
-            } else {
-              logInfo("before Split:" + root.description())
-              //replace the ActiveLearningNode with a SplitNode and create children
-              val splitNode: SplitNode = new SplitNode(activeNode.classDistribution, best.conditionalTest)
-              for (index <- 0 until best.numSplit) {
-                splitNode.setChild(index,
-                  createLearningNode(learningNodeType, best.distributionFromSplit(index)))
-              }
-              // repalce the node
-              addSplitNode(splitNode, parent, pIndex)
-              logInfo("after Split:" + root.description())
+      val isPure = activeNode.isPure()
+      if (!isPure) {
+        // one best suggestion for each feature
+        var bestSuggestions: Array[FeatureSplit] = activeNode.getBestSplitSuggestions(splitCriterion, this)
+        //sort the suggestion based on the merit
+        bestSuggestions = bestSuggestions.sorted
+        if (shouldSplit(activeNode, bestSuggestions)) {
+          val best: FeatureSplit = bestSuggestions.last
+          if (best.conditionalTest == null) {
+            //deactivate a learning node
+            deactiveLearningNode(activeNode, parent, pIndex)
+          } else {
+            logInfo("split! ")
+            //replace the ActiveLearningNode with a SplitNode and create children
+            val splitNode: SplitNode = new SplitNode(activeNode.classDistribution, best.conditionalTest)
+            for (index <- 0 until best.numSplit) {
+              splitNode.setChild(index,
+                createLearningNode(learningNodeType, best.distributionFromSplit(index)))
             }
+            // replace the node
+            addSplitNode(splitNode, parent, pIndex)
+          }
+          val tree_size_nodes = activeNodeCount + decisionNodeCount + inactiveNodeCount
+          val tree_size_leaves = activeNodeCount + inactiveNodeCount
+          logInfo("{" + tree_size_nodes + "," + tree_size_leaves + "," + activeNodeCount + "," + treeHeight() + "}")
 
           }
           // todo manage memory
         }
-      }
     }
   }
 
