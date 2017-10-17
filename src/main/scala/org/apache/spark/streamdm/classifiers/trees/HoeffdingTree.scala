@@ -484,7 +484,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
       parent.setChild(pIndex, splitNode)
     }
     activeNodeCount += splitNode.numChildren() - 1
-    decisionNodeCount -= 1
+    decisionNodeCount += 1
   }
 
   /* Computes Heoffding Bound withe activeNode's class distribution
