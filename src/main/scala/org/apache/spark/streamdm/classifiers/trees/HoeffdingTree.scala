@@ -81,7 +81,7 @@ class HoeffdingTree extends Classifier {
 
   val numGraceOption: IntOption = new IntOption("numGrace", 'g',
     "The number of examples a leaf should observe between split attempts.",
-    300, 1, Int.MaxValue)
+    200, 1, Int.MaxValue)
 
   val tieThresholdOption: FloatOption = new FloatOption("tieThreshold", 't',
     "Threshold below which a split will be forced to break ties.", 0.05, 0, 1)
@@ -91,7 +91,7 @@ class HoeffdingTree extends Classifier {
     0.0000001, 0.0, 1.0)
 
   val learningNodeOption: IntOption = new IntOption("learningNodeType", 'l',
-    "Learning node type of leaf", 2, 0, 2)
+    "Learning node type of leaf", 0, 0, 2)
 
   val nbThresholdOption: IntOption = new IntOption("nbThreshold", 'q',
     "The number of examples a leaf should observe between permitting Naive Bayes", 0, 0, Int.MaxValue)
@@ -101,6 +101,10 @@ class HoeffdingTree extends Classifier {
   val removePoorFeaturesOption: FlagOption = new FlagOption("removePoorFeatures", 'r', "Disable poor features.")
 
   val splitAllOption: FlagOption = new FlagOption("SplitAll", 'a', "Split at all leaves")
+
+  val maxDepthOption: IntOption = new IntOption("MaxDepth", 'h',
+    "The max depth of tree to stop growing",
+    20, 0, Int.MaxValue)
 
   var model: HoeffdingTreeModel = null
 
@@ -113,10 +117,11 @@ class HoeffdingTree extends Classifier {
     val outputSpec = espec.outputFeatureSpecification(0)
     val numClasses = outputSpec.range()
     model = new HoeffdingTreeModel(espec, numericObserverTypeOption.getValue, splitCriterionOption.getValue(),
-      growthAllowedOption.isSet(), binaryOnlyOption.isSet(), numGraceOption.getValue(),
+      true, binaryOnlyOption.isSet(), numGraceOption.getValue(),
       tieThresholdOption.getValue, splitConfidenceOption.getValue(),
       learningNodeOption.getValue(), nbThresholdOption.getValue(),
-      noPrePruneOption.isSet(), removePoorFeaturesOption.isSet(), splitAllOption.isSet())
+      noPrePruneOption.isSet(), removePoorFeaturesOption.isSet(), splitAllOption.isSet(),
+      maxDepthOption.getValue())
     model.init()
   }
 
@@ -136,7 +141,8 @@ class HoeffdingTree extends Classifier {
       rdd =>
         val tmodel = rdd.aggregate(
           new HoeffdingTreeModel(model))(
-            (mod, example) => { mod.update(example) }, (mod1, mod2) => mod1.merge(mod2, false))
+            (mod, example) => { mod.update(example) },
+          (mod1, mod2) => { mod1.merge(mod2, false) })
         model = model.merge(tmodel, true)
     }
   }
@@ -175,7 +181,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   var blockNumExamples: Int = 0
 
   var lastExample: Example = null
-
+  var listExamples: ArrayBuffer[Example] = new ArrayBuffer[Example]()
   var root: Node = null
 
   def this(model: HoeffdingTreeModel) {
@@ -189,6 +195,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
     baseNumExamples = model.baseNumExamples + model.blockNumExamples
     this.root = model.root
     this.lastExample = model.lastExample
+    this.listExamples = model.listExamples
   }
 
   /* init the model */
@@ -205,6 +212,10 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
    */
   override def update(example: Example): HoeffdingTreeModel = {
     blockNumExamples += 1
+
+    if(blockNumExamples % graceNum == 1){
+      listExamples.append(example)
+    }
     lastExample = example
     if (root == null) {
       init
