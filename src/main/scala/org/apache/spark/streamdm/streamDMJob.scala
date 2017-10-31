@@ -46,7 +46,6 @@ object streamDMJob {
         paramsArgs = paramsArgs.drop(1)
       }
     }
-    println("BatchInterval: " + batchInterval + " ms")
 
     val ssc = new StreamingContext(conf, Milliseconds(batchInterval))
 
