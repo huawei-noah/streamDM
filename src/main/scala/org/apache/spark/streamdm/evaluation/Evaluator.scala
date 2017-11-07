@@ -21,12 +21,19 @@ import java.io.Serializable
 
 import com.github.javacliparser.Configurable
 import org.apache.spark.streamdm.core.Example
+import org.apache.spark.streamdm.core.specification.ExampleSpecification
 import org.apache.spark.streaming.dstream.DStream
 
 /**
  * Abstract class which defines the operations needed to evaluate learners.
  */
 abstract class Evaluator extends Configurable with Serializable{
+
+  var exampleLearnerSpecification: ExampleSpecification = null
+
+  def setExampleSpecification(exampleSpecification: ExampleSpecification) = {
+    exampleLearnerSpecification = exampleSpecification
+  }
 
   /**
    * Process the result of a predicted stream of Examples and Doubles.
@@ -44,11 +51,4 @@ abstract class Evaluator extends Configurable with Serializable{
   def header(): String = {
     ""
   }
-
-  /**
-   * Get the evaluation result.
-   *
-   * @return a Double containing the evaluation result
-   */
-  def getResult(): Double
 }

@@ -19,8 +19,6 @@ package org.apache.spark.streamdm.streams
 
 import java.io.File
 import scala.io.Source
-import scala.collection.mutable.ArrayBuffer
-import scala.util.Random
 
 import org.apache.spark.Logging
 import org.apache.spark.rdd.RDD
@@ -31,7 +29,6 @@ import com.github.javacliparser.{ IntOption, FloatOption, StringOption, FileOpti
 
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
-import org.apache.spark.streamdm.streams.generators.Generator
 
 /**
   * FileReader is used to read data from one file of full data to simulate a stream data.
@@ -81,7 +78,7 @@ class FileReader extends StreamReader with Logging {
       val file = new File(fileName)
       if (!file.exists()) {
         logError("file does not exists, input a new file name")
-        exit()
+        sys.exit()
       }
       headFileName = fileNameOption.getValue() + "." +
         dataHeadTypeOption.getValue + ".head"
@@ -132,7 +129,6 @@ class FileReader extends StreamReader with Logging {
       line = lines.next()
     }
     if (!hasHeadFile) {
-      //logInfo("UUUU" + line)
       if ("arff".equalsIgnoreCase(dataHeadTypeOption.getValue())) {
         exp = ExampleParser.fromArff(line, spec)
       } else {
@@ -173,12 +169,10 @@ class FileReader extends StreamReader with Logging {
         counter = counter + 1
         val limit = instanceLimitOption.getValue/ chunkSizeOption.getValue
         if(counter > limit){
-          println("Over limit instances. STOP!" )
           logInfo("Over limit instances. STOP!" )
           ssc.stop(stopSparkContext = false, stopGracefully = false)
         }
         Some(examplesRDD)
-
       }
 
       override def slideDuration = {
