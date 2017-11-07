@@ -249,4 +249,8 @@ object ConfusionMatrixMultiClass extends Serializable {
   DStream[Map[(Int, Int), Double]] =
     input.map(x => confusion(x, numClasses)).reduce( (x,y) =>
       y ++ x.map{ case (k,v) => k -> (v + y.getOrElse(k,0.0))} )
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 269ee3921dcd00c41ad586c045a5df6dd1054f22
