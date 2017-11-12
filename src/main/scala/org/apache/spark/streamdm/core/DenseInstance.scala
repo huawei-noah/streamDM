@@ -33,12 +33,13 @@ case class DenseInstance(inVector: Array[Double])
   val features = inVector
 
   /* Get the feature value present at position index
+  * In case the index does not exist or is invalid, then NaN is returned.
   *
   * @param index the index of the desired value 
   * @return a Double representing the feature value
   */
   override def apply(index: Int): Double =
-    if (index >= features.length || index < 0) 0.0 else features(index)
+    if (index >= features.length || index < 0) Double.NaN else features(index)
 
   /*
    * Return an array of features and indexes

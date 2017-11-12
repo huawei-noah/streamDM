@@ -36,13 +36,14 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
   val values = inValues
 
   /* Get the value present at position index
+  * In case the index does not exist or is invalid, then NaN is returned.
   *
   * @param index the index of the features
   * @return a Double representing the value, or 0.0 if not found
   */
   def apply(index: Int): Double = {
     var i: Int = 0
-    var value: Double = 0.0
+    var value: Double = Double.NaN
     var found = false
     while(i<indexes.length && !found) {
       if(indexes(i)==index) {

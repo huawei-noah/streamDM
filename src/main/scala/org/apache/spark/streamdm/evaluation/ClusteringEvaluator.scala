@@ -42,13 +42,6 @@ class ClusteringCohesionEvaluator extends Evaluator {
                     map{case (k,c,s) => (k,c)}
       inv.join(centr).map{case (k,(e,c))=>pow(e.in.distanceTo(c.in),2)}  
     }).reduce(_+_).map(x=>"SSE=%.5f".format(x))
-
-  /**
-   * Get the evaluation result.
-   *
-   * @return a Double containing the evaluation result
-   */ 
-  override def getResult():Double = 0.0
 }
 
 /**
@@ -76,13 +69,6 @@ class ClusteringSeparationEvaluator extends Evaluator {
       }
       centr.map{case (k,c,s)=>s*pow(c.in.distanceTo(centrAll.in),2)}
     }).reduce(_+_).map(x=>"SSB=%.5f".format(x))
-
-  /**
-   * Get the evaluation result.
-   *
-   * @return a Double containing the evaluation result
-   */
-  override def getResult():Double = 0.0
 }
 
 /**
