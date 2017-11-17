@@ -19,8 +19,6 @@ package org.apache.spark.streamdm.clusterers.clusters
 
 import org.apache.spark.streamdm.core._
 
-import math._
-
 /**
  * A MicroCluster contains the underlying structure for the Clustream processing
  * framework, and summarizes a number of instances belonging to the same

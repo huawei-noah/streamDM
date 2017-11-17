@@ -23,7 +23,7 @@ package org.apache.spark.streamdm.classifiers.model
  */
 class L2Regularizer extends Regularizer with Serializable {
   /** Computes the value of the gradient function
-   * @param value the weight for which the gradient is computed   
+   * @param valweightue the weight for which the gradient is computed
    * @return the gradient value 
    */
   def gradient(weight: Double): Double = weight 

@@ -18,17 +18,10 @@ package org.apache.spark.streamdm.streams.generators
 
 import scala.collection.immutable.List
 import scala.util.Random
-
-import org.apache.spark.Logging
-import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.{ Duration, Time, StreamingContext }
-import org.apache.spark.streaming.dstream.{ InputDStream, DStream }
-
+import org.apache.spark.internal.Logging
 import com.github.javacliparser.{ IntOption, FloatOption }
-
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
-import org.apache.spark.streamdm.streams.StreamReader
 
 /**
  * Stream generator for generating data from a randomly generated tree.
@@ -92,7 +85,7 @@ class RandomTreeGenerator extends Generator with Logging {
     "The fraction of leaves per level from firstLeafLevel onwards.",
     0.15, 0.0, 1.0)
 
-  var treeRoot: Node = null
+  var treeRoot: Node = _
 
   /**
    * returns chunk size
@@ -209,7 +202,7 @@ class RandomTreeGenerator extends Generator with Logging {
         val splitFeatureIndex = this.numNominalsOption.getValue() + numericIndex;
         val minVal = minNumericVals(numericIndex);
         val maxVal = maxNumericVals(numericIndex);
-        val splitFeatureValue = ((maxVal - minVal) * Random.nextDouble())
+        val splitFeatureValue = (maxVal - minVal) * Random.nextDouble()
         +minVal;
         val node = new BranchNode(splitFeatureIndex, 2, splitFeatureValue)
         val newMaxVals = maxNumericVals.clone()

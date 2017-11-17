@@ -18,14 +18,12 @@
 package org.apache.spark.streamdm.classifiers.trees
 
 import scala.collection.mutable.ArrayBuffer
-import scala.math.{ max }
-
-import org.apache.spark.Logging
+import scala.math.max
 
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.classifiers.bayes._
-import org.apache.spark.streamdm.utils.Utils.{ argmax }
+import org.apache.spark.streamdm.utils.Utils.argmax
 
 /**
  * Abstract class containing the node information for the Hoeffding trees.
@@ -412,7 +410,7 @@ class InactiveLearningNode(classDistribution: Array[Double])
   /**
    * Merge two nodes
    *
-   * @param node the node which will be merged
+   * @param that the node which will be merged
    * @param trySplit flag indicating whether the node will be split
    * @return new node
    */

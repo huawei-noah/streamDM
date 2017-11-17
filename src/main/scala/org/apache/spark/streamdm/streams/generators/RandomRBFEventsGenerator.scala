@@ -16,14 +16,9 @@
  */
 package org.apache.spark.streamdm.streams.generators
 
-import org.apache.spark.streamdm.streams.StreamReader
-import com.github.javacliparser.{ IntOption, FloatOption, FlagOption, StringOption }
-import org.apache.spark.rdd.RDD
+import com.github.javacliparser.{ IntOption, FloatOption, FlagOption }
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._
-import org.apache.spark.streamdm.streams.StreamReader
-import org.apache.spark.streaming.{ Duration, Time, StreamingContext }
-import org.apache.spark.streaming.dstream.{ InputDStream, DStream }
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import scala.math._

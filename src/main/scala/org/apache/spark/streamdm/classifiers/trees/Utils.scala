@@ -16,7 +16,8 @@
  */
 package org.apache.spark.streamdm.classifiers.trees
 
-import scala.math.{ max, min }
+import scala.math.min
+
 object Utils {
   /*
    * Add two arrays and return the min length of two input arrays.

@@ -20,13 +20,8 @@ package org.apache.spark.streamdm.clusterers
 import org.apache.spark.streamdm.clusterers.clusters._
 import org.apache.spark.streamdm.clusterers.utils._
 import org.apache.spark.streamdm.core._
-import org.apache.spark.streamdm.tasks._
-import org.apache.spark._
 import org.apache.spark.streaming.dstream._
 import com.github.javacliparser._
-import org.apache.spark.streaming._
-import org.apache.spark.streaming.StreamingContext._
-import com.github.javacliparser.ClassOption
 import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**

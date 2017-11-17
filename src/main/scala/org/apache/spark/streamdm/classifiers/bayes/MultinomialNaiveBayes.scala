@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.classifiers.bayes
 
-import scala.math.{ log, log10 }
+import scala.math.log10
 import com.github.javacliparser.IntOption
 import org.apache.spark.streaming.dstream._
 import org.apache.spark.streamdm.classifiers.Classifier
@@ -136,7 +136,7 @@ class MultinomialNaiveBayesModel(val numClasses: Int, val numFeatures: Int,
   /**
    * Update the model, depending on the Instance given for training.
    *
-   * @param change the example based on which the Model is updated
+   * @param instance the example based on which the Model is updated
    * @return the updated Model
    */
   override def update(instance: Example): MultinomialNaiveBayesModel = {

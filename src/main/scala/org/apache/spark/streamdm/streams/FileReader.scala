@@ -20,12 +20,12 @@ package org.apache.spark.streamdm.streams
 import java.io.File
 import scala.io.Source
 
-import org.apache.spark.Logging
+import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.{ DStream, InputDStream }
 import org.apache.spark.streaming.{ Time, Duration, StreamingContext }
 
-import com.github.javacliparser.{ IntOption, FloatOption, StringOption, FileOption }
+import com.github.javacliparser.{ IntOption, StringOption}
 
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.core.specification._

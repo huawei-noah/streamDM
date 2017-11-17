@@ -21,10 +21,10 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashSet
 import scala.math.{ log => math_log, sqrt }
 import scala.collection.mutable.Queue
-import org.apache.spark.Logging
+import org.apache.spark.internal.Logging
 import com.github.javacliparser._
 import org.apache.spark.streaming.dstream._
-import org.apache.spark.streamdm.utils.Utils.{ argmax }
+import org.apache.spark.streamdm.utils.Utils.argmax
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.core.specification.ExampleSpecification
