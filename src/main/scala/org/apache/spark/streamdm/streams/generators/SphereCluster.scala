@@ -30,9 +30,9 @@ class SphereCluster extends Cluster {
 
   def this(center: Array[Double], radius: Double, weightedSize: Double) {
     this()
-    this.center = center;
-    this.radius = radius;
-    this.weight = weightedSize;
+    this.center = center
+    this.radius = radius
+    this.weight = weightedSize
   }
 
   def this(center: Array[Double], radius: Double) {
@@ -85,7 +85,7 @@ class SphereCluster extends Cluster {
 
   def combine(cluster: SphereCluster): Unit = {
     var center: Array[Double] = getCenter()
-    var newcenter: Array[Double] = new Array[Double](center.length)
+    val newcenter: Array[Double] = new Array[Double](center.length)
     val other_center: Array[Double] = cluster.getCenter()
     val other_weight: Double = cluster.getWeight()
     val other_radius: Double = cluster.getRadius()
@@ -138,7 +138,7 @@ class SphereCluster extends Cluster {
 
   @Override
   def getCenter(): Array[Double] = {
-    var copy: Array[Double] = new Array[Double](center.length)
+    val copy: Array[Double] = new Array[Double](center.length)
     Array.copy(center, 0, copy, 0, center.length)
     copy
   }
@@ -177,7 +177,7 @@ class SphereCluster extends Cluster {
     //get the center through getCenter so subclass have a chance
     val center: Array[Double] = getCenter()
     for (i <- 0 until center.length) {
-      var d: Double = center(i) - instance(i)
+      val d: Double = center(i) - instance(i)
       distance += d * d
     }
     Math.sqrt(distance)

@@ -20,7 +20,6 @@ package org.apache.spark.streamdm.clusterers.clusters
 import org.apache.spark.streamdm.core._
 
 import scala.util.Random
-import scala.io.Source
 
 /**
  * A TreeCoreset contains the underlying tree structure for the coreset

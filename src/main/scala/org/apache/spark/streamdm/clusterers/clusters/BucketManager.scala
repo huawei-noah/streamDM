@@ -18,7 +18,6 @@
 package org.apache.spark.streamdm.clusterers.clusters
 
 import org.apache.spark.streamdm.core._
-import scala.math
 import scala.collection.mutable.Queue
 import scala.util.control.Breaks._
 

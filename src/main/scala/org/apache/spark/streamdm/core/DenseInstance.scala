@@ -17,8 +17,6 @@
 
 package org.apache.spark.streamdm.core
 
-import math._
-
 /**
  * A DenseInstance is an Instance in which the features are dense, i.e., there
  * exists a value for (almost) every feature.

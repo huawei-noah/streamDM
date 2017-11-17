@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.streams
 
-import org.apache.spark.streamdm.core.{Example}
+import org.apache.spark.streamdm.core.Example
 import org.apache.spark.streamdm.core.specification.ExampleSpecification
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream

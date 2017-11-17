@@ -20,7 +20,6 @@ package org.apache.spark.streamdm.streams.generators
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.{ Duration, Time, StreamingContext }
 import org.apache.spark.streaming.dstream.{ InputDStream, DStream }
-import com.github.javacliparser.IntOption
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.streams.StreamReader
 

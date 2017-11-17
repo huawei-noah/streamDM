@@ -18,8 +18,6 @@
 package org.apache.spark.streamdm.streams.generators
 
 import scala.collection.mutable.HashMap
-import scala.collection.mutable.StringBuilder
-import java.lang.String
 import org.apache.spark.streamdm.core.Instance
 import scala.util.Random
 
@@ -51,7 +49,7 @@ abstract class Cluster {
    * Returns the probability of the given point belonging to
    * this cluster.
    *
-   * @param point
+   * @param instance
    * @return a value between 0 and 1
    */
   def getInclusionProbability(instance: Instance): Double
