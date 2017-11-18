@@ -17,9 +17,9 @@
 
 package org.apache.spark.streamdm.classifiers.trees
 
-import scala.math.{ max,min }
+import scala.math.max
 
-import org.apache.spark.streamdm.utils.Utils.{log2}
+import org.apache.spark.streamdm.utils.Utils.log2
 
 trait SplitCriterionType
 

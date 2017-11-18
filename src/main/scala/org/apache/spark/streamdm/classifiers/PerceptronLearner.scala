@@ -17,11 +17,7 @@
 
 package org.apache.spark.streamdm.classifiers
 
-import com.github.javacliparser.{ClassOption, FloatOption, IntOption}
-import org.apache.spark.streamdm._
-import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.model._
-import org.apache.spark.streaming.dstream._
 
 /** The PerceptronLearner trains a LinearModel which is a perceptron. It
  * currently is implemented as an SGDLearner with a PerceptronLoss function.

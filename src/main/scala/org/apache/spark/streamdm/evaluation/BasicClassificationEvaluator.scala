@@ -20,7 +20,7 @@ package org.apache.spark.streamdm.evaluation
 import java.io.Serializable
 
 import com.github.javacliparser.FlagOption
-import org.apache.spark.Logging
+import org.apache.spark.internal.Logging
 import org.apache.spark.streamdm.core.specification.ExampleSpecification
 import com.github.javacliparser.FloatOption
 import org.apache.spark.streamdm.core.Example

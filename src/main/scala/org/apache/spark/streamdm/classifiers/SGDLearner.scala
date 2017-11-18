@@ -17,7 +17,6 @@
 
 package org.apache.spark.streamdm.classifiers
 
-import org.apache.spark.streamdm._
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers.model._
 import org.apache.spark.streaming.dstream._

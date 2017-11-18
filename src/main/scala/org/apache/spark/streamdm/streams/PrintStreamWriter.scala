@@ -17,11 +17,7 @@
 
 package org.apache.spark.streamdm.streams
 
-import com.github.javacliparser._
-import org.apache.spark.streamdm.core._
-import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streamdm.core.Instance
 
 /**
  * Stream writer that outputs the stream to the standard output.

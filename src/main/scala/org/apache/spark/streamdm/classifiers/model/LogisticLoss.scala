@@ -17,15 +17,13 @@
 
 package org.apache.spark.streamdm.classifiers.model
 
-import scala.math
-
 /**
  * Implementation of the logistic loss function.
  */
 
 class LogisticLoss extends Loss with Serializable {
   /** Computes the value of the loss function
-   * @param value the label against which the loss is computed   
+   * @param label the label against which the loss is computed
    * @param dot the dot product of the linear model and the instance
    * @return the loss value 
    */
@@ -35,7 +33,7 @@ class LogisticLoss extends Loss with Serializable {
   }
 
   /** Computes the value of the gradient function
-   * @param value the label against which the gradient is computed   
+   * @param label the label against which the gradient is computed
    * @param dot the dot product of the linear model and the instance
    * @return the gradient value 
    */

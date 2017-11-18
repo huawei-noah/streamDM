@@ -17,7 +17,6 @@
 
 package org.apache.spark.streamdm.core
 
-import org.apache.spark.streamdm.core._
 import org.apache.spark.streaming.dstream._
 import com.github.javacliparser.Configurable
 import org.apache.spark.streamdm.core.specification.ExampleSpecification

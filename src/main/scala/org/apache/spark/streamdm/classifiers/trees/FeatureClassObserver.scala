@@ -19,8 +19,7 @@ package org.apache.spark.streamdm.classifiers.trees
 
 import scala.collection.mutable.TreeSet
 import scala.math.{ min, max }
-import org.apache.spark.Logging
-import org.apache.spark.streamdm.core._
+import org.apache.spark.internal.Logging
 import org.apache.spark.streamdm.core.specification._
 import org.apache.spark.streamdm.utils.Utils.{ normal, transpose, splitTranspose }
 /**

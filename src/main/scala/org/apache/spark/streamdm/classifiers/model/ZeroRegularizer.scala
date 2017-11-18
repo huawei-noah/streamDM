@@ -22,7 +22,7 @@ package org.apache.spark.streamdm.classifiers.model
  */
 class ZeroRegularizer extends Regularizer with Serializable {
   /** Computes the value of the gradient function
-   * @param value the weight for which the gradient is computed   
+   * @param weight the weight for which the gradient is computed
    * @return the gradient value 
    */
   def gradient(weight: Double): Double = 0.0

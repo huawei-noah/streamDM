@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.classifiers.trees
 
-import org.apache.spark.streamdm.core.{ Example }
+import org.apache.spark.streamdm.core.Example
 
 /**
  * ConditionalTest is an abstract class for  conditional tests, used for

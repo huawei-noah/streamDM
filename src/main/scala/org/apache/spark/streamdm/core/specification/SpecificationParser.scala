@@ -18,8 +18,8 @@
 package org.apache.spark.streamdm.core.specification
 
 import scala.io.Source
-import org.apache.spark.Logging
-import org.apache.spark.streamdm.classifiers.trees.Utils.{ arraytoString }
+import org.apache.spark.internal.Logging
+import org.apache.spark.streamdm.classifiers.trees.Utils.arraytoString
 
 /*
  * class SpecificationParser helps to generate head for data

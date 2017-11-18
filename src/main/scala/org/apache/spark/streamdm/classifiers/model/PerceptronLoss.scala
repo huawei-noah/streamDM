@@ -24,7 +24,7 @@ package org.apache.spark.streamdm.classifiers.model
 
 class PerceptronLoss extends SquaredLoss with Serializable {
   /** Computes the value of the perceptron update function
-   * @param value the label against which the update is computed   
+   * @param label the label against which the update is computed
    * @param dot the dot product of the linear model and the instance
    * @return the update value 
    */
