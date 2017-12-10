@@ -59,6 +59,9 @@ class BasicClassificationEvaluator extends Evaluator with Logging {
     exampleLearnerSpecification = exampleSpecification
   }
 
+  // This stores the time in ns for the original call to addResult
+  var startTime: Long = 0
+
   /**
    * Process the result of a predicted stream of Examples and Doubles.
    * The second value of the tuple (Double) contains the predicted value.
@@ -68,6 +71,8 @@ class BasicClassificationEvaluator extends Evaluator with Logging {
    * @return a stream of String with the processed evaluation
    */
   override def addResult(input: DStream[(Example, Double)]): DStream[String] = {
+    this.startTime = System.nanoTime()
+
     val numClasses = exampleLearnerSpecification.outputFeatureSpecification(0).range
     if(numClasses == 2) {
       val confusionMatrix = ConfusionMatrix.computeMatrix(input)
@@ -86,6 +91,7 @@ class BasicClassificationEvaluator extends Evaluator with Logging {
     * @return one string containing the metrics
     */
   def calculateMetricsBinary(confMat : Map[String,Double] ): String = {
+    val timeTaken = (System.nanoTime() - startTime)/1e+9 // divide by 1e+9 to obtain the estimation in seconds.
     val accuracy = (confMat{"tp"}+confMat{"tn"})/(confMat{"tp"}+confMat{"tn"}+confMat{"fp"}+confMat{"fn"})
     val recall = confMat{"tp"} / (confMat{"tp"}+confMat{"fn"})
     val precision = confMat{"tp"} / (confMat{"tp"}+confMat{"fp"})
@@ -93,7 +99,7 @@ class BasicClassificationEvaluator extends Evaluator with Logging {
     val f_beta_score = (1 + scala.math.pow(this.betaOption.getValue(),2)) * ((precision * recall) /
       ((scala.math.pow(this.betaOption.getValue(),2) * precision) + recall))
 
-     "%.3f,%.3f,%.3f,%.3f,%.3f,%.0f,%.0f,%.0f,%.0f".format(accuracy, recall, precision, f_beta_score, specificity,
+     "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.0f,%.0f,%.0f,%.0f".format(timeTaken, accuracy, recall, precision, f_beta_score, specificity,
         confMat{"tp"}, confMat{"fn"}, confMat{"fp"}, confMat{"tn"})
   }
 
@@ -104,6 +110,7 @@ class BasicClassificationEvaluator extends Evaluator with Logging {
     * @return one string containing the metrics
     */
   def calculateMetricsMultiClass(confMat : Map[(Int, Int), Double]): String = {
+    val timeTaken = (System.nanoTime() - startTime)/1e+9 // divide by 1e+9 to obtain the estimation in seconds.
     val numClasses = exampleLearnerSpecification.outputFeatureSpecification(0).range
     val instancesSeenBatch = confMat.values.reduce(_+_)
     val accuracy = confMat.filter(t => t._1._1 == t._1._2).values.reduce(_+_) / instancesSeenBatch
@@ -116,7 +123,7 @@ class BasicClassificationEvaluator extends Evaluator with Logging {
     // Avoid division by zero in fscore
     val fscoreMacro = if ((squaredBeta * precisionMacro + recallMacro) != 0) ((squaredBeta +1) * precisionMacro * recallMacro) / (squaredBeta * precisionMacro + recallMacro) else 0.0
 
-    var output = "%.3f,%.3f,%.3f,%.3f,".format(accuracy, recallMacro, precisionMacro, fscoreMacro)
+    var output = "%.3f,%.3f,%.3f,%.3f,%.3f,".format(timeTaken, accuracy, recallMacro, precisionMacro, fscoreMacro)
 
     if(!this.supressPerClassMetricsOption.isSet()) {
       val strRecallPerClass = recallPerClass.foldLeft("")((r : String, c : Double) => r+"%.4f,".format(c))
@@ -188,17 +195,17 @@ class BasicClassificationEvaluator extends Evaluator with Logging {
   override def header(): String = {
     val numClasses = exampleLearnerSpecification.outputFeatureSpecification(0).range
     if(numClasses == 2) {
-      "Accuracy,Recall,Precision,F(beta=%.1f)-score,Specificity,TP,FN,FP,TN".format(this.betaOption.getValue())
+      "Runtime,Accuracy,Recall,Precision,F(beta=%.1f)-score,Specificity,TP,FN,FP,TN".format(this.betaOption.getValue())
     }
     else {
-      var output = "Accuracy,Recall-avg-macro,Precision-avg-macro,F(beta=%.1f)-score-avg-macro,".format(this.betaOption.getValue())
+      var output = "Runtime,Accuracy,Recall-avg-macro,Precision-avg-macro,F(beta=%.1f)-score-avg-macro,".format(this.betaOption.getValue())
       if(!this.supressPerClassMetricsOption.isSet()) {
         val perClassRecall = Range(0, numClasses).foldLeft("")( (s,i) => s + "Recall(" + i + "),")
         val perClassPrecision = Range(0, numClasses).foldLeft("")( (s,i) => s + "Precision(" + i + "),")
         output += perClassRecall + perClassPrecision
       }
       if(!this.supressConfusionMatrixOption.isSet()) {
-        output += "ConfusionMatrix(predicted groundtruth)"
+        output += "ConfusionMatrix(predicted ground-truth)"
       }
       output
     }
