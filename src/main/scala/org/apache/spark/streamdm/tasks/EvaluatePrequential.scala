@@ -18,7 +18,6 @@
 package org.apache.spark.streamdm.tasks
 
 import com.github.javacliparser._
-import org.apache.spark.internal.Logging
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.streams._
 import org.apache.spark.streaming.StreamingContext
@@ -36,7 +35,7 @@ import org.apache.spark.streamdm.evaluation.Evaluator
  *  <li> Writer (<b>-w</b>), a writer object of type <tt>StreamWriter</tt>
  * </ul>
  */
-class EvaluatePrequential extends Task with Logging {
+class EvaluatePrequential extends Task {
 
   val learnerOption:ClassOption = new ClassOption("learner", 'l',
     "Learner to use", classOf[Classifier], "SGDLearner")
@@ -74,8 +73,6 @@ class EvaluatePrequential extends Task with Logging {
     if(shouldPrintHeaderOption.isSet) {
       writer.output(evaluator.header())
     }
-
-    logInfo("run evaluate prequential")
 
     //Predict
     val predPairs = learner.predict(instances)
