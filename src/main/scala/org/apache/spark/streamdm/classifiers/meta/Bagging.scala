@@ -42,7 +42,7 @@ class Bagging extends Classifier {
   type T = LinearModel
 
   val baseClassifierOption: ClassOption = new ClassOption("baseClassifier", 'l',
-    "Base Classifier to use", classOf[Classifier], "SGDLearner")
+    "Base Classifier to use", classOf[Classifier], "trees.HoeffdingTree")
 
   val ensembleSizeOption: IntOption = new IntOption("ensembleSize", 's',
     "The number of models in the bag.", 10, 1, Integer.MAX_VALUE)
@@ -120,6 +120,4 @@ class Bagging extends Classifier {
     if (exampleLearnerSpecification == null) 2
     else exampleLearnerSpecification.out(0).range
   }
-
-
 }
