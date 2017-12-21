@@ -375,7 +375,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
         listExamples = new ArrayBuffer[Example]()
       }
       else{
-        println("|| Tree's height exceeds maxDepth! ||")
+        logInfo("Tree's height exceeds maxDepth")
         listExamples = new ArrayBuffer[Example]()
       }
 
