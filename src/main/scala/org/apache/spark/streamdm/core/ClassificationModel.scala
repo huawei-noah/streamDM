@@ -24,7 +24,7 @@ package org.apache.spark.streamdm.core
  */
 trait ClassificationModel extends Model {
 
-  /* Predict the label of the Instance, given the current Model
+  /** Predict the label of the Instance, given the current Model
    *
    * @param instance the Instance which needs a class predicted
    * @return a Double representing the class predicted
@@ -33,10 +33,9 @@ trait ClassificationModel extends Model {
 
   /** Computes the probability for a given label class, given the current Model
     *
-    * @param instance the Instance which needs a class predicted
+    * @param example the Example which needs a class predicted
     * @return the predicted probability
     */
-
-  def prob(instance: Example): Double
+  def prob(example: Example): Double
 
 }

@@ -24,7 +24,7 @@ import scala.collection.mutable.Queue
 import org.apache.spark.internal.Logging
 import com.github.javacliparser._
 import org.apache.spark.streaming.dstream._
-import org.apache.spark.streamdm.utils.Utils.argmax
+import org.apache.spark.streamdm.utils.Utils.{argmax, normal}
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
 import org.apache.spark.streamdm.core.specification.ExampleSpecification
@@ -164,14 +164,14 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   val splitConfedence: Double = 0.0000001, val learningNodeType: Int = 0,
   val nbThreshold: Int = 0, val noPrePrune: Boolean = true,
   val removePoorFeatures: Boolean = false, val splitAll: Boolean = false, val maxDepth: Int = 20)
-    extends Model with Serializable with Logging {
+    extends ClassificationModel with Serializable with Logging {
 
   type T = HoeffdingTreeModel
 
   val numFeatures = espec.numberInputFeatures()
   val outputSpec = espec.outputFeatureSpecification(0)
   val numClasses = outputSpec.range()
-  logInfo("numClasses" + outputSpec.range())
+
   var activeNodeCount: Int = 0
   var inactiveNodeCount: Int = 0
   var deactiveNodeCount: Int = 0
@@ -294,7 +294,7 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
     }
   }
 
-  def desableFeatures(activeNode: ActiveLearningNode, bestSuggestions: Array[FeatureSplit], hoeffdingBound: Double): Unit = {
+  def disableFeatures(activeNode: ActiveLearningNode, bestSuggestions: Array[FeatureSplit], hoeffdingBound: Double): Unit = {
     if (this.removePoorFeatures) {
       val poorFeatures = new HashSet[Integer]()
       val bestSuggestion = bestSuggestions.last
@@ -513,4 +513,21 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
     "Hoeffding Tree Model description:\n" + root.description()
   }
 
+  /** Computes the probability for a given label class, given the current Model
+    *
+    * @param example the Example which needs a class predicted
+    * @return the predicted probability
+    */
+  override def prob(example: Example): Double = {
+    if (root != null) {
+      val foundNode = root.filterToLeaf(example, null, -1)
+      var leafNode = foundNode.node
+      if (leafNode == null) {
+        leafNode = foundNode.parent
+      }
+      argmax(normal(leafNode.classVotes(this, example)))
+    } else {
+      0.0
+    }
+  }
 }
