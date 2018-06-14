@@ -103,7 +103,6 @@ class StreamKM extends Clusterer {
 
       val assignedCl = clusters.foldLeft((0, Double.MaxValue, 0))(
         (cl, centr) => {
-
           val dist = centr.in.distanceTo(ex.in)
           if (dist < cl._2) ((cl._3, dist, cl._3 + 1))
           else ((cl._1, cl._2, cl._3 + 1))
