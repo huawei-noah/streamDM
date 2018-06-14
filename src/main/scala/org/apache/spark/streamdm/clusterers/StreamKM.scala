@@ -44,7 +44,8 @@ class StreamKM extends Clusterer {
   var bucketmanager: BucketManager = null
   var numInstances: Long = 0
   var initialBuffer: Array[Example] = Array[Example]()
-  
+  var clusters: Array[Example] = null
+
   val kOption: IntOption = new IntOption("numClusters", 'k',
     "Number of clusters for output", 10, 1, Integer.MAX_VALUE)
   
@@ -80,6 +81,36 @@ class StreamKM extends Clusterer {
     })
   }
   
+   /** 
+   *  Maintain the BucketManager for coreset extraction, given an input DStream of Example.
+   * @param input a stream of instances
+   * @return a DStream of tuples containing the original Example and the
+   * assigned cluster.
+   */
+  def trainStreamKM(input: DStream[Example]):  DStream[(Example, Double)] = {
+
+    input.map(ex=> {
+      numInstances += 1
+      bucketmanager = bucketmanager.update(ex)
+      if(numInstances <= sizeCoresetOption.getValue){
+        clusters  = KMeans.cluster(bucketmanager.buckets(0).points.toArray,kOption.getValue,repOption.getValue)
+      }
+      else
+      {
+        val streamingCoreset = bucketmanager.getCoreset
+        clusters = KMeans.cluster(streamingCoreset,kOption.getValue,repOption.getValue)
+      }
+
+      val assignedCl = clusters.foldLeft((0, Double.MaxValue, 0))(
+        (cl, centr) => {
+
+          val dist = centr.in.distanceTo(ex.in)
+          if (dist < cl._2) ((cl._3, dist, cl._3 + 1))
+          else ((cl._1, cl._2, cl._3 + 1))
+        })._1
+      (ex,assignedCl)
+    })
+  }
   /**
    *  Gets the current Model used for the Learner.
    * @return the Model object used for training
