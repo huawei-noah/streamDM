@@ -55,23 +55,7 @@ class ClusteringTrainEvaluate extends Task {
    * @param ssc The Spark Streaming context in which the task is run.
    */
   def run(ssc:StreamingContext): Unit = {
-    //check if clusterer is streamkm
-    if(this.clustererOption.getValue().toString.contains("StreamKM")){
-      val reader:StreamReader = this.streamReaderOption.getValue()
-
-      val clusterer: StreamKM = new StreamKM()
-      clusterer.init(reader.getExampleSpecification())
-
-      val evaluator:Evaluator = this.evaluatorOption.getValue()
-
-      val writer:StreamWriter = this.resultsWriterOption.getValue()
-
-      val instances = reader.getExamples(ssc)
-      //Train and assign
-      val clpairs = clusterer.trainStreamKM(instances)
-      writer.output(evaluator.addResult(clpairs))
-    }
-    else {
+  
     val reader:StreamReader = this.streamReaderOption.getValue()
 
     val clusterer: Clusterer = this.clustererOption.getValue()
@@ -91,6 +75,6 @@ class ClusteringTrainEvaluate extends Task {
     
     //Print statistics
     writer.output(evaluator.addResult(clpairs))
-    }
+    
   }
 }
