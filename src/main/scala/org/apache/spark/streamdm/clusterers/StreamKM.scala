@@ -40,10 +40,8 @@ import org.apache.spark.streamdm.core.specification.ExampleSpecification
 class StreamKM extends Clusterer {
   
   type T = BucketManager
-
   var bucketmanager: BucketManager = null
   var numInstances: Long = 0
-  var initialBuffer: Array[Example] = Array[Example]()
   var clusters: Array[Example] = null
 
   val kOption: IntOption = new IntOption("numClusters", 'k',
@@ -68,48 +66,9 @@ class StreamKM extends Clusterer {
     bucketmanager = new BucketManager(widthOption.getValue, sizeCoresetOption.getValue)
   }
   
-  /** 
-   *  Maintain the BucketManager for coreset extraction, given an input DStream of Example.
-   * @param input a stream of instances
-   */
-  def train(input: DStream[Example]): Unit = {
-    input.foreachRDD(rdd => {
-      rdd.foreach(ex => {
-        bucketmanager = bucketmanager.update(ex)
-        numInstances += 1
-      })
-    })
-  }
-  
-   /** 
-   *  Maintain the BucketManager for coreset extraction, given an input DStream of Example.
-   * @param input a stream of instances
-   * @return a DStream of tuples containing the original Example and the
-   * assigned cluster.
-   */
-  def trainStreamKM(input: DStream[Example]):  DStream[(Example, Double)] = {
 
-    input.map(ex=> {
-      numInstances += 1
-      bucketmanager = bucketmanager.update(ex)
-      if(numInstances <= sizeCoresetOption.getValue){
-        clusters  = KMeans.cluster(bucketmanager.buckets(0).points.toArray,kOption.getValue,repOption.getValue)
-      }
-      else
-      {
-        val streamingCoreset = bucketmanager.getCoreset
-        clusters = KMeans.cluster(streamingCoreset,kOption.getValue,repOption.getValue)
-      }
-
-      val assignedCl = clusters.foldLeft((0, Double.MaxValue, 0))(
-        (cl, centr) => {
-          val dist = centr.in.distanceTo(ex.in)
-          if (dist < cl._2) ((cl._3, dist, cl._3 + 1))
-          else ((cl._1, cl._2, cl._3 + 1))
-        })._1
-      (ex,assignedCl)
-    })
-  }
+  def train(input: DStream[Example]): Unit = {}
+ 
   /**
    *  Gets the current Model used for the Learner.
    * @return the Model object used for training
@@ -130,21 +89,32 @@ class StreamKM extends Clusterer {
     }
   }
   
-  /**
-   *  Assigns examples to clusters, given the current Clusters data structure. 
-   * @param input the DStream of Examples to be assigned a cluster
+    /** 
+   *  Maintain the BucketManager for coreset extraction, given an input DStream of Example.
+   * @param input a stream of instances
    * @return a DStream of tuples containing the original Example and the
    * assigned cluster.
    */
   def assign(input: DStream[Example]): DStream[(Example,Double)] = {
-    input.map(x => {
-      val assignedCl = getClusters.foldLeft((0,Double.MaxValue,0))(
-        (cl,centr) => {
-          val dist = centr.in.distanceTo(x.in)
-          if(dist<cl._2) ((cl._3,dist,cl._3+1))
-          else ((cl._1,cl._2,cl._3+1))
-        })._1
-      (x,assignedCl)
-    })
+     input.map(ex=> {
+       numInstances += 1
+       bucketmanager = bucketmanager.update(ex)
+         if(numInstances <= sizeCoresetOption.getValue){
+           clusters  = KMeans.cluster(bucketmanager.buckets(0).points.toArray,kOption.getValue,repOption.getValue)
+         }
+         else
+         {
+            val streamingCoreset = bucketmanager.getCoreset
+            clusters = KMeans.cluster(streamingCoreset,kOption.getValue,repOption.getValue)
+         }
+
+        val assignedCl = clusters.foldLeft((0, Double.MaxValue, 0))(
+          (cl, centr) => {
+            val dist = centr.in.distanceTo(ex.in)
+            if (dist < cl._2) ((cl._3, dist, cl._3 + 1))
+            else ((cl._1, cl._2, cl._3 + 1))
+          })._1
+        (ex,assignedCl)
+     })
   }
 }
