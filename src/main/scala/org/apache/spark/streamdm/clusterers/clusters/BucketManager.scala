@@ -31,7 +31,8 @@ import scala.util.control.Breaks._
 class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
 
   type T = BucketManager
-  
+  val cacheMap: Cache = new Cache(2)
+  var counter: Int = 0
   /** 
    * Inner class Bucket for new instance management, this class has two buffers for
    * recursively computing the coresets.
@@ -109,6 +110,81 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
     this
   }
 
+   def updateWithCache(change: Example): BucketManager = {
+    // Check if there is enough space in the first bucket
+    var majorCoreset = Array[Example]()
+    if (buckets(0).isFull) {
+      var curbucket: Int = 0
+      var nextbucket: Int = 1
+      // Check if the next bucket is empty
+      if (!buckets(nextbucket).isFull) {
+        // Copy curbucket points to nextbucket points
+        val backpoints = buckets(curbucket).points.clone()
+        for (point <- backpoints) buckets(nextbucket).points.enqueue(point)
+        // Clear curbucket to empty
+        buckets(curbucket).points.clear()
+        counter = nextbucket
+
+      } else {
+        // Copy curbucket points to nextbucket spillover and continue
+        val backspillover = buckets(curbucket).points.clone()
+        buckets(nextbucket).spillover.clear()
+        for (point <- backspillover) buckets(nextbucket).spillover.enqueue(point)
+        // Clear curbucket to empty
+        buckets(curbucket).points.clear()
+        curbucket += 1
+        nextbucket += 1
+        /*
+         * As long as the nextbucket is full, output the coreset to the spillover
+         * of the next bucket
+         */
+        while (buckets(nextbucket).isFull) {
+          val examples = (buckets(curbucket).points union buckets(curbucket).spillover).toArray
+          val tree = new TreeCoreset
+          val coreset = tree.retrieveCoreset(tree.buildCoresetTree(examples, maxsize),
+            new Array[Example](0))
+          // Copy coreset to nextbucket spillover
+          buckets(nextbucket).spillover.clear()
+          for (point <- coreset) buckets(nextbucket).spillover.enqueue(point)
+          // Clear curbucket
+          buckets(curbucket).points.clear()
+          buckets(curbucket).spillover.clear()
+          curbucket += 1
+          nextbucket += 1
+          cacheMap.incrementsCounter()
+          counter = nextbucket
+        }
+        val examples = (buckets(curbucket).points union buckets(curbucket).spillover).toArray
+        val tree = new TreeCoreset
+        //caching
+        //compute the minor and major numbers to select
+        //which coresets are going to be inserted in cache (major)
+        //and which are going to be pulled from the tree (minor)
+        val minor = cacheMap.minor(curbucket)
+        val major = curbucket - minor
+        val minorLevel = cacheMap.minorLevel(curbucket)
+        if (major != 0) {
+           majorCoreset = cacheMap.getCoreset(major)
+        }
+        /* Merge minor coreset (aka coreset) with major coreset
+         * examples have the lower level of the tree
+         * then we add major coreset-if that exists- to extract a coreset
+         * and push it in the cache
+         */
+         val exPlusMajor =  examples++majorCoreset
+          val mergedCoreset = tree.retrieveCoreset(tree.buildCoresetTree(exPlusMajor, maxsize), new Array[Example](0))
+          buckets(nextbucket).points.clear()
+          cacheMap.insertCoreset(curbucket, mergedCoreset)
+          for (point <- mergedCoreset) buckets(nextbucket).points.enqueue(point)
+          // Clear curbucket
+          buckets(curbucket).points.clear()
+          buckets(curbucket).spillover.clear()
+      }
+    }
+    buckets(0).points.enqueue(change)
+    this
+  }
+
   /**
    * Return an array of weighted examples corresponding to the coreset extracted from
    * the TreeCoreset data structure, in order to be used in k-means.
@@ -143,4 +219,39 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
       coreset
     }
   }
+  
+  /* Retrieve a coreset from the cache */
+   def getCachedCoreset: Array[Example] = {
+    var majorCoreset = Array[Example]()
+    var coreset = Array[Example]()
+    var cnt = cacheMap.getCounter
+    if (cnt != 0) {
+      // smart start
+      if (cacheMap.getCoreset(cnt) != null) {
+        coreset = cacheMap.getCoreset(cnt)
+        coreset
+      }
+      // smart end
+      else {
+        val minor = cacheMap.minor(cnt)
+        val major = cnt - minor
+
+
+        val minorLevel = cacheMap.minorLevel(cnt)
+        if (major != 0) {
+          majorCoreset = cacheMap.getCoreset(major)
+        }
+        val examples = buckets(minorLevel).points.toArray ++ majorCoreset
+        val tree = new TreeCoreset
+        coreset = tree.retrieveCoreset(tree.buildCoresetTree(examples, maxsize),new Array[Example](0))
+        cacheMap.insertCoreset(cnt, coreset)
+        coreset
+      }
+    }
+    coreset
+  }
+  
+  
+  
+  
 }
