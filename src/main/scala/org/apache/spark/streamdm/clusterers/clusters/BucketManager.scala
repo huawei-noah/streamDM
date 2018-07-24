@@ -249,9 +249,5 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
       }
     }
     coreset
-  }
-  
-  
-  
-  
+  }  
 }
