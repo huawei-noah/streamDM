@@ -19,7 +19,6 @@ package org.apache.spark.streamdm.clusterers.clusters
 
 import org.apache.spark.streamdm.core._
 import scala.collection.mutable.Queue
-import scala.util.control.Breaks._
 
 
 /**
@@ -198,23 +197,25 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
    * @return the coreset for the examples entered into the buckets.
    */
   def getCoreset: Array[Example] = {
-    if(buckets(L-1).isFull) {
-     buckets(L-1).points.toArray 
-    }else {
+    var isFound: Boolean = false
+    if (buckets(L - 1).isFull) {
+      buckets(L - 1).points.toArray
+    } else {
       var i = 0
       var coreset = Array[Example]()
-      for(i <- 0 until L) {
-        if(buckets(i).isFull) {
+
+      for (i <- 0 until L) {
+        if (buckets(i).isFull && isFound == false) {
           coreset = buckets(i).points.toArray
-          break
+          isFound=true
         }
       }
-      val start = i+1
-      for(j <- start until L) {
+      val start = i + 1
+      for (j <- start until L) {
         val examples = buckets(j).points.toArray ++ coreset
         val tree = new TreeCoreset
         coreset = tree.retrieveCoreset(tree.buildCoresetTree(examples, maxsize),
-                    new Array[Example](0))
+          new Array[Example](0))
       }
       coreset
     }
