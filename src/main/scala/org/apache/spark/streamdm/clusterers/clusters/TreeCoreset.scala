@@ -82,17 +82,23 @@ class TreeCoreset {
      * Select a new centre from the leaf node for splitting. 
      * @return the new centre
      */
-    def chooseCentre() : Example = {
+   def chooseCentre(): Example = {
       val funcost = this.weightedLeaf().cost
-      val points = elem.points
+      val points = this.elem.points
       var sum = 0.0
+      val point = points.find(e => {
+        if (funcost == 0) false
+        else {
+          sum += costOfPoint(e) / funcost
+          if (sum >= Random.nextDouble) {
+            if (e.weight > 0.0) true
+            else false
+          }
+          else false
+        }
+      })
 
-      for(point <- points) {
-        sum += costOfPoint(point)/funcost
-        if(sum >= Random.nextDouble) 
-          return point
-      }
-      elem.centre
+      point.getOrElse(elem.centre)
     }
   }
 
@@ -159,15 +165,39 @@ class TreeCoreset {
       splitCoresetTreeLeaf(CoresetTreeLeaf(e, c))
     }
     case CoresetTreeNode(e, l, r, c) => {
-      if (Random.nextDouble > 0.5) {
-        val lchild = splitCoresetTree(l)
-        val newcost = lchild.cost + r.cost
-        CoresetTreeNode(e, lchild, r, newcost)
+      if(l.cost == 0 && r.cost == 0) {
+        if (l.elem.n == 0) {
+          val rchild = splitCoresetTree(r)
+          val newcost = l.cost + rchild.cost
+          CoresetTreeNode(e, l, rchild, newcost)
+        }
+        if (r.elem.n == 0) {
+          val lchild = splitCoresetTree(l)
+          val newcost = lchild.cost + r.cost
+          CoresetTreeNode(e, lchild, r, newcost)
+        }
+        else if (Random.nextDouble > 0.5) {
+          val lchild = splitCoresetTree(l)
+          val newcost = lchild.cost + r.cost
+          CoresetTreeNode(e, lchild, r, newcost)
+        }
+        else {
+          val rchild = splitCoresetTree(r)
+          val newcost = l.cost + rchild.cost
+          CoresetTreeNode(e, l, rchild, newcost)
+        }
       }
-      else {
-        val rchild = splitCoresetTree(r)
-        val newcost = l.cost + rchild.cost
-        CoresetTreeNode(e, l, rchild, newcost)
+      else
+      {
+        if(Random.nextDouble < l.cost/root.cost){
+          val lchild = splitCoresetTree(l)
+          val newcost = lchild.cost + r.cost
+          CoresetTreeNode(e, lchild, r, newcost)
+        } else {
+          val rchild = splitCoresetTree(r)
+          val newcost = l.cost + rchild.cost
+          CoresetTreeNode(e, l, rchild, newcost)
+        }
       }
     }
   }
