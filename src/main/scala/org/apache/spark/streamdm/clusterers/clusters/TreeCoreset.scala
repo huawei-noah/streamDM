@@ -82,23 +82,16 @@ class TreeCoreset {
      * Select a new centre from the leaf node for splitting. 
      * @return the new centre
      */
-   def chooseCentre(): Example = {
+   def chooseCentre() : Example = {
       val funcost = this.weightedLeaf().cost
-      val points = this.elem.points
+      val points = elem.points
       var sum = 0.0
-      val point = points.find(e => {
-        if (funcost == 0) false
-        else {
-          sum += costOfPoint(e) / funcost
-          if (sum >= Random.nextDouble) {
-            if (e.weight > 0.0) true
-            else false
-          }
-          else false
+        for (point <- points) {
+          sum += costOfPoint(point) / funcost
+          if (sum >= Random.nextDouble)
+            return point
         }
-      })
-
-      point.getOrElse(elem.centre)
+        elem.centre
     }
   }
 
@@ -125,34 +118,49 @@ class TreeCoreset {
    * @param leaf coreset tree leaf for spliting
    * @return a coreset tree node with two leaves
    */
-  private def splitCoresetTreeLeaf(leaf : CoresetTreeLeaf) : CoresetTreeNode = {
-    // Select a example from the points associated with the leaf  as a new centre 
-    // for one of the new leaf 
+   private def splitCoresetTreeLeaf(leaf : CoresetTreeLeaf) : CoresetTreeNode = {
+    // Select a example from the points associated with the leaf  as a new centre
+    // for one of the new leaf
+
     val newcentre = leaf.chooseCentre
+
     // The original centre as the other leaf centre
     val oldcentre = leaf.elem.centre
     // The points associated with the orignial leaf, the points will be assigned the new leaves
     val points = leaf.elem.points
-    
     // Assign points to leftpoints and rightpoints
     var leftpoints = new Array[Example](0)
     var rightpoints = new Array[Example](0)
-    for(point <- points) {
-      if(squaredDistance(point, newcentre) < squaredDistance(point, oldcentre))
+    for (point <- points) {
+      if (squaredDistance(point, newcentre) < squaredDistance(point, oldcentre))
         leftpoints = leftpoints :+ point
       else
         rightpoints = rightpoints :+ point
     }
-    
-    // Create new leaves 
+    //prevent assigning all points to one child
+    //resplit points to leftpoints and rightpoints
+    if((leftpoints.length == 0 || rightpoints.length==0 ) && points.length>1){
+      val newcentre = leaf.chooseCentre
+      var leftpoints = new Array[Example](0)
+      var rightpoints = new Array[Example](0)
+      for (point <- points) {
+        if (squaredDistance(point, newcentre) < squaredDistance(point, oldcentre))
+          leftpoints = leftpoints :+ point
+        else
+          rightpoints = rightpoints :+ point
+      }
+    }
+
+    // Create new leaves
     val leftElem = new CoresetTreeElem(leftpoints.length, leftpoints, newcentre)
     val leftleaf = CoresetTreeLeaf(leftElem, 0.0).weightedLeaf
-    
+
     val rightElem = new CoresetTreeElem(rightpoints.length, rightpoints, oldcentre)
     val rightleaf = CoresetTreeLeaf(rightElem, 0.0).weightedLeaf
-    
+
     // Return a coreset tree node with two leaves
-    new CoresetTreeNode(leaf.elem, leftleaf, rightleaf, leftleaf.cost+rightleaf.cost)
+    new CoresetTreeNode(leaf.elem, leftleaf, rightleaf, leftleaf.cost + rightleaf.cost)
+
   }
 
   /**
