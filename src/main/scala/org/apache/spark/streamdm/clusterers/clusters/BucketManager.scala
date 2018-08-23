@@ -30,8 +30,6 @@ import scala.collection.mutable.Queue
 class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
 
   type T = BucketManager
-  val cacheMap: Cache = new Cache(2)
-  var counter: Int = 0
   /** 
    * Inner class Bucket for new instance management, this class has two buffers for
    * recursively computing the coresets.
@@ -57,7 +55,7 @@ class BucketManager(val n : Int, val maxsize : Int) extends Clusters {
     // Check if there is enough space in the first bucket
     if(buckets(0).isFull){
       var curbucket : Int = 0
-      var nextbucket : Int =1
+      var nextbucket : Int = 1
       // Check if the next bucket is empty
       if(!buckets(nextbucket).isFull) {
         // Copy curbucket points to nextbucket points  
