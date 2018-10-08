@@ -25,7 +25,7 @@ package org.apache.spark.streamdm.core
  * value of 0.
  */
 
-case class NullInstance extends Instance with Serializable {
+case class NullInstance() extends Instance with Serializable {
 
   type T = NullInstance
 
