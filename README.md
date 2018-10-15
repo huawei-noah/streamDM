@@ -63,8 +63,14 @@ Started](http://huawei-noah.github.io/streamDM/docs/GettingStarted.html) documen
 Guide](http://huawei-noah.github.io/streamDM/docs/Programming.html) presents a detailed view of StreamDM. The full API
 documentation can be consulted [here](http://huawei-noah.github.io/streamDM/api/index.html). 
 
-##Mailing lists
-###User support and questions mailing list:
+## Environment
+* Spark 2.3.2
+* Scala 2.11
+* SBT 0.13
+* Java 8+
+
+## Mailing lists
+### User support and questions mailing list:
 <a href="mailto:streamdm-user@googlegroups.com">streamdm-user@googlegroups.com</a>
-###Development related discussions:
+### Development related discussions:
 <a href="mailto:streamdm-dev@googlegroups.com">streamdm-dev@googlegroups.com</a>
