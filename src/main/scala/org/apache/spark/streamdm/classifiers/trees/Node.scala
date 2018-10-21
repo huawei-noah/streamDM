@@ -372,11 +372,13 @@ class ActiveLearningNode(classDistribution: Array[Double])
       val node = that.asInstanceOf[ActiveLearningNode]
       //merge addonWeight and class distribution
       if (!trySplit) {
+        logInfo("!trySplit - this.blockAddonWeight: " + this.blockAddonWeight + " that.blockClassDistribution.sum: " + node.blockClassDistribution.sum)
         this.blockAddonWeight += node.blockClassDistribution.sum
         for (i <- 0 until blockClassDistribution.length)
           this.blockClassDistribution(i) += node.blockClassDistribution(i)
       } else {
-        this.addonWeight = this.blockAddonWeight
+        logInfo("trySplit == true - this.addonWeight: " + this.addonWeight + " this.blockAddonWeight: " + this.blockAddonWeight)
+        this.addonWeight = node.blockAddonWeight //this.blockAddonWeight
         for (i <- 0 until classDistribution.length)
           this.classDistribution(i) += node.blockClassDistribution(i)
       }
