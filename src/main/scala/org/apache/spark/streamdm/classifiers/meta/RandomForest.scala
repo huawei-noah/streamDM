@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Télécom ParisTech LCTI lab.
+ * Copyright (C) 2018 Télécom ParisTech LTCI lab.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,16 +30,25 @@ import org.apache.spark.streamdm.utils.Utils
 import org.apache.spark.streaming.dstream._
 
 /**
-  * The Bagging classifier trains an ensemble of classifier to improve performance.
-  * It is based on doing sampling with replacement at the input of each classifier.
+  * The streaming version of a Random Forest classifier.
+  * The 2 most important aspects of this ensemble classifier are:
+  * (1) inducing diversity through online bagging;
+  * (2) inducing diversity through randomly selecting subsets of features for node splits;</p>
+  *
+  * <p>See details in:<br> Heitor Murilo Gomes, Albert Bifet, Jesse Read,
+  * Jean Paul Barddal, ..., Bernhard Pfharinger, Geoff Holmes,
+  * Talel Abdessalem. Adaptive random forests for evolving data stream classification.
+  * In Machine Learning, DOI: 10.1007/s10994-017-5642-8, Springer, 2017.</p>
   *
   * <p>It uses the following options:
   * <ul>
-  *  <li> Base Classifier to use (<b>-l</b>)
+  *  <li> Hyper-parameters to the base classifier (HoeffdingTree) (<b>-l</b>)
   *  <li> Size of the ensemble (<b>-s</b>)
+  *  <li> The subset of features mode (how to interpret -m) (<b>-o</b>)
+  *  <li> Size of the subset of randomly selected features per split (<b>-m</b>)
+  *  <li> The lambda value for online bagging (<b>-a</b>)
   * </ul>
   */
-
 class RandomForest extends Classifier with Logging {
 
   type T = LinearModel
@@ -78,7 +87,7 @@ class RandomForest extends Classifier with Logging {
   protected val FEATURES_SQRT_INV = 2
   protected val FEATURES_PERCENT = 3
 
-  /* Init the model based on the algorithm implemented in the learner,
+  /** Init the model based on the algorithm implemented in the learner,
    * from the stream of instances given for training.
    *
    */
@@ -128,11 +137,11 @@ class RandomForest extends Classifier with Logging {
 
   }
 
-  /* Train the ensemble training each of the members of the ensemble
-     *
-     * @param input a stream of instances
-     * @return the updated Model
-     */
+  /** Train the ensemble training each of the members of the ensemble
+   *
+   * @param input a stream of instances
+   * @return the updated Model
+   */
   override def train(input: DStream[Example]): Unit = {
     for (i <- 0 until ensembleSizeOption.getValue) {
       trees(i).train(input.map(onlineSampling))
@@ -144,7 +153,7 @@ class RandomForest extends Classifier with Logging {
     }
   }
 
-  /* Builds a stream of examples and predictions based on the algorithm implemented in the classifier,
+  /** Builds a stream of examples and predictions based on the algorithm implemented in the classifier,
     * from the stream of instances given for testing.
     *
     * @param input a stream of examples
@@ -153,13 +162,13 @@ class RandomForest extends Classifier with Logging {
   override def predict(input: DStream[Example]): DStream[(Example, Double)] =
     input.map(x => (x, ensemblePredict(x)))
 
-  /* Gets the current Model used for the Learner.
+ /** Gets the current Model used for the Learner.
   *
   * @return the Model object used for training
   */
   override def getModel: LinearModel = null
 
-  /* Predict the label of an example combining the predictions of the members of the ensemble
+  /** Predict the label of an example combining the predictions of the members of the ensemble
    *
    * @param example the Example which needs a class predicted
    * @return the predicted value
@@ -170,6 +179,9 @@ class RandomForest extends Classifier with Logging {
     for (i <- 0 until sizeEnsemble) {
       predictions(i) = trees(i).getModel.asInstanceOf[ClassificationModel].predict(example)
     }
+    val predictionsStr: String = predictions.map(p => p + ",").reduce((p1,p2) => p1+p2)
+    logInfo(predictionsStr)
+
     Utils.majorityVote(predictions, numberClasses)
   }
 
