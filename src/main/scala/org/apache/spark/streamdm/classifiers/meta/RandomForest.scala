@@ -179,7 +179,7 @@ class RandomForest extends Classifier with Logging {
     for (i <- 0 until sizeEnsemble) {
       predictions(i) = trees(i).getModel.asInstanceOf[ClassificationModel].predict(example)
     }
-    val predictionsStr: String = predictions.map(p => p + ",").reduce((p1,p2) => p1+p2)
+    val predictionsStr: String = predictions.map(p => p + ",").reduce((p1, p2) => p1 + p2)
     logInfo(predictionsStr)
 
     Utils.majorityVote(predictions, numberClasses)
