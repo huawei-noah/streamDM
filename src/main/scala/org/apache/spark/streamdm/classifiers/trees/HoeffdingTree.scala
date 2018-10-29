@@ -17,7 +17,7 @@
 
 package org.apache.spark.streamdm.classifiers.trees
 
-import scala.math.{ log => math_log, sqrt }
+import scala.math.{sqrt, log => math_log}
 import scala.collection.mutable.Queue
 import org.apache.spark.internal.Logging
 import com.github.javacliparser._
@@ -25,6 +25,7 @@ import org.apache.spark.streaming.dstream._
 import org.apache.spark.streamdm.utils.Utils.{argmax, normal}
 import org.apache.spark.streamdm.core._
 import org.apache.spark.streamdm.classifiers._
+import org.apache.spark.streamdm.classifiers.trees.nodes._
 import org.apache.spark.streamdm.core.specification.ExampleSpecification
 
 /**
@@ -125,7 +126,7 @@ class HoeffdingTree extends Classifier with Logging {
       true, binaryOnlyOption.isSet(), numGraceOption.getValue(),
       tieThresholdOption.getValue, splitConfidenceOption.getValue(),
       learningNodeOption.getValue(), nbThresholdOption.getValue(),
-      noPrePruneOption.isSet(), removePoorFeaturesOption.isSet()/*, splitAllOption.isSet()*/,
+      noPrePruneOption.isSet(), removePoorFeaturesOption.isSet(),
       maxDepthOption.getValue(), this.numSplitFeatures)
     model.init()
   }
@@ -144,11 +145,11 @@ class HoeffdingTree extends Classifier with Logging {
   override def train(input: DStream[Example]): Unit = {
     input.foreachRDD {
       rdd =>
-        val tmodel = rdd.aggregate(
+        val latestModel = rdd.aggregate(
           new HoeffdingTreeModel(model))(
-          (mod, example) => { mod.update(example) },
-          (mod1, mod2) => { mod1.merge(mod2, false) })
-        model = model.merge(tmodel, true)
+          (updatedModel, example) => { updatedModel.update(example) },
+          (mergeModel1, mergeModel2) => { mergeModel1.merge(mergeModel2, false) })
+        model = model.merge(latestModel, true)
         logInfo("training " + model.description())
     }
   }
@@ -191,18 +192,14 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
   def this(model: HoeffdingTreeModel) {
     this(model.espec, model.numericObserverType, model.splitCriterion, model.growthAllowed,
       model.binaryOnly, model.graceNum, model.tieThreshold, model.splitConfedence,
-      model.learningNodeType, model.nbThreshold, model.noPrePrune, model.removePoorFeatures/*,
-      model.splitAll*/, model.maxDepth, model.numSplitFeatures)
+      model.learningNodeType, model.nbThreshold, model.noPrePrune, model.removePoorFeatures,
+      model.maxDepth, model.numSplitFeatures)
     activeNodeCount = model.activeNodeCount
     this.inactiveNodeCount = model.inactiveNodeCount
     this.deactiveNodeCount = model.deactiveNodeCount
     this.decisionNodeCount = model.decisionNodeCount
     baseNumExamples = model.baseNumExamples + model.blockNumExamples
     this.root = model.root
-    //    this.lastExample = model.lastExample
-    //    this.listExamples = model.listExamples
-
-    //    logInfo("this numSplitFeatures = %d".format(numSplitFeatures))
   }
 
   /* init the model */
@@ -304,21 +301,6 @@ class HoeffdingTreeModel(val espec: ExampleSpecification, val numericObserverTyp
       } else false
     }
   }
-
-  //  def disableFeatures(activeNode: ActiveLearningNode, bestSuggestions: Array[FeatureSplit], hoeffdingBound: Double): Unit = {
-  //    if (this.removePoorFeatures) {
-  //      val poorFeatures = new HashSet[Integer]()
-  //      val bestSuggestion = bestSuggestions.last
-  //      for (suggestion: FeatureSplit <- bestSuggestions) {
-  //        if (suggestion.conditionalTest != null &&
-  //          bestSuggestion.merit - suggestion.merit > hoeffdingBound) {
-  //          val fIndex = suggestion.conditionalTest.featureIndex()
-  //          poorFeatures.add(fIndex)
-  //          activeNode.disableFeature(fIndex)
-  //        }
-  //      }
-  //    }
-  //  }
 
   /**
     * Merge function: merge with another model's FeatureObservers and root, and try to split
