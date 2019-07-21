@@ -1,13 +1,21 @@
-name := "streamDM (Spark Streaming)"
+name := "streamDM"
 
-version := "0.2"
+organization := "huawei-noah"
 
 scalaVersion := "2.11.8"
 
-libraryDependencies += "org.apache.spark" %% "spark-core" % "2.3.2"
+sparkVersion := "2.3.2"
 
-libraryDependencies += "org.apache.spark" % "spark-streaming_2.11" % "2.3.2"
+spName := "huawei-noah/streamDM"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
+spShortDescription := "streamDM is an open source software for mining big data streams using Spark Streaming"
 
-libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.6.3"
+version := "0.0.1"
+
+licenses := Seq("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
+
+spIncludeMaven := false
+
+credentials += Credentials(Path.userHome / ".ivy2" / ".sbtcredentials")
+
+sparkComponents ++= Seq("streaming")
