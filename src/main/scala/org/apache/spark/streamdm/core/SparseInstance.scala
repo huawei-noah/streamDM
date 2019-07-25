@@ -20,27 +20,26 @@ package org.apache.spark.streamdm.core
 import math._
 
 /**
- * A SparseInstance is an Instance in which the features are sparse, i.e., most
- * features will not have any value.
- * The SparseInstance will keep two Arrays: one with the values and one with the
- * corresponding indexes. The implementation will be based on these two data
- * structures.
- */
-
+  * A SparseInstance is an Instance in which the features are sparse, i.e., most
+  * features will not have any value.
+  * The SparseInstance will keep two Arrays: one with the values and one with the
+  * corresponding indexes. The implementation will be based on these two data
+  * structures.
+  */
 case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
   extends Instance with Serializable {
-  
+
   type T = SparseInstance
 
   val indexes = inIndexes
   val values = inValues
 
-  /* Get the value present at position index
-  * In case the index does not exist or is invalid, then NaN is returned.
-  *
-  * @param index the index of the features
-  * @return a Double representing the value, or 0.0 if not found
-  */
+  /** Get the value present at position index
+    * In case the index does not exist or is invalid, then NaN is returned.
+    *
+    * @param index the index of the features
+    * @return a Double representing the value, or 0.0 if not found
+    */
   def apply(index: Int): Double = {
     var i: Int = 0
     var value: Double = Double.NaN
@@ -55,80 +54,72 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
     value
   }
 
-    /*
-   * Return an array of features and indexes
-   *
-   * @return an array of turple2(value,index)
-   */
+  /**
+    * Return an array of features and indexes
+    *
+    * @return an array of turple2(value,index)
+    */
   def getFeatureIndexArray(): Array[(Double, Int)] = inValues.zip(inIndexes)
-  
-  /* Perform a dot product between two instances
-  *
-  * @param input an Instance with which the dot
-  * product is performed
-  * @return a Double representing the dot product 
-  */
+
+  /** Perform a dot product between two instances
+    *
+    * @param input an Instance with which the dot
+    * product is performed
+    * @return a Double representing the dot product
+    */
   override def dot(input: Instance): Double = {
     var i: Int = 0
     var dot: Double = 0.0
     while(i<indexes.length) {
-      dot += values(i)*input(indexes(i))
+      val value = if(values(i).isNaN()) 0.0 else values(i)
+      val inputValue = if(input(indexes(i)).isNaN()) 0.0 else input(indexes(i))
+      dot += value * inputValue
       i += 1
     }
     dot
   }
 
   /** Perform an element by element addition between two instances
-   *
-   * @param input an Instance which is added up
-   * @return a SparseInstance representing the added Instances
-   */
+    *
+    * @param input an Instance which is added up
+    * @return a SparseInstance representing the added Instances
+    */
   override def add(input: Instance): SparseInstance = input match {
-    case SparseInstance(ind,v) => {
+    case SparseInstance(inputIndexes, _) => {
+      val bothIndexes: Array[Int] = indexes.toSet.union(inputIndexes.toSet).toArray
+      val addedFeatures: Array[Double] = Array.fill(bothIndexes.length){0}
+
       var i: Int = 0
-      var addedFeatures: Array[Double] = Array()
-      var addedIndexes: Array[Int] = Array()
-      while(i<ind.length) {
-        val sum = v(i) + apply(ind(i))
-        if(v(i)!=0 && sum!=0) {
-          addedIndexes :+= ind(i)
-          addedFeatures :+= sum
-        }
+      for(index <- bothIndexes) {
+        val value1 = if(apply(index).isNaN()) 0.0 else apply(index)
+        val value2 = if(input(index).isNaN()) 0.0 else input(index)
+        addedFeatures(i) = value1 + value2
         i += 1
       }
-      i = 0
-      while(i<indexes.length) {
-        val other = input(indexes(i))
-        if(other==0 && values(i)!=0) {
-          addedIndexes :+= indexes(i)
-          addedFeatures :+= values(i)
-        }
-        i += 1
-      }
-      new SparseInstance(addedIndexes, addedFeatures)
+      new SparseInstance(bothIndexes, addedFeatures)
     }
-    case DenseInstance(f) => {
+    case DenseInstance(_) => {
+      // Range(0 to inputValues.length) are the indexes from the DenseInstance
+      val bothIndexes: Array[Int] = indexes.toSet.union(Range(0, input.getFeatureIndexArray().length).toSet).toArray
+      val addedFeatures: Array[Double] = Array.fill(bothIndexes.length){0}
+
       var i: Int = 0
-      var addedFeatures: Array[Double] = Array()
-      var addedIndexes: Array[Int] = Array()
-      while(i<f.length) {
-        val sum = f(i) + this(i)
-        if(sum!=0) {
-          addedIndexes :+= i
-          addedFeatures :+= sum
-        }
+      for(index <- bothIndexes) {
+        val value1 = if(apply(index).isNaN()) 0.0 else apply(index)
+        val value2 = if(input(index).isNaN()) 0.0 else input(index)
+        addedFeatures(i) = value1 + value2
         i += 1
       }
-      new SparseInstance(addedIndexes, addedFeatures)
+      new SparseInstance(bothIndexes, addedFeatures)
     }
     case _ => new SparseInstance(indexes, values)
   }
 
   /** Perform an element by element multiplication between two instances
-   *
-   * @param input an Instance which is multiplied
-   * @return a SparseInstance representing the Hadamard product
-   */
+    *
+    * @param input an Instance which is multiplied
+    * @return a SparseInstance representing the Hadamard product
+    */
   override def hadamard(input: Instance): SparseInstance = input match {
     case SparseInstance(ind,v) => {
       var i: Int = 0
@@ -161,69 +152,82 @@ case class SparseInstance(inIndexes:Array[Int], inValues:Array[Double])
     case _ => new SparseInstance(indexes, values)
   }
 
-  /** Compute the Euclidean distance to another Instance 
-   *
-   * @param input the Instance to which the distance is computed
-   * @return a Double representing the distance value
-   */
+  /** Compute the Euclidean distance to another Instance
+    *
+    * @param input the Instance to which the distance is computed
+    * @return a Double representing the distance value
+    */
   override def distanceTo(input: Instance): Double = input match {
-    case SparseInstance(ind,v) => {
+    case SparseInstance(inputIndexes, _) => {
+      val bothIndexes: Array[Int] = indexes.toSet.union(inputIndexes.toSet).toArray
+      val powSubFeatures: Array[Double] = Array.fill(bothIndexes.length){0}
+
       var i: Int = 0
-      var sum: Double = 0.0
-      while(i<ind.length) {
-        if(v(i)!=0) sum += math.pow(v(i)-this(ind(i)),2)
+      for(index <- bothIndexes) {
+        val value1 = if(apply(index).isNaN()) 0.0 else apply(index)
+        val value2 = if(input(index).isNaN()) 0.0 else input(index)
+        powSubFeatures(i) = math.pow(value1 - value2, 2.0)
         i += 1
       }
-      i = 0
-      while(i<indexes.length) {
-        val other = input(indexes(i))
-        if(other==0) sum += math.pow(values(i),2)
-        i += 1
-      }
-      math.sqrt(sum)
+      math.sqrt(powSubFeatures.reduce(_+_))
     }
-    case DenseInstance(f) => input.distanceTo(this)
+    case DenseInstance(_) => {
+      // Range(0 to inputValues.length) are the indexes from the DenseInstance
+      val bothIndexes: Array[Int] = indexes.toSet.union(Range(0, input.getFeatureIndexArray().length).toSet).toArray
+      val powSubFeatures: Array[Double] = Array.fill(bothIndexes.length) {
+        0
+      }
+
+      var i: Int = 0
+      for (index <- bothIndexes) {
+        val value1 = if (apply(index).isNaN()) 0.0 else apply(index)
+        val value2 = if (input(index).isNaN()) 0.0 else input(index)
+        powSubFeatures(i) = math.pow(value1 - value2, 2.0)
+        i += 1
+      }
+      math.sqrt(powSubFeatures.reduce(_ + _))
+    }
     case _ => Double.MaxValue
   }
 
   /** Append a feature to the instance
-   *
-   * @param input the value which is added up
-   * @return a SparseInstance representing the new feature vector
-   */
+    *
+    * @param input the value which is added up
+    * @return a SparseInstance representing the new feature vector
+    */
   override def set(index: Int, input: Double): SparseInstance =
     new SparseInstance(indexes:+index,values:+input)
 
   /** Apply an operation to every feature of the Instance (essentially a map)
-   * @param func the function for the transformation
-   * @return a new SparseInstance with the transformed features
-   */
+    * @param func the function for the transformation
+    * @return a new SparseInstance with the transformed features
+    */
   override def map(func: Double=>Double): SparseInstance =
     new SparseInstance(indexes, values.map{case x => func(x)})
 
   /** Aggregate the values of an instance 
-   *
-   * @param func the function for the transformation
-   * @return the aggregated value
-   */
+    *
+    * @param func the function for the transformation
+    * @return the aggregated value
+    */
   override def reduce(func: (Double,Double)=>Double): Double =
     values.reduce(func)
 
   override def toString = (indexes zip values).map{ case (i,v) =>
-                            "%d:%f".format(i+1,v)}.mkString(",")
-  
+    "%d:%f".format(i+1,v)}.mkString(",")
+
 }
 
 object SparseInstance extends Serializable {
-  
+
   /** Parse the input string as an SparseInstance class, in LibSVM
-   * comma-separated format, where each feature is of the form "i:v" where i is
-   * the index of the feature (starting at 1), and v is the value of the
-   * feature.
-   *
-   * @param input the String line to be read, in LibSVM format
-   * @return a DenseInstance which is parsed from input
-   */
+    * comma-separated format, where each feature is of the form "i:v" where i is
+    * the index of the feature (starting at 1), and v is the value of the
+    * feature.
+    *
+    * @param input the String line to be read, in LibSVM format
+    * @return a DenseInstance which is parsed from input
+    */
   def parse(input: String): SparseInstance = {
     val tokens = input.split(",")
     val features = tokens.map(_.split(":"))

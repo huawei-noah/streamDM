@@ -8,6 +8,6 @@ libraryDependencies += "org.apache.spark" %% "spark-core" % "2.3.2"
 
 libraryDependencies += "org.apache.spark" % "spark-streaming_2.11" % "2.3.2"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
+libraryDependencies += "org.apache.spark" %% "spark-streaming-kafka" % "1.6.3"
 
-libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.6.3"
+libraryDependencies += "org.scalatest"  %% "scalatest"   % "3.0.8" % Test

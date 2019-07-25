@@ -20,8 +20,8 @@ package org.apache.spark.streamdm.core
 import org.scalatest.FunSuite
 
 /**
- * Test suite for the SparseInstance.
- */
+  * Test suite for the SparseInstance.
+  */
 class SparseInstanceSuite extends FunSuite {
 
   test("return its features given indices") {
@@ -29,14 +29,14 @@ class SparseInstanceSuite extends FunSuite {
     assert(instance(0) == 1.4)
     assert(instance(1) == 1.3)
     assert(instance(2) == 2.1)
-    }
+  }
 
-  test("return 0.0 for a out of bounds index") {
+  test("return NaN for a out of bounds index") {
     val instance = SparseInstance(Array(0,2), Array(1.4,2.1))
-    assert(instance(-1) == 0.0)
-    assert(instance(1) == 0.0)
-    assert(instance(3) == 0.0)
-    }
+    assert(instance(-1).isNaN())
+    assert(instance(1).isNaN())
+    assert(instance(3).isNaN())
+  }
 
   test("have a dot operation with another SparseInstance") {
     val instance1 = SparseInstance(Array(0,2), Array(1.4,2.1))
@@ -71,7 +71,7 @@ class SparseInstanceSuite extends FunSuite {
     val instance2 = SparseInstance(Array(1,2), Array(1.6, 2.0))
     val dist = instance1.distanceTo(instance2);
     val trueDist = math.sqrt(math.pow(1.4,2)+math.pow(1.6,2)+
-                   math.pow(2.1-2.0,2))
+      math.pow(2.1-2.0,2))
     assert(dist==trueDist)
   }
 
@@ -80,7 +80,7 @@ class SparseInstanceSuite extends FunSuite {
     val instance2 = DenseInstance(Array(0.0, 1.6, 2.0))
     val dist = instance1.distanceTo(instance2);
     val trueDist = math.sqrt(math.pow(1.4,2)+math.pow(1.6,2)+
-                   math.pow(2.1-2.0,2))
+      math.pow(2.1-2.0,2))
     assert(dist==trueDist)
   }
 
