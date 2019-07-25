@@ -21,8 +21,8 @@ import org.scalatest.FunSuite
 import math._
 
 /**
- * Test suite for the DenseInstance.
- */
+  * Test suite for the DenseInstance.
+  */
 class DenseInstanceSuite extends FunSuite {
 
   test("return its features given indices") {
@@ -30,13 +30,13 @@ class DenseInstanceSuite extends FunSuite {
     assert(instance(0) == 1.4)
     assert(instance(1) == 1.3)
     assert(instance(2) == 2.1)
-    }
+  }
 
-  test("return 0.0 for a out of bounds index") {
+  test("return Double.NaN for a out of bounds index") {
     val instance = DenseInstance(Array(1.4,1.3,2.1))
-    assert(instance(-1) == 0.0)
-    assert(instance(3) == 0.0)
-    }
+    assert(instance(-1).isNaN())
+    assert(instance(3).isNaN())
+  }
 
   test("have a dot operation with another DenseInstance") {
     val instance1 = DenseInstance(Array(1.4, 1.3, 2.1))
@@ -65,16 +65,7 @@ class DenseInstanceSuite extends FunSuite {
     val instance2 = DenseInstance(Array(0.4, 0.3, 1.1))
     val dist = instance1.distanceTo(instance2);
     val trueDist = math.sqrt(math.pow(1.4-0.4,2)+math.pow(1.3-0.3,2)+
-                   math.pow(2.1-1.1,2))
-    assert(dist==trueDist)
-  }
-
-  test("compute the distance to a SparseInstance") {
-    val instance1 = DenseInstance(Array(1.4, 1.3, 2.1))
-    val instance2 = SparseInstance(Array(1), Array(1.2))
-    val dist = instance1.distanceTo(instance2);
-    val trueDist = math.sqrt(math.pow(1.4,2)+math.pow(1.3-1.2,2)+
-                   math.pow(2.1,2))
+      math.pow(2.1-1.1,2))
     assert(dist==trueDist)
   }
 
@@ -95,7 +86,7 @@ class DenseInstanceSuite extends FunSuite {
   test("function for features") {
     val instance1 = DenseInstance(Array(1.4, 1.3, 2.1))
     val instance2 = instance1.map(f=>f+2.0)
-    (instance1.features zip instance2.features).map{case (x,y)=> 
+    (instance1.features zip instance2.features).map{case (x,y)=>
       assert(y==x+2.0)}
   }
 

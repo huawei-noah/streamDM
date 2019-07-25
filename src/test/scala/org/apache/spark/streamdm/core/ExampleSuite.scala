@@ -20,14 +20,14 @@ package org.apache.spark.streamdm.core
 import org.scalatest.FunSuite
 
 /**
- * Test suite for the Example.
- */
+  * Test suite for the Example.
+  */
 class ExampleSuite extends FunSuite {
 
   test("return its features given indices") {
     val example =  new Example(SparseInstance(Array(1,2), Array(1.4, 1.3)),
       DenseInstance(Array(1.0)))
-    assert(example.featureAt(0)==0.0)
+    assert(example.featureAt(0).isNaN())
     assert(example.featureAt(1)==1.4)
     assert(example.featureAt(2)==1.3)
   }
@@ -36,7 +36,7 @@ class ExampleSuite extends FunSuite {
     val example =  new Example(SparseInstance(Array(1,2), Array(1.4, 1.3)),
       DenseInstance(Array(1.0)))
     assert(example.labelAt(0)==1.0)
-    assert(example.labelAt(1)==0.0)
+    assert(example.labelAt(1).isNaN())
   }
 
   test("able to parse an input-only format")
@@ -45,7 +45,7 @@ class ExampleSuite extends FunSuite {
     val parsedExample = Example.parse(input,"sparse","dense")
     val testExample = new Example(SparseInstance(Array(0,2),Array(1.1,2.1)))
     assert(parsedExample.featureAt(0)==testExample.featureAt(0))
-    assert(parsedExample.featureAt(1)==testExample.featureAt(1))
+    assert(parsedExample.featureAt(1).isNaN())
     assert(parsedExample.featureAt(2)==testExample.featureAt(2))
     assert(parsedExample.labelAt(0)==0)
     assert(parsedExample.weight==1.0)
@@ -58,7 +58,7 @@ class ExampleSuite extends FunSuite {
     val testExample = new Example(SparseInstance(Array(0,2),Array(1.1,2.1)),
       DenseInstance(Array(1.0)))
     assert(parsedExample.featureAt(0)==testExample.featureAt(0))
-    assert(parsedExample.featureAt(1)==testExample.featureAt(1))
+    assert(parsedExample.featureAt(1).isNaN())
     assert(parsedExample.featureAt(2)==testExample.featureAt(2))
     assert(parsedExample.labelAt(0)==testExample.labelAt(0))
     assert(parsedExample.weight==1.0)
@@ -71,7 +71,7 @@ class ExampleSuite extends FunSuite {
     val testExample = new Example(SparseInstance(Array(0,2),Array(1.1,2.1)),
       DenseInstance(Array(1.0)))
     assert(parsedExample.featureAt(0)==testExample.featureAt(0))
-    assert(parsedExample.featureAt(1)==testExample.featureAt(1))
+    assert(parsedExample.featureAt(1).isNaN())
     assert(parsedExample.featureAt(2)==testExample.featureAt(2))
     assert(parsedExample.labelAt(0)==testExample.labelAt(0))
     assert(parsedExample.weight==3.2)
