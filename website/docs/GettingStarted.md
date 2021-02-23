@@ -28,7 +28,7 @@ instances as a stream. Then a linear binary classifier is trained by using
 StochasticGradientDescent and the predictions are evaluted by outputting the
 confusion matrix.
 
-The example can be run by executing in commend line:
+The example can be run by executing in command line:
 
 * In the terminal, use the provided spark script to run the task (after
   modifying the `SPARK_HOME` variable with the folder of your Spark installation):
